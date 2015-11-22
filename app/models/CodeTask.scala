@@ -1,6 +1,5 @@
 package models
 
-//import com.twitter.util.Eval
 import tools.nsc.interpreter.IMain
 import tools.nsc.interpreter.Results
 import tools.nsc.Settings
@@ -18,21 +17,25 @@ class CodeTask(var description: String = "Empty", var code: String = "Empty", va
 		settings.noCompletion.value = false
 		val n = new IMain(settings)
 		val ex = new Execution
+		val out = new java.io.ByteArrayOutputStream
 
 		lazy val f = Future {
-			n.interpret(code + "\n" + test) match {
-				case Results.Error => ex.error = true;
-				case Results.Incomplete => ex.incomplete = true;
-				case Results.Success => ex.success = true;
+			scala.Console.withOut(out) {
+				n.interpret(code + "\n" + test) match {
+					case Results.Error => ex.error = true;
+					case Results.Incomplete => ex.incomplete = true;
+					case Results.Success => ex.success = true;
+				}
 			}
 		}
-		
+
 		try {
 			Await.result(f, 10 second)
 		} catch {
 			case e: TimeoutException => ex.incomplete = true
 		}
 
+		ex.consoleOutput = out.toString()
 		ex
 	}
 }

@@ -1,0 +1,18 @@
+body {
+    overflow: hidden;
+    color: #01313f;
+    background-color: #D2D2D2;
+}
+#editor {
+    width: 600px;
+    height: 400px;
+    border: 5px solid #01313f;
+}
+#console {
+	color: #93a09f;
+	width: 600px;
+	height: 400px;
+	padding: 5px;
+	border: 0px;
+	background-color: #01313f;
+}

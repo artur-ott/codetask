@@ -1,0 +1,23 @@
+@(codeTask: models.CodeTask)
+
+@main("Welcome to Play") {
+
+
+
+<p>@codeTask.description</p>
+
+<div style="width: 200px;"><pre id="editor">@codeTask.code</pre></div>
+<textarea id="console">Console</textarea>
+
+<script src="src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/solarized_dark");
+    editor.session.setMode("ace/mode/scala");
+</script>
+
+<form id="form1" method="post" action="interpret">
+<input type="submit" name="button" id="button" value="Send" />
+</form>
+
+}
