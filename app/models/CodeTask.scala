@@ -4,8 +4,12 @@ package models
 import tools.nsc.interpreter.IMain
 import tools.nsc.interpreter.Results
 import tools.nsc.Settings
+import scala.concurrent._
+import scala.concurrent.duration._
+import ExecutionContext.Implicits.global
+import java.util.concurrent.TimeoutException
 
-class Execution(val error: Boolean = false, val incomplete: Boolean = false, val success: Boolean = false, val consoleOutput: String = "")
+class Execution(var error: Boolean = false, var incomplete: Boolean = false, var success: Boolean = false, var consoleOutput: String = "")
 
 class CodeTask(var description: String = "Empty", var code: String = "Empty", var test: String = "Empty") {
 	def run(): Execution = {
@@ -15,10 +19,20 @@ class CodeTask(var description: String = "Empty", var code: String = "Empty", va
 		val n = new IMain(settings)
 		val ex = new Execution
 
-		n.interpret(code + "\n" + test) match {
-			case Results.Error => new Execution(error = true)
-			case Results.Incomplete => new Execution(incomplete = true)
-			case Results.Success => new Execution(success = true)
+		lazy val f = Future {
+			n.interpret(code + "\n" + test) match {
+				case Results.Error => ex.error = true;
+				case Results.Incomplete => ex.incomplete = true;
+				case Results.Success => ex.success = true;
+			}
 		}
+		
+		try {
+			Await.result(f, 10 second)
+		} catch {
+			case e: TimeoutException => ex.incomplete = true
+		}
+
+		ex
 	}
 }

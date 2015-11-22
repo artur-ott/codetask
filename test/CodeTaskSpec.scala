@@ -26,6 +26,7 @@ class CodeTaskSpec extends Specification {
 
 /*
 TODO:
-- infinite loop -> thread nach zeit stoppen
+- CONSTANTE für await zeit
 - consolen ausgabe abfangen
+- 
 */
