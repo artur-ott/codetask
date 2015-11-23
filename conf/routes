@@ -4,8 +4,9 @@
 
 # Home page
 GET     /                           controllers.Application.index
-GET     /test                           controllers.Application.test
-#POST    /interpret                  controllers.Application.interpret
+GET     /testInterpret/:code        controllers.Application.testInterpret(code: String)
+#GET     /test                       controllers.Application.test
+#POST    /interpret                 controllers.Application.interpret
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

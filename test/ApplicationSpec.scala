@@ -26,5 +26,11 @@ class ApplicationSpec extends Specification {
       contentType(home) must beSome.which(_ == "text/html")
       contentAsString(home) must contain ("Your new application is ready.")
     }
+
+    "send console output" in new WithApplication {
+      val out = route(FakeRequest(GET, "/testInterpret/println(1+41)")).get
+      contentType(out) must beSome.which(_ == "text/plain")
+      contentAsString(out) must contain ("42")
+    }
   }
 }
