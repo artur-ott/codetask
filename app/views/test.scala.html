@@ -2,22 +2,35 @@
 
 @main("Welcome to Play") {
 
+<div id="navright" class="col-md-4"></div>
+<div id="workspace" class="col-md-8">
+	<p>@codeTask.description</p>
 
+	<div style="width: 200px;"><pre id="editor">@codeTask.code</pre></div>
+	
+	<form id="form1" method="post" action="interpret">
+	<input type="submit" name="button" id="button" value="Send" />
+	</form>
 
-<p>@codeTask.description</p>
+	<textarea id="consoleOutput">@codeTask.code</textarea>
 
-<div style="width: 200px;"><pre id="editor">@codeTask.code</pre></div>
-<textarea id="console">Console</textarea>
+	<script src="src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+	    var editor = ace.edit("editor");
+	    editor.setTheme("ace/theme/solarized_dark");
+	    editor.session.setMode("ace/mode/scala");
 
-<script src="src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-<script>
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/solarized_dark");
-    editor.session.setMode("ace/mode/scala");
-</script>
-
-<form id="form1" method="post" action="interpret">
-<input type="submit" name="button" id="button" value="Send" />
-</form>
+	    function sendCode() {
+	    	$.post("interpret", {code: editor.getValue()})
+	    		.done(function(data){
+	    			console.log(data);
+	    			$("consoleOutput").value = data.consoleOutput;
+	    		})
+	    		.fail(function() {
+	    			$("consoleOutput").value = "Request failed";
+	    		})
+	    }
+	</script>
+</div>
 
 }

@@ -6,14 +6,11 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.6"
 
-resolvers += "Twitter repo" at "http://maven.twttr.com/"
-
 libraryDependencies ++= Seq(
   jdbc,
   cache,
   ws,
   specs2 % Test,
-  //"com.twitter" % "util-eval_2.10" % "6.1.0",
   "org.scala-lang" % "scala-compiler" % "2.11.6"
 )
 

@@ -14,7 +14,6 @@ class CodeTask(var description: String = "Empty", var code: String = "Empty", va
 	def run(): Execution = {
 		val settings = new Settings
 		settings.usejavacp.value = true
-		settings.noCompletion.value = false
 		val n = new IMain(settings)
 		val ex = new Execution
 		val out = new java.io.ByteArrayOutputStream

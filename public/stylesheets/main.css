@@ -1,18 +1,30 @@
 body {
-    overflow: hidden;
     color: #01313f;
     background-color: #D2D2D2;
 }
 #editor {
+    height: 300px;
     width: 600px;
-    height: 400px;
+    left: 0px;
+    right: 0px;
     border: 5px solid #01313f;
 }
-#console {
-	color: #93a09f;
+#consoleOutput {
+	position: absolute;
+	height: 200px;
 	width: 600px;
-	height: 400px;
 	padding: 5px;
+	margin-top: 5px;
 	border: 0px;
+	color: #93a09f;
 	background-color: #01313f;
+}
+#navright {
+	height: 90%;
+}
+#workspace {
+	position: absolute;
+	bottom: 0;
+	top: 0;
+	right: 0;
 }
