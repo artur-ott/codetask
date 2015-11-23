@@ -1,18 +1,14 @@
-@(codeTask: models.CodeTask)
-
-@main("Welcome to Play") {
+@main("Test") {
 
 <div id="navright" class="col-md-4"></div>
 <div id="workspace" class="col-md-8">
-	<p>@codeTask.description</p>
+	<p>Taskdeskription</p>
 
-	<div style="width: 200px;"><pre id="editor">@codeTask.code</pre></div>
+	<div style="width: 200px;"><pre id="editor">//Code hier</pre></div>
 	
-	<form id="form1" method="post" action="interpret">
-	<input type="submit" name="button" id="button" value="Send" />
-	</form>
+	<input type="submit" name="button" id="button" value="Send" onclick="sendCode()"/>
 
-	<textarea id="consoleOutput">@codeTask.code</textarea>
+	<div id="consoleOutput"></div><br>
 
 	<script src="src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 	<script>
@@ -21,13 +17,13 @@
 	    editor.session.setMode("ace/mode/scala");
 
 	    function sendCode() {
-	    	$.post("interpret", {code: editor.getValue()})
+	    	$.get("testInterpret/" + editor.getValue())
 	    		.done(function(data){
 	    			console.log(data);
-	    			$("consoleOutput").value = data.consoleOutput;
+	    			$("#consoleOutput").text(data);
 	    		})
 	    		.fail(function() {
-	    			$("consoleOutput").value = "Request failed";
+	    			$("#consoleOutput").text("Request failed");
 	    		})
 	    }
 	</script>

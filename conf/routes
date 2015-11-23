@@ -5,7 +5,7 @@
 # Home page
 GET     /                           controllers.Application.index
 GET     /testInterpret/:code        controllers.Application.testInterpret(code: String)
-#GET     /test                       controllers.Application.test
+GET     /test                       controllers.Application.test
 #POST    /interpret                 controllers.Application.interpret
 
 # Map static resources from the /public folder to the /assets URL path

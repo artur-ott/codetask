@@ -12,6 +12,10 @@ class Application extends Controller {
 		Ok(views.html.index("Your new application is ready."))
 	}
 
+	def test = Action {
+		Ok(views.html.test())
+	}
+
 	def testInterpret(code: String) = Action {
 		Ok(new CodeTask("", code, "").run().consoleOutput)
 	}
