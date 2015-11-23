@@ -2,13 +2,13 @@
 
 <div id="navright" class="col-md-4"></div>
 <div id="workspace" class="col-md-8">
-	<p>Taskdeskription</p>
+	<!-- <p>Taskdeskription</p> --><br><br><br>
 
 	<div style="width: 200px;"><pre id="editor">//Code hier</pre></div>
 	
 	<input type="submit" name="button" id="button" value="Send" onclick="sendCode()"/>
 
-	<div id="consoleOutput"></div><br>
+	<pre id="consoleOutput"></pre><br>
 
 	<script src="src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 	<script>
@@ -16,15 +16,26 @@
 	    editor.setTheme("ace/theme/solarized_dark");
 	    editor.session.setMode("ace/mode/scala");
 
+	    var ws = new WebSocket("ws://localhost:9000/testSocket");
+	    ws.onmessage = function(event) {
+	    	console.log(event.data);
+	    	$("#consoleOutput").text(event.data);
+	    };
+
+	    $(document).keypress("#", function(event) {
+	    	if (event.ctrlKey) sendCode();
+	    });
+
 	    function sendCode() {
-	    	$.get("testInterpret/" + editor.getValue())
+	    	ws.send(editor.getValue());
+	    	/*$.get("testInterpret/" + editor.getValue())
 	    		.done(function(data){
 	    			console.log(data);
 	    			$("#consoleOutput").text(data);
 	    		})
 	    		.fail(function() {
 	    			$("#consoleOutput").text("Request failed");
-	    		})
+	    		})*/
 	    }
 	</script>
 </div>

@@ -12,7 +12,7 @@ import java.io.File
 
 class Execution(var error: Boolean = false, var incomplete: Boolean = false, var success: Boolean = false, var consoleOutput: String = "")
 
-class CodeTask(var description: String = "Empty", var code: String = "Empty", var test: String = "Empty") {
+class CodeTask(var description: String = "", var code: String = "", var test: String = "") {
 	/*def run2(): Execution = {
 		val ex = new Execution
 		val out = new java.io.ByteArrayOutputStream
@@ -36,16 +36,17 @@ class CodeTask(var description: String = "Empty", var code: String = "Empty", va
 		ex.consoleOutput = out.toString()
 		ex
 	}*/
+
 	def run(): Execution = {
 		val settings = new Settings
 		//settings.usejavacp.value = true
 
 		// borrowed: http://stackoverflow.com/questions/16511233/scala-tools-nsc-imain-within-play-2-1
-	    settings.bootclasspath.value +=scala.tools.util.PathResolver.Environment.javaBootClassPath + File.pathSeparator + "lib/scala-library.jar"
-	    val n = new IMain(settings){
+		settings.bootclasspath.value += scala.tools.util.PathResolver.Environment.javaBootClassPath + File.pathSeparator + "lib/scala-library.jar"
+		val n = new IMain(settings){
 			override protected def parentClassLoader = settings.getClass.getClassLoader()
-	    }
-	    // /borrowed
+		}
+		// /borrowed
 
 		//val n = new IMain(settings)
 		val ex = new Execution
