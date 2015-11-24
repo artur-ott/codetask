@@ -18,7 +18,7 @@
 			display: inline-block;
 			height: 300px;
 			width: 50%;
-			margin-bottom: 0;
+			margin-bottom: -4px;
 		}
 		.button {
 			font-size: 100%;
@@ -28,6 +28,7 @@
 			text-align: center;
 			vertical-align: text-top;
 			background-color: #097C2C;
+			border: 0px;
 			border-bottom-left-radius: 25px;
 			border-bottom-right-radius: 25px;
 		}
@@ -49,38 +50,27 @@
 				var co = document.createElement("PRE");
 				var btn = document.createElement("BUTTON");
 
-				// set ids
-				editor.id = this.id + "-editor";
-				co.id = this.id + "-console-output";
-				btn.id = this.id + "-button";
-
 				btn.textContent = "Run";
 
-				// set classes
-				editor.classList.add("editor");
-				co.classList.add("console-output");
-				btn.classList.add("button");
+				var t = this;
+				var ids = ["editor", "console-output", "button"];
 
-				// store code
-				//var code = this.textContent;
-				//this.textContent = "";
-
-				// append
-				this.appendChild(editor);
-				this.appendChild(co);
-				this.appendChild(btn);
+				[editor, co, btn].forEach(function(n, i) {
+					n.id = t.id + "-" + ids[i];
+					n.classList.add(ids[i]);
+					t.appendChild(n);
+				});
 
 				// init ace
 				this.editor = ace.edit(editor.id);
 				this.editor.setTheme("ace/theme/solarized_dark");
 				this.editor.session.setMode(this.getAttribute("language") || "ace/mode/scala");
-
 				this.editor.setValue(this.getAttribute("code") || "");
 
 				var f = function(s) {co.textContent = s;};
 				this.setConsole = f;
-
 				var e = this.editor;
+
 				btn.onclick = function() {
 					f(e.getValue());
 				};
