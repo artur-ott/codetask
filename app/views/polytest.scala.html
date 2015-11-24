@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+    	<script src="@routes.Assets.versioned("bower_components/webcomponentsjs/webcomponents-lite.min.js")" type="text/javascript"></script>
+    	<link rel="import" href="@routes.Assets.versioned("elements/compile-task.html")">
+    </head>
+    <body>
+    	@defining("def f(b: Int): Int = {\n    2\n}") { code =>
+			<compile-task id="ct1" code="@code"></compile-task>
+		}
+    </body>
+</html>

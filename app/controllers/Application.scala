@@ -14,7 +14,7 @@ class Application extends Controller {
 	}
 
 	def test = Action {
-		Ok(views.html.test())
+		Ok(views.html.polytest())
 	}
 
 	def testInterpret(code: String) = Action {
