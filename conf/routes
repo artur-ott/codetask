@@ -3,7 +3,9 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET     /login                      controllers.Auth.login
+GET     /authenticate               controllers.Auth.authenticate
+GET     /index                      controllers.Application.index
 GET     /testInterpret/:code        controllers.Application.testInterpret(code: String)
 GET     /test                       controllers.Application.test
 GET     /testSocket                 controllers.Application.socket

@@ -1,0 +1,25 @@
+@(myForm: Form[(String, String)])
+
+@helper.form(action = routes.Auth.authenticate) {
+
+	
+        @myForm.globalError.map { error =>
+        <p class="error">
+            @error.message
+        </p>
+        }
+
+    
+     <p>
+            <input type="email" name="email" placeholder="Email" value="@myForm("email").value">
+        </p>
+
+        <p>
+            <input type="password" name="password" placeholder="Password">
+        </p>
+
+        <p>
+            <button class="btn" type="submit">Login</button>
+        </p>
+    
+}
