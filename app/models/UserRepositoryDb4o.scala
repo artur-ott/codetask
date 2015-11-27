@@ -2,7 +2,7 @@ package models
 
 import com.db4o.Db4o
 
-class UserRepository1 extends UserRepository {
+class UserRepositoryDb4o extends UserRepository {
 	def findOneByUsername(username: String): Option[User] = {
  		var client = UserRepository1.objectServer.openClient();
 
@@ -32,12 +32,17 @@ class UserRepository1 extends UserRepository {
  				x.username = user.username
  				x.authority = user.authority
  				x.password = user.password
+ 				x.courses = user.courses
  				client.store(x)
  				client.commit()
  				client.close(); 
  				Some(x)
  			case _       => client.close(); None
  		}
+	}
+
+	def delete(user: User): Option[User] = {
+		deleteOneByUsername(user.username)
 	}
 
 	def deleteOneByUsername(username: String): Option[User] = {

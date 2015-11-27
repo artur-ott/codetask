@@ -1,5 +1,5 @@
 package models
 
 object Config {
-	lazy val userRepository = new UserRepository1
+	lazy val userRepository = new UserRepositoryDb4o
 }
