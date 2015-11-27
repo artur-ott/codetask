@@ -4,8 +4,7 @@ import com.db4o.Db4o
 
 class UserRepositoryDb4o extends UserRepository {
 	def findOneByUsername(username: String): Option[User] = {
- 		var client = UserRepository1.objectServer.openClient();
-
+ 		var client = ServerSingleton.objectServer.openClient();
  		new A(client) query {user: User => user.username == username} match {
  			case x :: xs => client.close(); Some(x)
  			case _       => client.close(); None
@@ -13,7 +12,7 @@ class UserRepositoryDb4o extends UserRepository {
 	}
 
 	def create(user: User): Option[User] = {
- 		val client = UserRepository1.objectServer.openClient();
+ 		val client = ServerSingleton.objectServer.openClient();
  		new A(client) query {u: User => u.username == user.username} match {
  			case x :: xs => None
  			case _       => 
@@ -25,8 +24,7 @@ class UserRepositoryDb4o extends UserRepository {
 	}
 
 	def update(user: User): Option[User] = {
- 		var client = UserRepository1.objectServer.openClient();
-
+ 		var client = ServerSingleton.objectServer.openClient();
  		new A(client) query {u: User => u.username == user.username} match {
  			case x :: xs => 
  				x.username = user.username
@@ -42,13 +40,8 @@ class UserRepositoryDb4o extends UserRepository {
 	}
 
 	def delete(user: User): Option[User] = {
-		deleteOneByUsername(user.username)
-	}
-
-	def deleteOneByUsername(username: String): Option[User] = {
-		val client = UserRepository1.objectServer.openClient();
-
- 		new A(client) query {user: User => user.username == username} match {
+		val client = ServerSingleton.objectServer.openClient();
+ 		new A(client) query {u: User => u.username == user.username} match {
  			case x :: xs => 
  				client.delete(x)
  				client.commit()
@@ -59,7 +52,53 @@ class UserRepositoryDb4o extends UserRepository {
 	}
 }
 
-object UserRepository1 {
+class CourseRepositoryDb4o() extends CourseRepository {
+	def findOneByName(name: String): Option[Course] = {
+		var client = ServerSingleton.objectServer.openClient();
+ 		new A(client) query {course: Course => course.name == name} match {
+ 			case x :: xs => client.close(); Some(x)
+ 			case _       => client.close(); None
+ 		}
+	}
+	def create(course: Course): Option[Course] = {
+		val client = ServerSingleton.objectServer.openClient();
+ 		new A(client) query {c: Course => c.name == course.name} match {
+ 			case x :: xs => None
+ 			case _       => 
+ 				client.store(course)
+				client.commit()
+				client.close()
+				Some(course)
+ 		}
+	}
+	def update(course: Course): Option[Course] = {
+ 		var client = ServerSingleton.objectServer.openClient();
+ 		new A(client) query {c: Course => c.name == course.name} match {
+ 			case x :: xs => 
+ 				x.name = course.name
+ 				x.chapters = course.chapters
+ 				client.store(x)
+ 				client.commit()
+ 				client.close(); 
+ 				Some(x)
+ 			case _       => client.close(); None
+ 		}
+	}
+	def delete(course: Course): Option[Course] = {
+		val client = ServerSingleton.objectServer.openClient();
+ 		new A(client) query {c: Course => c.name == course.name} match {
+ 			case x :: xs => 
+ 				client.delete(x)
+ 				client.commit()
+ 				client.close()
+ 				Some(x)
+ 			case _       => client.close(); None
+ 		}
+	}
+}
+
+
+object ServerSingleton {
 	val objectServer = Db4o.openServer("codetask.data", 0)
 }
 
