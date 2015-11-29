@@ -1,6 +1,7 @@
 package models
 
-class User(var username: String, var authority: String, var password: String, var courses: List[String])
+// courses: Map[coursename, Map[chaptername, Map[taskname, solution]]]
+class User(var username: String, var authority: String, var password: String, var courses: Map[String, Map[String, Map[String, String]]] = Map())
 
 trait UserRepository {
 	def findOneByUsername(username: String): Option[User]
