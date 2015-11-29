@@ -13,11 +13,11 @@ class Test extends FlatSpec with Matchers {
     val mRegular = Test.videoRegular.parse
     val mNewlines = Test.videoNewlines.parse
     val mMultiple = Test.videoMultiple.parse
-    mRegular should equal(Map(("video1", 5) -> Map("description" -> "description()", "url" -> "http://url")))
-    mNewlines should equal(Map(("video1", 5) -> Map("description" -> "description()", "url" -> "http://url")))
-    mMultiple should equal(Map(("video1", 5) -> Map("description" -> "description()", "url" -> "http://url"),
-                               ("video2", 53) -> Map("description" -> "description2()", "url" -> "http://url2")))
-  }
+    mRegular should equal(Map(5 -> ("video1", Map("description" -> "description()", "url" -> "http://url"))))
+    mNewlines should equal(Map(5 -> ("video1", Map("description" -> "description()", "url" -> "http://url"))))
+    mMultiple should equal(Map(5 -> ("video1", Map("description" -> "description()", "url" -> "http://url")),
+                              53 -> ("video2", Map("description" -> "description2()", "url" -> "http://url2"))))
+}
   
   "Parser#parse" should "parse koan into map" in {
     val mRegular = Test.koanRegular.parse
@@ -25,20 +25,20 @@ class Test extends FlatSpec with Matchers {
     val mRecursive = Test.koanRecursive.parse
     val mMultiple = Test.koanMultiple.parse
     
-    mRegular should equal(Map(("koan1", 5) -> Map("description" -> "a koan", "code" -> "1 should be __", "solutions" -> "1")))
-    mNewlines should equal(Map(("koan1", 5) -> Map("description" -> "a koan", "code" -> "some code{}\n\"text\" should be __", "solutions" -> "\"text\"")))
-    mRecursive should equal(Map(("koan1", 5) -> Map("description" -> "a koan", "code" -> "if(what) {\ndo that\n}\nsome code{}\n1 should be __", "solutions" -> "1")))
-    mMultiple should equal(Map(("koan1", 5) -> Map("description" -> "a koan", "code" -> "if(what) {\ndo that\n}\nsome code{}\n1 should be __", "solutions" -> "1"),
-                                ("koan2", 85) -> Map("description" -> "a koan", "code" -> "if(what) {\ndo that\n}\nsome code{}\n1 should be __", "solutions" -> "1")))
-  }
+    mRegular should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "1 should be __", "solutions" -> "1"))))
+    mNewlines should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "some code{}\n\"text\" should be __", "solutions" -> "\"text\""))))
+    mRecursive should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "if(what) {\ndo that\n}\nsome code{}\n1 should be __", "solutions" -> "1"))))
+    mMultiple should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "if(what) {\ndo that\n}\nsome code{}\n1 should be __", "solutions" -> "1")),
+                                85 -> ("koan2", Map("description" -> "a koan", "code" -> "if(what) {\ndo that\n}\nsome code{}\n1 should be __", "solutions" -> "1"))))
+ }
   
   "Parser#parse" should "parse codetask into map" in {
     val mRegular = Test.codeTaskRegular.parse
     val mMultiple = Test.codeTaskMultiple.parse
     
-    mRegular should equal(Map(("codetask1", 5) -> Map("description" -> "a codetask", "code" -> "def x() =>\n  //solve\n", "test" -> "assert(true)\n")))
-    mMultiple should equal(Map(("codetask1", 5) -> Map("description" -> "a codetask", "code" -> "def x() =>\n  //solve\n", "test" -> "assert(true)\n"),
-                               ("codetask2", 119) -> Map("description" -> "a codetask", "code" -> "def x() =>\n  //solve\n", "test" -> "assert(true)\n")))
+    mRegular should equal(Map(5 -> ("codetask1", Map("description" -> "a codetask", "code" -> "def x() =>\n  //solve\n", "test" -> "assert(true)\n"))))
+    mMultiple should equal(Map(5 -> ("codetask1", Map("description" -> "a codetask", "code" -> "def x() =>\n  //solve\n", "test" -> "assert(true)\n")),
+                               119 -> ("codetask2", Map("description" -> "a codetask", "code" -> "def x() =>\n  //solve\n", "test" -> "assert(true)\n"))))
   }
   
   "Parser#parse" should "parse fileText into valid json map" in {
@@ -84,12 +84,12 @@ class AboutLists extends CodeTaskSuite {
     		case h :: tail => rvrs(tail) ::: List(h)
     		case _       => Nil
     	}
-    	//this
+    	//endsolve
   	}
   
   	//test
   	rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
-  	//this
+  	//endtest
   }  
 }"""
   

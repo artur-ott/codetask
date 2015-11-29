@@ -16,8 +16,8 @@ class Parser(s: String) {
   var videos = 0;
   var koans = 0;
   var codetasks = 0;
-  var map = Map[(String, Int), Map[String, String]]()
-  //var map = TreeMap[Int, (String, Map[String, String])]()
+  //var map = Map[(String, Int), Map[String, String]]()
+  var map = TreeMap[Int, (String, Map[String, String])]()
   
   val video = """video\s*\(\s*(\"\"\"([\s\S]*)\"\"\"|\"(.+)\")(\s*,?\s*)(\"\"\"(.+)\"\"\"|\"(.+)\")\s*\)""".r
   val koan = """koan\s*\(\s*(\"\"\"([\s\S]*)\"\"\"|\"(.+)\"\s*\)(\s*\{))""".r
@@ -30,7 +30,7 @@ class Parser(s: String) {
     matches.foreach { m =>
       val index = s.indexOf(m.toString)
       videos += 1
-      map = map + (("video" + videos, index) -> Map("description" -> m.group(3).stripMargin('|'), "url" -> m.group(7)))
+      map = map + (index -> ("video" + videos, Map("description" -> m.group(3).stripMargin('|'), "url" -> m.group(7))))
     }
   }
   
@@ -78,7 +78,7 @@ class Parser(s: String) {
         } 
       }
       
-      map = map + (("koan" + koans, index) -> Map("description" -> description, "code" -> code.toString, "solutions" -> solutions.mkString(";")))
+      map = map + (index -> ("koan" + koans, Map("description" -> description, "code" -> code.toString, "solutions" -> solutions.mkString(";"))))
       
       // add one so the next match is processed
       index += 1
@@ -115,7 +115,7 @@ class Parser(s: String) {
       }
       
       
-      map = map + (("codetask" + codetasks, index) -> Map("description" -> description, "code" -> code.toString, "test" -> testCode))
+      map = map + (index -> ("codetask" + codetasks, Map("description" -> description, "code" -> code.toString, "test" -> testCode)))
       
       // add one so the next match is processed
       index += 1
@@ -141,20 +141,16 @@ class Parser(s: String) {
     (index, end)
   }
   
-  def sort {
-    map = ma
-  }
-  
-  def parse: Map[(String, Int), Map[String, String]] = {
+  def parse: TreeMap[Int, (String, Map[String, String])] = {
     parseVideos
     parseKoans
     parseCodeTasks
-    sort
     map
   }
   
   def parseToJson(title: String) {
     parse
+    println(map)
     "none"
   }
 }
