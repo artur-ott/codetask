@@ -41,12 +41,11 @@ class Test extends FlatSpec with Matchers {
                                ("codetask2", 119) -> Map("description" -> "a codetask", "code" -> "def x() =>\n  //solve\n", "test" -> "assert(true)\n")))
   }
   
-  "Parser#parse" should "parse text into valid map" in {
-    assert(true)
+  "Parser#parse" should "parse fileText into valid json map" in {
+    val json = Test.fileText.parseToJson("AboutTest")
+    json should equal(Test.json)
   }
 }
-
-
 
 object Test {
   val videoRegular = "code\nvideo(\"description()\", \"http://url\")\ncode"
@@ -68,16 +67,14 @@ import support.CodeTaskSuite
 import org.scalatest.Matchers
 
 class AboutLists extends CodeTaskSuite {
-  video(""" + "\"\"\"" + """What's an extractor? In Scala it's a method in any `object` called `unapply`, and that method
-       | is used to disassemble the object given by returning a tuple wrapped in an option. Extractors can be used
-       | to assign values.""" + "\"\"\"" + """, "http://youtube/watch?lpk42")
+  video("description", "http://youtube/watch?lpk42")
 
   koan("das ist ein koan eine aufgabe mit fehlenden assert werten") {
-  	result should equal (3) // can customize equality
-    result should === (3)   // can customize equality and enforce type constraints
-    result should be (3)    // cannot customize equality, so fastest to compile
-    result shouldEqual 3    // can customize equality, no parentheses required
-    result shouldBe 3       // cannot customize equality, so fastest to compile, no parentheses required
+  	result should equal (3)
+    result should === (3)
+    result should be List(3, 2, 1)
+    result shouldEqual "text"
+    result shouldBe 3
   }
   
   codetask("schreiben sie eine function reverse die eine umgekehrte liste zurück geben") {
@@ -94,5 +91,26 @@ class AboutLists extends CodeTaskSuite {
   	rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
   	//this
   }  
+}"""
+  
+  val json =
+"""{
+  "chapter": {
+    "title": "AboutTest",
+    "tasks": {
+      "video1": {"description": "description", "url": "http://youtube/watch?lpk42"},
+      "koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten", code="  	result should equal (3)
+    result should === (__)
+    result should be __
+    result shouldEqual __
+    result shouldBe __", "solutions": ["3", "List(3, 2, 1)", "text", "3"]},
+      "codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben", "code": "def rvrs(l: List[Any]): List[Any] = {
+  	  //solve
+  	}
+  
+  	", "test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
+  	"}
+    }
+  }
 }"""
 }

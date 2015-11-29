@@ -4,6 +4,7 @@ import tasks._
 import org.scalatest._
 import scala.util.matching.Regex
 import scala.util.control.Exception
+import scala.collection.immutable.TreeMap
 
 case class MatchException(smth:String)  extends Exception(smth)
 
@@ -16,6 +17,7 @@ class Parser(s: String) {
   var koans = 0;
   var codetasks = 0;
   var map = Map[(String, Int), Map[String, String]]()
+  //var map = TreeMap[Int, (String, Map[String, String])]()
   
   val video = """video\s*\(\s*(\"\"\"([\s\S]*)\"\"\"|\"(.+)\")(\s*,?\s*)(\"\"\"(.+)\"\"\"|\"(.+)\")\s*\)""".r
   val koan = """koan\s*\(\s*(\"\"\"([\s\S]*)\"\"\"|\"(.+)\"\s*\)(\s*\{))""".r
@@ -139,11 +141,21 @@ class Parser(s: String) {
     (index, end)
   }
   
+  def sort {
+    map = ma
+  }
+  
   def parse: Map[(String, Int), Map[String, String]] = {
     parseVideos
     parseKoans
     parseCodeTasks
+    sort
     map
+  }
+  
+  def parseToJson(title: String) {
+    parse
+    "none"
   }
 }
 
