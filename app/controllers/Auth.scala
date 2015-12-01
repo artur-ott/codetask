@@ -18,6 +18,7 @@ class Auth extends Controller {
   )
 
   def check(username: String, password: String) = {
+    println(username)
     (username == "admin@no.de" && password == "1234")  
   }
 

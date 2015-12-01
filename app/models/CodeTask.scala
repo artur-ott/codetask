@@ -44,7 +44,7 @@ class CodeTask(var description: String = "", var code: String = "", var test: St
 		// borrowed: http://stackoverflow.com/questions/16511233/scala-tools-nsc-imain-within-play-2-1
 		settings.bootclasspath.value += scala.tools.util.PathResolver.Environment.javaBootClassPath + File.pathSeparator + "lib/scala-library.jar"
 		val n = new IMain(settings){
-			override protected def parentClassLoader = settings.getClass.getClassLoader()
+			override protected def parentClassLoader = this.getClass().getClassLoader()//settings.getClass.getClassLoader()
 		}
 		// /borrowed
 

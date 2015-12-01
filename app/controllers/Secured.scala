@@ -6,10 +6,12 @@ import play.api.data._
 import play.api.data.Forms._
 import models.{User, UserService, Config}
 
+object Services {
+    val userService = new UserService(Config)
+    userService.create(new User("myname", "student", "12", "string"))
+}
 
 trait Secured {
-  val userService = new UserService(Config)
-
   def username(request: RequestHeader) = request.session.get(Security.username)
 
   def onUnauthorized(request: RequestHeader) = Results.Redirect(routes.Auth.login)
@@ -25,7 +27,7 @@ trait Secured {
    * You will need to implement UserDAO.findOneByUsername
    */
   def withUser(f: User => Request[AnyContent] => Result) = withAuth { username => implicit request =>
-    userService.findOneByUsername(username).map { user =>
+    Services.userService.findOneByUsername(username).map { user =>
       f(user)(request)
     }.getOrElse(onUnauthorized(request))
   }

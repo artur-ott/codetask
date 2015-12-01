@@ -12,7 +12,7 @@ class Application extends Controller with Secured {
 		Ok(views.html.index("Your new application is ready."))
 	}
 
-	def test = withUser { username => implicit request =>
+	def test() = withUser { user => implicit request =>
 		Ok(views.html.polytest())
 	}
 

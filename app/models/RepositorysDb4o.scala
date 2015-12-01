@@ -97,8 +97,10 @@ class CourseRepositoryDb4o() extends CourseRepository {
 	}
 }
 
+import com.db4o.reflect.jdk.JdkReflector
 
 object ServerSingleton {
+	com.db4o.Db4o.configure().reflectWith(new JdkReflector( this.getClass().getClassLoader()))
 	val objectServer = Db4o.openServer("codetask.data", 0)
 }
 
