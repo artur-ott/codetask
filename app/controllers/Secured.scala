@@ -8,7 +8,6 @@ import models.{User, UserService, Config}
 
 object Services {
     val userService = new UserService(Config)
-    userService.create(new User("myname", "student", "12", "string"))
 }
 
 trait Secured {

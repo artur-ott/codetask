@@ -95,22 +95,22 @@ class AboutLists extends CodeTaskSuite {
   
   val json =
 """{
-  "chapter": {
-    "title": "AboutTest",
-    "tasks": {
-      "video1": {"description": "description", "url": "http://youtube/watch?lpk42"},
-      "koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten", code="  	result should equal (3)
+	"chapter": {
+		"title": "AboutTest",
+		"tasks": {
+			"video1": {"description": "description","url": "http://youtube/watch?lpk42"}
+			"koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten","code": "result should equal (__)
     result should === (__)
     result should be __
     result shouldEqual __
-    result shouldBe __", "solutions": ["3", "List(3, 2, 1)", "text", "3"]},
-      "codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben", "code": "def rvrs(l: List[Any]): List[Any] = {
+    result shouldBe __","solutions": "3;3;List(3, 2, 1);"text";3"}
+			"codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben","code": "def rvrs(l: List[Any]): List[Any] = {
   	  //solve
   	}
   
-  	", "test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
+  	","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
   	"}
-    }
-  }
+		}
+	}
 }"""
 }

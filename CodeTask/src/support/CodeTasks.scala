@@ -148,10 +148,20 @@ class Parser(s: String) {
     map
   }
   
-  def parseToJson(title: String) {
+  def parseToJson(title: String):String = {
     parse
-    println(map)
-    "none"
+    var json = "{\n\t\"chapter\": {\n\t\t\"title\": \"%s\",\n\t\t\"tasks\": {\n".format(title)
+    // convert map to json string
+    map foreach { task =>
+      json = json + "\t\t\t\"%s\": {".format(task._2._1)
+      task._2._2 foreach { value =>
+        json = json + "\"%s\": \"%s\",".format(value._1, value._2)
+      }
+      // remove last ,
+      json = json.slice(0, json.size - 1)
+      json = json + "}\n"
+    }
+    json + "\t\t}\n\t}\n}"
   }
 }
 

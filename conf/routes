@@ -3,11 +3,20 @@
 # ~~~~
 
 # Home page
+GET     /                           controllers.Application.index
 GET     /login                      controllers.Auth.login
-GET     /authenticate               controllers.Auth.authenticate
-GET     /index                      controllers.Application.index
-GET     /testInterpret/:code        controllers.Application.testInterpret(code: String)
+GET     /logout                     controllers.Auth.logout
+GET     /register                   controllers.Auth.register
+POST    /submit                     controllers.Auth.submit
+POST    /authenticate               controllers.Auth.authenticate
+
+GET     /course/remove/:course      controllers.Application.testInterpret(course: String)
+
+GET     /dashboard                  controllers.Application.dashboard
+
 GET     /test                       controllers.Application.test
+GET     /securteTest                controllers.Application.secureTest
+GET     /testInterpret/:code        controllers.Application.testInterpret(code: String)
 GET     /testSocket                 controllers.Application.socket
 #POST    /interpret                 controllers.Application.interpret
 

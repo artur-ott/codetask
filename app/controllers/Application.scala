@@ -4,15 +4,15 @@ import play.api._
 import play.api.mvc._
 import play.api.libs.functional.syntax._
 import play.api.Play.current
-import models.CodeTask
+import models.{CodeTask, User}
 
 class Application extends Controller with Secured {
 
-	def index = Action {
-		Ok(views.html.index("Your new application is ready."))
+	def index() = Action {
+		Redirect(routes.Auth.login)
 	}
 
-	def test() = withUser { user => implicit request =>
+	def secureTest() = withUser { user => implicit request =>
 		Ok(views.html.polytest())
 	}
 
@@ -22,6 +22,17 @@ class Application extends Controller with Secured {
 
 	def socket = WebSocket.acceptWithActor[String, String] { request => out =>
 		MyWebSocketActor.props(out)
+	}
+
+	def test() = Action {
+		Ok("Your Application is ready.")
+	}
+
+	def dashboard = Action {//withUser { user => implicit request =>
+		Ok(views.html.dashboard(List(
+			("Scala Beginner", 96),
+			("Scala Regular", 20),
+			("Scala Expert", 50))))
 	}
 }
 

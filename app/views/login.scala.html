@@ -1,25 +1,22 @@
-@(myForm: Form[(String, String)])
+@(loginForm: Form[(String, String)])(implicit flash: Flash)
 
-@helper.form(action = routes.Auth.authenticate) {
 
-	
-        @myForm.globalError.map { error =>
-        <p class="error">
-            @error.message
-        </p>
+@main("login") {
+    <div class="container vcenter">
+        @helper.form(action = routes.Auth.authenticate) {
+
+            @flash.get("success").map { message =>
+                <div class="alert alert-info">@message</div>
+            }
+
+            @loginForm.globalError.map { error =>
+                <div class="alert alert-warning">@error.message</div>
+            }
+            
+            <p><input type="email" name="email" placeholder="Email" value="@loginForm("email").value"></p>
+            <p><input type="password" name="password" placeholder="Password"></p>
+            <p><button class="btn standard" type="submit">Login</button></p>
+            <span>You can register </span><a href="/register">here</a>
         }
-
-    
-     <p>
-            <input type="email" name="email" placeholder="Email" value="@myForm("email").value">
-        </p>
-
-        <p>
-            <input type="password" name="password" placeholder="Password">
-        </p>
-
-        <p>
-            <button class="btn" type="submit">Login</button>
-        </p>
-    
+    </div>
 }

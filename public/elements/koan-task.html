@@ -1,0 +1,44 @@
+<link rel="import"
+	  href="../bower_components/polymer/polymer.html">
+
+<dom-module id="koan-task.html">
+	<template>
+		<div id="koan1">
+			<div class="line">var x = 1</div>
+			<div class="line">var y = 5</div>
+			<div class="line">y should be (</div><span contenteditable="true" class="solution" ></span><div class="line">)</div>
+			<div class="line">oderso</div><span></span>
+		</div>
+	</template>
+
+	<style>
+		.line {
+				display: inline-block;
+		}
+		.solution {
+			display: inline-block;
+			width: auto !important;
+			height: 20px;
+			min-width: 30px;
+			max-width: 50%;
+			padding-right: 5px;
+			padding-left: 5px;
+			text-align: center;
+			vertical-align: middle;
+			color: green;
+			/*border-bottom: 1px solid;*/
+			outline: none;
+			outline-style: none;
+			-moz-outline-style:none;
+		}
+	</style>
+
+	<script>
+		Polymer({
+			is: "koan-task",
+			ready: function() {
+				
+			}
+		});
+	</script>
+</dom-module>

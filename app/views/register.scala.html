@@ -1,0 +1,21 @@
+@(registerForm: Form[(String, String, String)])(implicit flash: Flash)
+
+@main("Register") {
+    <div class="container vcenter">
+        @helper.form(action = routes.Auth.submit()) {
+
+        		@flash.get("failure").map { message =>
+                    <div class="alert alert-danger">@message</div>
+                }
+
+                @registerForm.globalError.map { error =>
+                	<p class="error">@error.message</p>
+                }
+
+                <p><input type="email" name="email" placeholder="Email" value="@registerForm("email").value"></p>
+                <p><input type="password" name="password" placeholder="Password"></p>
+                <p><input type="password" name="password2" id="password2" placeholder="Password"></p>
+                <p><button class="btn standard" type="submit">Register</button></p>
+        }
+    </div>
+}
