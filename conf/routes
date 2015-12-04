@@ -10,7 +10,9 @@ GET     /register                   controllers.Auth.register
 POST    /submit                     controllers.Auth.submit
 POST    /authenticate               controllers.Auth.authenticate
 
-GET     /course/remove/:course      controllers.Application.testInterpret(course: String)
+GET     /courses                    controllers.Application.courses
+GET     /course/add/:course         controllers.Application.addCourse(course: String)
+GET     /course/remove/:course      controllers.Application.removeCourse(course: String)
 
 GET     /dashboard                  controllers.Application.dashboard
 

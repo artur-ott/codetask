@@ -10,6 +10,7 @@
   "homepage": "",
   "private": true,
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.2.0"
+    "polymer": "Polymer/polymer#^1.2.0",
+    "iron-ajax": "Polymerelements/iron-ajax#~1.1.1"
   }
 }

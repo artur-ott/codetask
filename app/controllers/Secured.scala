@@ -4,10 +4,11 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import models.{User, UserService, Config}
+import models.{User, UserService, CourseService, Config}
 
 object Services {
     val userService = new UserService(Config)
+    val courseService = new CourseService(Config)
 }
 
 trait Secured {

@@ -60,6 +60,10 @@ class CourseRepositoryDb4o() extends CourseRepository {
  			case _       => client.close(); None
  		}
 	}
+	def findAll(): List[Course] = {
+		val client = ServerSingleton.objectServer.openClient();
+		new A(client) query {course: Course => true}
+	}
 	def create(course: Course): Option[Course] = {
 		val client = ServerSingleton.objectServer.openClient();
  		new A(client) query {c: Course => c.name == course.name} match {

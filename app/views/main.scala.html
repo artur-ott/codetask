@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String, extra: Html = Html(""))(content: Html)
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,6 +10,7 @@
         <script src="@routes.Assets.versioned("javascripts/jquery-2.1.4.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.versioned("bootstrap-3.3.5/js/bootstrap.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.versioned("javascripts/ace-min/ace.js")" type="text/javascript"></script>
+        @extra
     </head>
     <body>
         @content

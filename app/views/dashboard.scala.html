@@ -1,6 +1,11 @@
 @(courses: List[(String, Int)])
 
-@main("Dashboard") {
+@extra = {
+    <script src="@routes.Assets.versioned("bower_components/webcomponentsjs/webcomponents-lite.min.js")" type="text/javascript"></script>
+    <link rel="import" href="@routes.Assets.versioned("elements/course-list.html")">
+}
+
+@main("Dashboard", extra) {
     <div class="container">
         <ol class="breadcrumb">
             <li class="active">Dashboard</li>
@@ -26,7 +31,7 @@
                         <h4 class="modal-title" id="removeModal@course._2">Confirm</h4>
                       </div>
                       <div class="modal-body">
-                        Are you shure to remove this Course
+                        Are you sure to remove this Course
                       </div>
                       <div class="modal-footer">
                         <a href="/course/remove/@course._1._1" type="button" class="btn btn-default">Yes</a>
@@ -47,12 +52,7 @@
         </div>
         <div class="col-md-1">
             <div class="container-fluid">
-                <!--<button type="button" class="btn btn-default" aria-label="Cog">
-                  <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-                </button>-->
-                <a href="/courses" type="button" class="btn btn-default" aria-label="Plus">
-                  <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-                </a>
+                <course-list></course-list>
             </div>
         </div>
     </div>
