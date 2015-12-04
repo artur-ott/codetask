@@ -1,8 +1,6 @@
 package models
 
-class Course(var name: String, var chapters: List[Chapter])
-
-class Chapter(var tasks: String)
+class Course(var name: String, var json: String)
 
 trait CourseRepository {
 	def findOneByName(name: String): Option[Course]

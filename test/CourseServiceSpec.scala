@@ -8,7 +8,7 @@ import models._
 
 class CourseServiceSpec extends Specification {
 	val courseService = new CourseService(Config);
-	val course1 = new Course("scala", List())
+	val course1 = new Course("scala", "json")
 
 	"CourseService#findOneByName" should {
 		"fail with unknown course name" in {
@@ -24,12 +24,17 @@ class CourseServiceSpec extends Specification {
 			courseService.create(course1) should be(None)
 		}
 	}
+	"CourseService#findAll" should {
+		"give all Services" in {
+			courseService.findAll().size shouldEqual(1)
+		}
+	}
 	"CourseService#update" should {
 		"work with existing course" in {
-			course1.chapters = List(new Chapter("test"))
+			course1.json = "new json"
 			courseService.update(course1)
 			val course = courseService.findOneByName("scala").get
-			course.chapters.size shouldEqual(1)
+			course.json shouldEqual("new json")
 		}
 	}
 	"CourseService#delete" should {

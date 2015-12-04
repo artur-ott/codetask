@@ -80,7 +80,7 @@ class CourseRepositoryDb4o() extends CourseRepository {
  		new A(client) query {c: Course => c.name == course.name} match {
  			case x :: xs => 
  				x.name = course.name
- 				x.chapters = course.chapters
+ 				x.json = course.json
  				client.store(x)
  				client.commit()
  				client.close(); 

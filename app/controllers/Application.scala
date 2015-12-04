@@ -10,9 +10,7 @@ import scala.collection.JavaConverters._
 
 class Application extends Controller with Secured {
 
-	def index() = Action {
-		Redirect(routes.Auth.login)
-	}
+	// tests
 
 	def secureTest() = withUser { user => implicit request =>
 		Ok(views.html.polytest())
@@ -30,27 +28,71 @@ class Application extends Controller with Secured {
 		Ok("Your Application is ready.")
 	}
 
-	def courses() = Action {
+	// /tests
+
+	def index() = Action {
+		Redirect(routes.Auth.login)
+	}
+
+	def coursesJSON() = Action {
 		Ok(Json.toJson(Services.courseService.findAll.map{course => course.name}.toSeq))
 	}
 
-	def addCourse(course: String) = withUser { user => implicit request =>
-		if (user.courses.find {c => c._1 == course}.isEmpty && 
-		   (Services.courseService.findOneByName(course).isEmpty != true)) {
-			user.courses += (course -> Map())
+	def courseJSON(courseName: String) = withUser { user => implicit request =>
+		Ok(Json.toJson("""{ "course": {
+		"title": "scala1",
+		"chapter": {
+			"title": "AboutTest",
+			"tasks": {
+				"video1": {"description": "description","url": "https://www.youtube.com/watch?v=Y7VLcx4fz4A"}
+				"koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten","code": "result should equal (__)
+	    result should === (__)
+	    result should be __
+	    result shouldEqual __
+	    result shouldBe __","solutions": "3;3;List(3, 2, 1);"text";3"}
+				"codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben","code": "def rvrs(l: List[Any]): List[Any] = {
+	  	  //solve
+	  	}
+	  
+	  	","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
+	  	"}
+			}
+		}
+	},
+	"chapter": {
+		"title": "AboutVal",
+		"tasks": {
+			"koan1": {"description": "test", "code": "1 should be __", "solution": "1"}
+		}
+	}
+}"""))
+	}
+
+	def course(courseName: String) = withUser { user => implicit request =>
+		val course = Services.courseService.findOneByName(courseName)
+		if (user.courses.contains(courseName) && (course.isEmpty != true)) {
+			//Ok(views.html.course(course.get, user.courses(course)))
+		}
+		Redirect(routes.Application.dashboard)
+	}
+
+	def courseSubscribe(courseName: String) = withUser { user => implicit request =>
+		if (user.courses.find {course => course._1 == courseName}.isEmpty && 
+		   (Services.courseService.findOneByName(courseName).isEmpty != true)) {
+			user.courses += (courseName -> Map())
 			Services.userService.update(user)
 		}
 		Redirect(routes.Application.dashboard)
 	}
 
-	def removeCourse(course: String) = withUser { user => implicit request =>
-		user.courses -= course
+	def courseUnsubscribe(courseName: String) = withUser { user => implicit request =>
+		user.courses -= courseName
 		Services.userService.update(user)
 		Redirect(routes.Application.dashboard)
 	}
 
 	def dashboard() = withUser { user => implicit request =>
-		val courses = user.courses.map {course => (course._1, 1)}
+		val courses = user.courses.map { course => (course._1, 1) }
 		Ok(views.html.dashboard(courses.toList))
 	}
 }
