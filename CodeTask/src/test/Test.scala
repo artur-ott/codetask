@@ -26,19 +26,19 @@ class Test extends FlatSpec with Matchers {
     val mMultiple = Test.koanMultiple.parse
     
     mRegular should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "1 should be __", "solutions" -> "1"))))
-    mNewlines should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "some code{}\n\"text\" should be __", "solutions" -> "\"text\""))))
-    mRecursive should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "if(what) {\ndo that\n}\nsome code{}\n1 should be __", "solutions" -> "1"))))
-    mMultiple should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "if(what) {\ndo that\n}\nsome code{}\n1 should be __", "solutions" -> "1")),
-                                85 -> ("koan2", Map("description" -> "a koan", "code" -> "if(what) {\ndo that\n}\nsome code{}\n1 should be __", "solutions" -> "1"))))
+    mNewlines should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "some code{}\\n\\\"text\\\" should be __", "solutions" -> "\\\"text\\\""))))
+    mRecursive should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "if(what) {\\ndo that\\n}\\nsome code{}\\n1 should be __", "solutions" -> "1"))))
+    mMultiple should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "if(what) {\\ndo that\\n}\\nsome code{}\\n1 should be __", "solutions" -> "1")),
+                                85 -> ("koan2", Map("description" -> "a koan", "code" -> "if(what) {\\ndo that\\n}\\nsome code{}\\n1 should be __", "solutions" -> "1"))))
  }
   
   "Parser#parse" should "parse codetask into map" in {
     val mRegular = Test.codeTaskRegular.parse
     val mMultiple = Test.codeTaskMultiple.parse
     
-    mRegular should equal(Map(5 -> ("codetask1", Map("description" -> "a codetask", "code" -> "def x() =>\n  //solve\n", "test" -> "assert(true)\n"))))
-    mMultiple should equal(Map(5 -> ("codetask1", Map("description" -> "a codetask", "code" -> "def x() =>\n  //solve\n", "test" -> "assert(true)\n")),
-                               119 -> ("codetask2", Map("description" -> "a codetask", "code" -> "def x() =>\n  //solve\n", "test" -> "assert(true)\n"))))
+    mRegular should equal(Map(5 -> ("codetask1", Map("description" -> "a codetask", "code" -> "def x() =>\\n  //solve", "test" -> "assert(true)"))))
+    mMultiple should equal(Map(5 -> ("codetask1", Map("description" -> "a codetask", "code" -> "def x() =>\\n  //solve", "test" -> "assert(true)")),
+                               119 -> ("codetask2", Map("description" -> "a codetask", "code" -> "def x() =>\\n  //solve", "test" -> "assert(true)"))))
   }
   
   "Parser#parse" should "parse fileText into valid json map" in {
@@ -78,39 +78,30 @@ class AboutLists extends CodeTaskSuite {
   }
   
   codetask("schreiben sie eine function reverse die eine umgekehrte liste zurück geben") {
-  	def rvrs(l: List[Any]): List[Any] = {
-  	  //solve
-    	l match {
-    		case h :: tail => rvrs(tail) ::: List(h)
-    		case _       => Nil
-    	}
-    	//endsolve
-  	}
-  
-  	//test
-  	rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
-  	//endtest
-  }  
+    def rvrs(l: List[Any]): List[Any] = {
+      //solve
+      l match {
+    	  case h :: tail => rvrs(tail) ::: List(h)
+    	  case _       => Nil
+      }
+      //endsolve
+    }
+
+    //test
+    rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
+    //endtest
+  }
 }"""
   
   val json =
 """{
-	"chapter": {
-		"title": "AboutTest",
-		"tasks": {
-			"video1": {"description": "description","url": "http://youtube/watch?lpk42"}
-			"koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten","code": "result should equal (__)
-    result should === (__)
-    result should be __
-    result shouldEqual __
-    result shouldBe __","solutions": "3;3;List(3, 2, 1);"text";3"}
-			"codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben","code": "def rvrs(l: List[Any]): List[Any] = {
-  	  //solve
-  	}
-  
-  	","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
-  	"}
-		}
-	}
+    "chapter": {
+        "title": "AboutTest",
+        "tasks": {
+            "video1": {"description": "description","url": "http://youtube/watch?lpk42"},
+            "koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten","code": "result should equal (__)\n    result should === (__)\n    result should be __\n    result shouldEqual __\n    result shouldBe __","solutions": "3;3;List(3, 2, 1);\"text\";3"},
+            "codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben","code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"}
+        }
+    }
 }"""
 }

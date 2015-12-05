@@ -21,9 +21,11 @@ class Parser(s: String) {
   
   val video = """video\s*\(\s*(\"\"\"([\s\S]*)\"\"\"|\"(.+)\")(\s*,?\s*)(\"\"\"(.+)\"\"\"|\"(.+)\")\s*\)""".r
   val koan = """koan\s*\(\s*(\"\"\"([\s\S]*)\"\"\"|\"(.+)\"\s*\)(\s*\{))""".r
-  val codetask = """codetask\s*\(\s*(\"\"\"([\s\S]*)\"\"\"|\"(.+)\"\s*\)(\s*\{))""".r
+  val codetask = """codetask\s*\(\s*(\"\"\"([\s\S]*)\"\"\"|\"(.*)\"\s*\)(\s*\{))""".r
   val assert = """((should\sequal\s*)|(should\s*===\s*)|(should\s*be\s*)|(shouldEqual\s*)|(shouldBe\s*))((\((.*)\))|((.*)))""".r
-  val clean = """^\s*(\S[\s\S]*\S)\s""".r
+  val clean = """^\s*(\S[\s\S]*\S)\s*""".r
+  
+  def escapeHTML = (s: String) => s.replace("\n", "\\n").replace("\"", "\\\"")
   
   def parseVideos {
     val matches = video findAllMatchIn s
@@ -78,7 +80,7 @@ class Parser(s: String) {
         } 
       }
       
-      map = map + (index -> ("koan" + koans, Map("description" -> description, "code" -> code.toString, "solutions" -> solutions.mkString(";"))))
+      map = map + (index -> ("koan" + koans, Map("description" -> description, "code" -> escapeHTML(code.toString), "solutions" -> escapeHTML(solutions.mkString(";")))))
       
       // add one so the next match is processed
       index += 1
@@ -94,9 +96,17 @@ class Parser(s: String) {
       
       val description = m.group(3).stripMargin('|')
       val pos = parseCurlyBraces(s, index + m.toString.size - 1)
-      // get code and remove whitespace before and after
-      var code = ""
-      clean findFirstMatchIn (s.slice(pos._1 + 1, pos._2)) foreach { m2 => code = m2.group(1).toString }
+      var code = s.slice(pos._1 + 1, pos._2)
+      
+      // get tabtype (should have two tabs)
+      var tabType = ""
+      """\n(\t*| *)\S""".r findFirstMatchIn code foreach { m2 => tabType = m2.group(1).toString }
+      // first indentation should be second level
+      if (tabType.size % 2 != 0) 
+        tabType = ""
+      
+      // remove whitespace before and after
+      clean findFirstMatchIn code foreach { m2 => code = m2.group(1).toString }
       
       // remove everything between //solve and //endsolve
       val solve = """[\s\S]*(\/\/solve\s*[\s\S]*\/\/endsolve)""".r
@@ -114,8 +124,19 @@ class Parser(s: String) {
         code = code.replace(m2.group(1).toString, "")
       }
       
+      // remove whitespace
+      clean findFirstMatchIn code foreach { m2 => code = m2.group(1).toString }
+      clean findFirstMatchIn testCode foreach { m2 => testCode = m2.group(1).toString }
+      // indentation one level down
+      if (code.contains("\t") && testCode.contains("\t")) {
+        code = code.replace("\n\t\t", "\n")
+        testCode = testCode.replace("\n\t\t", "\n")
+      } else {
+        code = code.replace("\n    ", "\n")
+        testCode = testCode.replace("\n    ", "\n") 
+      }
       
-      map = map + (index -> ("codetask" + codetasks, Map("description" -> description, "code" -> code.toString, "test" -> testCode)))
+      map = map + (index -> ("codetask" + codetasks, Map("description" -> description, "code" -> escapeHTML(code.toString), "test" -> escapeHTML(testCode))))
       
       // add one so the next match is processed
       index += 1
@@ -150,18 +171,21 @@ class Parser(s: String) {
   
   def parseToJson(title: String):String = {
     parse
-    var json = "{\n\t\"chapter\": {\n\t\t\"title\": \"%s\",\n\t\t\"tasks\": {\n".format(title)
+    val t = "    "
+    var json = "{\n%s\"chapter\": {\n%s%s\"title\": \"%s\",\n%s%s\"tasks\": {\n".format(t, t, t, title, t, t)
     // convert map to json string
     map foreach { task =>
-      json = json + "\t\t\t\"%s\": {".format(task._2._1)
+      json = json + "%s%s%s\"%s\": {".format(t, t, t, task._2._1)
       task._2._2 foreach { value =>
         json = json + "\"%s\": \"%s\",".format(value._1, value._2)
       }
-      // remove last ,
-      json = json.slice(0, json.size - 1)
-      json = json + "}\n"
+      // strip last ,
+      if (json.last == ',') json = json.slice(0, json.size - 1)
+      json = json + "},\n"
     }
-    json + "\t\t}\n\t}\n}"
+    // strip last ,\n
+    if (json.slice(json.size - 2, json.size) == ",\n") json = json.slice(0, json.size - 2)
+    json + "\n%s%s}\n%s}\n}".format(t, t, t)
   }
 }
 

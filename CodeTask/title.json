@@ -1,19 +1,27 @@
-{
-	"chapter": {
-		"title": "AboutTest",
-		"tasks": {
-			"video1": {"description": "description","url": "http://youtube/watch?lpk42"}
-			"koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten","code": "result should equal (__)
-    result should === (__)
-    result should be __
-    result shouldEqual __
-    result shouldBe __","solutions": "3;3;List(3, 2, 1);"text";3"}
-			"codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben","code": "def rvrs(l: List[Any]): List[Any] = {
-  	  //solve
-  	}
-  
-  	","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
-  	"}
+"{ \"course\": {
+		\"title\": \"scala1\",
+		\"chapter\": {
+			\"title\": \"AboutTest\",
+			\"tasks\": {
+				\"video1\": {\"description\": \"description\",\"url\": \"https://www.youtube.com/watch?v=Y7VLcx4fz4A\"}
+				\"koan1\": {\"description\": \"das ist ein koan eine aufgabe mit fehlenden assert werten\",\"code\": \"result should equal (__)
+	    result should === (__)
+	    result should be __
+	    result shouldEqual __
+	    result shouldBe __\",\"solutions\": \"3;3;List(3, 2, 1);\"text\";3\"}
+				\"codetask1\": {\"description\": \"schreiben sie eine function reverse die eine umgekehrte liste zurück geben\",\"code\": \"def rvrs(l: List[Any]): List[Any] = {
+	  	  //solve
+	  	}
+	  
+	  	\",\"test\": \"rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
+	  	\"}
+			}
+		}
+	},
+	\"chapter\": {
+		\"title\": \"AboutVal\",
+		\"tasks\": {
+			\"koan1\": {\"description\": \"test\", \"code\": \"1 should be __\", \"solution\": \"1\"}
 		}
 	}
-}
+}"
