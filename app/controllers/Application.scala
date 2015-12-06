@@ -39,41 +39,43 @@ class Application extends Controller with Secured {
 	}
 
 	def courseJSON(courseName: String) = withUser { user => implicit request =>
-		Ok(Json.toJson("""{ "course": {
+		Ok(Json.parse("""{ "course": {
 		"title": "scala1",
-		"chapter": {
+		"chapters": [{
 			"title": "AboutTest",
 			"tasks": {
-				"video1": {"description": "description","url": "https://www.youtube.com/watch?v=Y7VLcx4fz4A"}
-				"koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten","code": "result should equal (__)
-	    result should === (__)
-	    result should be __
-	    result shouldEqual __
-	    result shouldBe __","solutions": "3;3;List(3, 2, 1);"text";3"}
-				"codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben","code": "def rvrs(l: List[Any]): List[Any] = {
-	  	  //solve
-	  	}
-	  
-	  	","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
-	  	"}
+				"video1": {"description": "description","url": "https://www.youtube.com/watch?v=Y7VLcx4fz4A"},
+				"koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten","code": "result should equal (__)\nresult should === (__)\nresult should be __\nresult shouldEqual __\nresult shouldBe __","solutions": "3;3;List(3, 2, 1);\\\"text\\\";3"},
+				"codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben","code": "def rvrs(l: List[Any]): List[Any] = {\n//solve\n}\n\n","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"}
 			}
-		}
-	},
-	"chapter": {
-		"title": "AboutVal",
-		"tasks": {
-			"koan1": {"description": "test", "code": "1 should be __", "solution": "1"}
-		}
+		},{
+			"title": "AboutVal",
+			"tasks": {
+				"koan1": {"description": "test", "code": "1 should be __", "solution": "1"}
+			}
+		}]
 	}
 }"""))
+	}
+
+	def solutionsJSON(courseName: String) = Action {//withUser { user => implicit request =>
+		//val solutions = user.courses get courseName
+		//if (solutions == None) {
+			//Ok(Json.toJson("""{"error": "empty"}"""))
+		//} else {
+			//val json = Json.toJson(solutions.get.map { task => Json.toJson(task._2) })
+			//Ok(json)
+		//}
+		Ok(Json.toJson("""[{"koan1": "3;3"}]"""))
 	}
 
 	def course(courseName: String) = withUser { user => implicit request =>
 		val course = Services.courseService.findOneByName(courseName)
 		if (user.courses.contains(courseName) && (course.isEmpty != true)) {
-			//Ok(views.html.course(course.get, user.courses(course)))
+			Ok(views.html.course(courseName))
+		} else {
+			Redirect(routes.Application.dashboard)
 		}
-		Redirect(routes.Application.dashboard)
 	}
 
 	def courseSubscribe(courseName: String) = withUser { user => implicit request =>

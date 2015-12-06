@@ -18,6 +18,8 @@
 			display: inline-block;
 			height: 300px;
 			width: 50%;
+			border: 0px;
+			border-radius: 0px;
 			margin-bottom: -4px;
 		}
 		.button {
@@ -42,9 +44,18 @@
 	<script>
 		Polymer({
 			is: "code-task",
+			properties: {
+		    	interpreterUrl: String,
+		    	souluionUrl: String
+		    },
 			ready: function() {
-				this.id = this.id || "ct";
-
+				// only init with id
+				if (this.id)
+					this.initEditor();
+				else
+					console.log("cant initialize without id");			
+			},
+			initEditor: function() {
 				// create children
 				var editor = document.createElement("PRE");
 				var co = document.createElement("PRE");

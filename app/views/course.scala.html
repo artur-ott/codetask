@@ -1,8 +1,10 @@
+@(courseName: String)
 
 @extra = {
     <script src="@routes.Assets.versioned("bower_components/webcomponentsjs/webcomponents-lite.min.js")" type="text/javascript"></script>
     <link rel="import" href="@routes.Assets.versioned("elements/course-view.html")">
 }
 
-@main("@Course.name", extra) {
+@main(courseName, extra) {
+	<course-view course-name="@courseName"></course-view>
 }

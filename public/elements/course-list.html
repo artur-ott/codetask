@@ -19,7 +19,7 @@
 		<!-- data -->
 		<iron-ajax
 			auto
-			url="/courses"
+			url="/courses/json"
 			handle-as="json"
 			last-response="{{courses}}">
 		</iron-ajax>
@@ -41,7 +41,7 @@
               <!-- repeat courses -->
               <template is="dom-repeat" items="{{courses}}" as="course" filter="{{computeFilter(searchString)}}">
               	<span>{{course}}</span>
-              	<a href="/course/add/{{course}}" type="button" class="btn btn-primary right" aria-label="Plus">
+              	<a href="/course/subscribe/{{course}}" type="button" class="btn btn-primary right" aria-label="Plus">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </a>
                 <hr>

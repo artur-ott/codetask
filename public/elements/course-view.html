@@ -1,0 +1,85 @@
+<link rel="import"
+      href="../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="./code-task.html">
+
+<dom-module id="course-view">
+	<template>
+		<!-- data -->
+		<iron-ajax
+			auto
+			url="/course/json/{{courseName}}"
+			handle-as="json"
+			last-response="{{response1}}"
+			on-response="courseLoaded">
+		</iron-ajax>
+
+		<iron-ajax
+			auto
+			url="/solutions/json/{{courseName}}"
+			handle-as="json"
+			last-response="{{response2}}">
+		</iron-ajax>
+
+		<div class="row">
+			<div id="navigation" class="col-md-4"></div>
+			<div id="main" class="col-md-8"></div>
+		</div>
+	</template>
+
+	<script>
+		Polymer({
+			is: "course-view",
+			properties: {
+		    	courseName: String
+		    },
+		    ready: function() {
+
+		    },
+		    courseLoaded: function(e, request) {
+		    	var course = request.xhr.response.course;
+		    	this.loadChapter(course.chapters[0]);
+		    },
+		    loadChapter: function(chapter) {
+		    	var main = document.getElementById("main");
+		    	// clear previous chapter
+		    	while(main.firstChild) {
+		    		main.removeChild(tasks.firstChild);
+		    	}
+
+		    	var h1 = document.createElement("H1");
+		    	h1.textContent = chapter.title;
+		    	main.appendChild(h1);
+
+		    	var tasks = chapter.tasks;
+		    	Object.keys(tasks).forEach(function(key) {
+		    	 	if (key.indexOf("video") != -1) {
+
+		    		} else if (key.indexOf("koan") != -1) {
+
+		    		} else if (key.indexOf("codetask") != -1) {
+		    			addDescription(main, tasks[key].description);
+		    			var editor = document.createElement("code-task");
+		    			editor.id = key;
+		    			main.appendChild(editor);
+		    			editor.initEditor();
+		    			editor.editor.setValue(tasks[key].code);
+		    		}
+		    	});
+		    },
+		    processTasks: function(tasks) {
+		    	var keys = Object.keys(tasks);
+		    	return keys.map(function(key) {
+		    		return {name: key, task: tasks[key]};
+		    	});
+		    }
+		});
+
+		function addDescription(element, description) {
+	    	var p = document.createElement("P");
+	    	p.innerHTML = description;
+	    	element.appendChild(p);
+	    }
+	</script>
+</dom-module>

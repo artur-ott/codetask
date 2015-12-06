@@ -12,9 +12,11 @@ POST    /authenticate               controllers.Auth.authenticate
 GET     /dashboard                  controllers.Application.dashboard
 GET     /course/:courseName         controllers.Application.course(courseName: String)
 
+
 # Course Infos
-GET     /courses/json               controllers.Application.coursesJSON
-GET     /course/json/:courseName    controllers.Application.courseJSON(courseName: String)
+GET     /courses/json                   controllers.Application.coursesJSON
+GET     /course/json/:courseName        controllers.Application.courseJSON(courseName: String)
+GET     /solutions/json/:courseName     controllers.Application.solutionsJSON(courseName: String)
 
 # User Options
 GET     /course/subscribe/:courseName      controllers.Application.courseSubscribe(courseName: String)
