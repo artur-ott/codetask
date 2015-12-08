@@ -1,0 +1,41 @@
+<link rel="import"
+	  href="../bower_components/polymer/polymer.html">
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<dom-module id="video-task.html">
+	<script>
+		Polymer({
+			is: "video-task",
+			properties: {
+				videoUrl: String,
+		    	solutionsUrl: String
+		    },
+			ready: function() {
+				if (!this.id) 
+					console.log("cant initialize without id");
+				else
+					this.initVideo();
+			},
+			initVideo: function() {
+				var div = document.createElement("DIV");
+				div.id = this.id + "-player";
+				this.appendChild(div);
+
+				// get video code
+				var url = this.videoUrl.split("?v=");
+
+				player = new YT.Player(div.id, {
+			        height: '300px',
+			        width: '600px',
+			        videoId: (url.size > 1 ? url[url.size - 1] : url),
+			        events: {
+			          'onStateChange': function(event) {
+			          	console.log(event.data); // send task completed
+			          }
+			        }
+		    	});
+			}
+		});
+	</script>
+</dom-module>

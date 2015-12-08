@@ -2,6 +2,8 @@
       href="../bower_components/polymer/polymer.html">
 
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="./video-task.html">
+<link rel="import" href="./koan-task.html">
 <link rel="import" href="./code-task.html">
 
 <dom-module id="course-view">
@@ -23,10 +25,17 @@
 		</iron-ajax>
 
 		<div class="row">
-			<div id="navigation" class="col-md-4"></div>
-			<div id="main" class="col-md-8"></div>
+			<div id="navigation" class="col-md-2"></div>
+			<div id="main" class="col-md-10"></div>
 		</div>
 	</template>
+
+	<style>
+		#main {
+			padding: 70px;
+			padding-top: 10px;
+		}
+	</style>
 
 	<script>
 		Polymer({
@@ -53,18 +62,40 @@
 		    	main.appendChild(h1);
 
 		    	var tasks = chapter.tasks;
+		    	var aceTheme = "ace/theme/solarized_dark";
+
 		    	Object.keys(tasks).forEach(function(key) {
+		    		var task = tasks[key];
+
 		    	 	if (key.indexOf("video") != -1) {
+
+		    	 		addDescription(main, task.description);
+		    	 		var video = document.createElement("video-task");
+		    	 		video.id = key;
+		    			video.videoUrl = task.url;
+		    	 		main.appendChild(video);
+		    	 		video.initVideo();
 
 		    		} else if (key.indexOf("koan") != -1) {
 
+		    			addDescription(main, task.description);
+		    			var koan = document.createElement("koan-task");
+		    			koan.id = key;
+		    			main.appendChild(koan);
+		    			koan.aceTheme = aceTheme;
+		    			koan.koanCode = task.code;
+		    			koan.initKoan();
+
 		    		} else if (key.indexOf("codetask") != -1) {
-		    			addDescription(main, tasks[key].description);
+
+		    			addDescription(main, task.description);
 		    			var editor = document.createElement("code-task");
 		    			editor.id = key;
+		    			//editor.interpreterUrl = 
 		    			main.appendChild(editor);
+		    			editor.aceTheme = aceTheme;
 		    			editor.initEditor();
-		    			editor.editor.setValue(tasks[key].code);
+		    			editor.editor.setValue(task.code);
 		    		}
 		    	});
 		    },

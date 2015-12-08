@@ -43,7 +43,10 @@ class Test extends FlatSpec with Matchers {
   
   "Parser#parse" should "parse fileText into valid json map" in {
     val json = Test.fileText.parseToJson("AboutTest")
+    val json2 = Test.fileText2.parseToJson("AboutTest2")
+    
     json should equal(Test.json)
+    json2 should equal(Test.json2)
   }
 }
 
@@ -101,6 +104,77 @@ class AboutLists extends CodeTaskSuite {
             "video1": {"description": "description","url": "http://youtube/watch?lpk42"},
             "koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten","code": "result should equal (__)\n    result should === (__)\n    result should be __\n    result shouldEqual __\n    result shouldBe __","solutions": "3;3;List(3, 2, 1);\"text\";3"},
             "codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben","code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"}
+        }
+    }
+}"""
+  
+  val quotes3 = """"""" + """"""" + """""""
+  val fileText2 =
+"""
+import support.CodeTaskSuite
+import org.scalatest.Matchers
+
+class AboutLists extends CodeTaskSuite {
+  video(""" + quotes3 + """description
+        |is a new description""" + quotes3 + """, "http://youtube/watch?lpk42")
+        
+  video(""" + quotes3 + """description
+        |is a new description""" + quotes3 + """, "http://youtube/watch?lpk42")
+
+  koan(""" + quotes3 + """description
+        |is a new description""" + quotes3 + """) {
+  	result should equal (3)
+  }
+  
+  codetask(""" + quotes3 + """description
+        |is a new description""" + quotes3 + """) {
+    def rvrs(l: List[Any]): List[Any] = {
+      //solve
+      l match {
+    	  case h :: tail => rvrs(tail) ::: List(h)
+    	  case _       => Nil
+      }
+      //endsolve
+    }
+
+    //test
+    rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
+    //endtest
+  }
+  
+  koan(""" + quotes3 + """description
+        |is a new description""" + quotes3 + """) {
+  	result should equal (3)
+  }
+  
+  codetask(""" + quotes3 + """description
+        |is a new description""" + quotes3 + """) {
+    def rvrs(l: List[Any]): List[Any] = {
+      //solve
+      l match {
+    	  case h :: tail => rvrs(tail) ::: List(h)
+    	  case _       => Nil
+      }
+      //endsolve
+    }
+
+    //test
+    rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
+    //endtest
+  }
+"""
+  
+  val json2 =
+"""{
+    "chapter": {
+        "title": "AboutTest2",
+        "tasks": {
+            "video1": {"description": "description\nis a new description","url": "http://youtube/watch?lpk42"},
+            "video2": {"description": "description\nis a new description","url": "http://youtube/watch?lpk42"},
+            "koan1": {"description": "description\nis a new description","code": "result should equal (__)","solutions": "3"},
+            "codetask1": {"description": "description\nis a new description","code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"},
+            "koan2": {"description": "description\nis a new description","code": "result should equal (__)","solutions": "3"},
+            "codetask2": {"description": "description\nis a new description","code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"}
         }
     }
 }"""

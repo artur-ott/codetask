@@ -1,19 +1,24 @@
 <link rel="import"
 	  href="../bower_components/polymer/polymer.html">
 
+<script src="./ace-min/ace.js"></script>
+<script src="./ace-min/ext-static_highlight.js"></script>
+
 <dom-module id="koan-task.html">
-	<template>
+	<!--<template>
 		<div id="koan1">
 			<div class="line">var x = 1</div>
 			<div class="line">var y = 5</div>
 			<div class="line">y should be (</div><span contenteditable="true" class="solution" ></span><div class="line">)</div>
 			<div class="line">oderso</div><span></span>
 		</div>
-	</template>
+	</template>-->
 
 	<style>
 		.line {
 				display: inline-block;
+				margin-top: 0px;
+				margin-bottom: 0px;
 		}
 		.solution {
 			display: inline-block;
@@ -26,7 +31,7 @@
 			text-align: center;
 			vertical-align: middle;
 			color: green;
-			/*border-bottom: 1px solid;*/
+			border-bottom: 1px solid;
 			outline: none;
 			outline-style: none;
 			-moz-outline-style:none;
@@ -36,8 +41,61 @@
 	<script>
 		Polymer({
 			is: "koan-task",
+			properties: {
+				koanCode: String,
+				aceTheme: String,
+		    	solutionsUrl: String
+		    },
 			ready: function() {
-				
+				if (!this.id)
+					console.log("koan cant initialize without id")
+				else
+					this.initKoan();
+			},
+			initKoan: function() {
+				var div = document.createElement("DIV");
+				div.id = this.id + "-code";
+				this.appendChild(div);
+
+				var highlight = ace.require("ace/ext/static_highlight");
+				var opts = {
+					mode: "ace/mode/lua",
+					theme: this.aceTheme,
+					firstLineNumber: 0,
+					showGutter: false,
+					trim: true
+				};
+
+				this.koanCode.split("\n").forEach(function(line, i) {
+					line.split("__").forEach(function(part, j) {
+						if (j != 0) {
+							var solutionDiv = document.createElement("SPAN");
+							solutionDiv.setAttribute("contenteditable", true);
+							solutionDiv.classList.add("solution");
+							div.appendChild(solutionDiv);
+
+							opts.showGutter = false;
+						} else {
+							opts.showGutter = true;
+							opts.firstLineNumber = i + 1;
+						}
+
+						var lineDiv = document.createElement("DIV");
+						lineDiv.textContent = part;
+						lineDiv.classList.add("line");
+						div.appendChild(lineDiv);
+						highlight(lineDiv, opts);
+					});
+					var br = document.createElement("BR");
+					div.appendChild(br);
+				});
+				opts.showGutter = false;
+				var lineDiv = document.createElement("DIV");
+				lineDiv.textContent = " ";
+				lineDiv.classList.add("line");
+				div.appendChild(lineDiv);
+				highlight(lineDiv, opts);
+				highlight(div, opts);
 			}
 		});
 	</script>

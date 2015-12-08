@@ -19,20 +19,29 @@ class Parser(s: String) {
   //var map = Map[(String, Int), Map[String, String]]()
   var map = TreeMap[Int, (String, Map[String, String])]()
   
-  val video = """video\s*\(\s*(\"\"\"([\s\S]*)\"\"\"|\"(.+)\")(\s*,?\s*)(\"\"\"(.+)\"\"\"|\"(.+)\")\s*\)""".r
-  val koan = """koan\s*\(\s*(\"\"\"([\s\S]*)\"\"\"|\"(.+)\"\s*\)(\s*\{))""".r
-  val codetask = """codetask\s*\(\s*(\"\"\"([\s\S]*)\"\"\"|\"(.*)\"\s*\)(\s*\{))""".r
+  val video = """video\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.+)\")(\s*,?\s*)(\"\"\"(.+)\"\"\"|\"(.+)\")\s*\)""".r
+  //val koan = """koan\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.+)\"\s*\)(\s*\{))""".r
+  val koan = """koan\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.+)\")(\s*\)\s*\{)""".r
+  //val codetask = """codetask\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.*)\"\s*\)(\s*\{))""".r
+  val codetask = """codetask\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.*)\")(\s*\)\s*\{)""".r
   val assert = """((should\sequal\s*)|(should\s*===\s*)|(should\s*be\s*)|(shouldEqual\s*)|(shouldBe\s*))((\((.*)\))|((.*)))""".r
   val clean = """^\s*(\S[\s\S]*\S)\s*""".r
   
-  def escapeHTML = (s: String) => s.replace("\n", "\\n").replace("\"", "\\\"")
+  def escapeHTML = (s: String) => s.replace("\n", "\\n").replace("\"", "\\\"").replace("\t", "\\t")
   
   def parseVideos {
     val matches = video findAllMatchIn s
+    var foundList = List()
     matches.foreach { m =>
-      val index = s.indexOf(m.toString)
+      var index = s.indexOf(m.toString)
+      
+      // prevent overwriting existing map item with same description 
+      if (map.contains(index))
+        index = s.indexOf(m.toString, index + 1)
+      
       videos += 1
-      map = map + (index -> ("video" + videos, Map("description" -> m.group(3).stripMargin('|'), "url" -> m.group(7))))
+      val description = if (m.group(3) != null) m.group(3) else m.group(2).stripMargin('|')
+      map = map + (index -> ("video" + videos, Map("description" -> escapeHTML(description), "url" -> escapeHTML(m.group(7)))))
     }
   }
   
@@ -51,9 +60,14 @@ class Parser(s: String) {
     var index = 0
     matches.foreach { m =>
       index = s.indexOf(m.toString, index)
+      
+      // prevent overwriting existing map item with same description 
+      if (map.contains(index))
+        index = s.indexOf(m.toString, index + 1)
+      
       koans += 1
       
-      val description = m.group(3).stripMargin('|')
+      val description = if (m.group(3) != null) m.group(3) else m.group(2).stripMargin('|')
       val pos = parseCurlyBraces(s, index + m.toString.size - 1)
       // get code and remove whitespace before and after
       var code = ""
@@ -80,7 +94,7 @@ class Parser(s: String) {
         } 
       }
       
-      map = map + (index -> ("koan" + koans, Map("description" -> description, "code" -> escapeHTML(code.toString), "solutions" -> escapeHTML(solutions.mkString(";")))))
+      map = map + (index -> ("koan" + koans, Map("description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "solutions" -> escapeHTML(solutions.mkString(";")))))
       
       // add one so the next match is processed
       index += 1
@@ -92,9 +106,14 @@ class Parser(s: String) {
     var index = 0
     matches.foreach { m =>
       index = s.indexOf(m.toString, index)
+      
+      // prevent overwriting existing map item with same description 
+      if (map.contains(index))
+        index = s.indexOf(m.toString, index + 1)
+      
       codetasks += 1
       
-      val description = m.group(3).stripMargin('|')
+      val description = if (m.group(3) != null) m.group(3) else m.group(2).stripMargin('|')
       val pos = parseCurlyBraces(s, index + m.toString.size - 1)
       var code = s.slice(pos._1 + 1, pos._2)
       
@@ -136,7 +155,7 @@ class Parser(s: String) {
         testCode = testCode.replace("\n    ", "\n") 
       }
       
-      map = map + (index -> ("codetask" + codetasks, Map("description" -> description, "code" -> escapeHTML(code.toString), "test" -> escapeHTML(testCode))))
+      map = map + (index -> ("codetask" + codetasks, Map("description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "test" -> escapeHTML(testCode))))
       
       // add one so the next match is processed
       index += 1

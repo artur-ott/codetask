@@ -45,8 +45,9 @@
 		Polymer({
 			is: "code-task",
 			properties: {
+				aceTheme: String,
 		    	interpreterUrl: String,
-		    	souluionUrl: String
+		    	solutionsUrl: String
 		    },
 			ready: function() {
 				// only init with id
@@ -74,7 +75,7 @@
 
 				// init ace
 				this.editor = ace.edit(editor.id);
-				this.editor.setTheme("ace/theme/solarized_dark");
+				this.editor.setTheme(this.aceTheme);
 				this.editor.session.setMode(this.getAttribute("language") || "ace/mode/scala");
 				this.editor.setValue(this.getAttribute("code") || "");
 

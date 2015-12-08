@@ -1,14 +1,16 @@
 package support
 
 import java.io.PrintWriter
-import scala.io.Source
+import scala.io.Source._
 
-object App extends App {
-  
-  
-  
-  val pw = new PrintWriter("title.json")
+object App {
+  def main(args: Array[String]) {
+    val al = fromFile("src/tasks/AboutLists.scala").mkString;
+    val pw = new PrintWriter("title.json")
     
-  //pw.write(json)
+    val json = new Parser(al).parseToJson("About Scala Lists")
+    pw.write(json)
     pw.close()
+    println("finised")
+  }
 }

@@ -42,18 +42,14 @@ class Application extends Controller with Secured {
 		Ok(Json.parse("""{ "course": {
 		"title": "scala1",
 		"chapters": [{
-			"title": "AboutTest",
-			"tasks": {
-				"video1": {"description": "description","url": "https://www.youtube.com/watch?v=Y7VLcx4fz4A"},
-				"koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten","code": "result should equal (__)\nresult should === (__)\nresult should be __\nresult shouldEqual __\nresult shouldBe __","solutions": "3;3;List(3, 2, 1);\\\"text\\\";3"},
-				"codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben","code": "def rvrs(l: List[Any]): List[Any] = {\n//solve\n}\n\n","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"}
-			}
-		},{
-			"title": "AboutVal",
-			"tasks": {
-				"koan1": {"description": "test", "code": "1 should be __", "solution": "1"}
-			}
-		}]
+        "title": "About Scala Lists",
+        "tasks": {
+            "video1": {"description": "In diesem Kapitel sollend Listen in Scala näher erläutert werden\n Listen sind collections und können objekte speichern\n Listen sind prinzipiell immutable also unveränderbar\n Im folgenden Video werden Listen ausfürlich erläutert","url": "U23j6yH21W4"},
+            "koan1": {"description": "Mit der Funktion <pre>contains</pre> kann geprüft werden ob eine Liste ein bestimmtes Element enthält.\n Mit der Funktion <pre>map</pre> können funktionen auf listen angewendet werden, die Ergebnisse werden in einer neuen Liste gespeichert.\n Versuch in dem folgenden <pre>Koan</pre> die richtigen Werte einzutragen","code": "val l = List(1, 2, 3, 4)\n    val l2 = l.map { x => x + 1 }\n    val l3 = l.map { x => x * x }\n    \n    l should be (__)\n    l2 should be(__)\n    l3 shouldBe __","solutions": "List(1, 2, 3, 4);List(2, 3, 4, 5);List(1, 4, 9, 16)"},
+            "koan2": {"description": "Zu Listen können auch Werte hinzugefügt werden.<br>Dies kann mit <pre>++</pre> geschehen.","code": "val l = List(1, 3, 5)\n    val l2 = l ++ List(6)\n    \n    l2 shouldBe __","solutions": "List(1, 3, 5, 6)"},
+            "codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben.\n Nutzen Sie nicht die bereits vorhandenen Möglichkeit\n List.reverse","code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"}
+        }
+    }]
 	}
 }"""))
 	}
