@@ -1,0 +1,90 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../ace-import/ace-import.html">
+
+<dom-module id="code-task">
+	<style>
+		.editor {
+		    /*border: 5px solid #01313f;*/
+			display: inline-block;
+		}
+		.console-output {
+			overflow: auto;
+			color: #93a09f;
+			background-color: #01313f;
+		}
+		.editor, .console-output {
+			display: inline-block;
+			height: 300px;
+			width: 50%;
+			border: 0px;
+			border-radius: 0px;
+			margin-bottom: -4px;
+		}
+		.button {
+			font-size: 100%;
+			width: 100%;
+			height: 30px;
+			color: white;
+			text-align: center;
+			vertical-align: text-top;
+			background-color: #097C2C;
+			border: 0px;
+			border-bottom-left-radius: 25px;
+			border-bottom-right-radius: 25px;
+		}
+		.button:hover {
+			cursor: pointer;
+			opacity: 0.4;
+    		filter: alpha(opacity=40);
+		}
+	</style>
+
+	<script>
+		Polymer({
+			is: "code-task",
+			properties: {
+				aceTheme: String,
+		    	interpreterUrl: String,
+		    	solutionsUrl: String
+		    },
+			ready: function() {
+				// only init with id
+				if (this.id)
+					this.initEditor();
+				else
+					console.log("cant initialize without id");			
+			},
+			initEditor: function() {
+				// create children
+				var editor = document.createElement("PRE");
+				var co = document.createElement("PRE");
+				var btn = document.createElement("BUTTON");
+
+				btn.textContent = "Run";
+
+				var t = this;
+				var ids = ["editor", "console-output", "button"];
+
+				[editor, co, btn].forEach(function(n, i) {
+					n.id = t.id + "-" + ids[i];
+					n.classList.add(ids[i]);
+					t.appendChild(n);
+				});
+
+				// init ace
+				this.editor = ace.edit(editor.id);
+				this.editor.setTheme(this.aceTheme);
+				this.editor.session.setMode(this.getAttribute("language") || "ace/mode/scala");
+				this.editor.setValue(this.getAttribute("code") || "");
+
+				var f = function(s) {co.textContent = s;};
+				this.setConsole = f;
+				var e = this.editor;
+
+				btn.onclick = function() {
+					f(e.getValue());
+				};
+			}
+		});
+	</script>
+</dom-module>

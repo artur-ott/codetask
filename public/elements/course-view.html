@@ -1,10 +1,9 @@
-<link rel="import"
-      href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/koan-task/koan-task.html">
+<link rel="import" href="../bower_components/video-task/video-task.html">
+<link rel="import" href="../bower_components/code-task/code-task.html">
 
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
-<link rel="import" href="./video-task.html">
-<link rel="import" href="./koan-task.html">
-<link rel="import" href="./code-task.html">
 
 <dom-module id="course-view">
 	<template>
@@ -74,6 +73,7 @@
 		    	 		video.id = key;
 		    			video.videoUrl = task.url;
 		    	 		main.appendChild(video);
+		    	 		console.dir(video);
 		    	 		video.initVideo();
 
 		    		} else if (key.indexOf("koan") != -1) {
