@@ -68,13 +68,11 @@
 
 		    	 	if (key.indexOf("video") != -1) {
 
-		    	 		addDescription(main, task.description);
 		    	 		var video = document.createElement("video-task");
 		    	 		video.id = key;
-		    			video.videoUrl = task.url;
+		    	 		video.description = task.description;
+		    			video.url = task.url;
 		    	 		main.appendChild(video);
-		    	 		console.dir(video);
-		    	 		video.initVideo();
 
 		    		} else if (key.indexOf("koan") != -1) {
 

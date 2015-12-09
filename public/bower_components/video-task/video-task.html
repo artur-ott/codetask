@@ -1,39 +1,52 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../jquery-import/jquery-import.html">
+<link rel="import" href="../abstract-task/abstract-task.html">
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <dom-module id="video-task.html">
 	<script>
 		Polymer({
-			is: "video-task",
+			is: 'video-task',
+			extends: 'abstract-task',
 			properties: {
-				videoUrl: String,
-		    	solutionsUrl: String
+				url: String,
+		    	postUrl: String,
+		    	state: 2
 		    },
-			ready: function() {
-				if (!this.id) 
-					console.log("cant initialize without id");
-				else
-					this.initVideo();
-			},
-			initVideo: function() {
-				var div = document.createElement("DIV");
-				div.id = this.id + "-player";
-				this.appendChild(div);
+			attached: function() {
+				var video = this;
+
+				this.addDescription();
+
+			   	// add youtube player div
+				var div = document.createElement('div');
+				div.id = video.id + '-player';
+				video.appendChild(div);
+
 
 				// get video code
-				var url = this.videoUrl.split("?v=");
+				var url = video.url.split('?v=');
 
 				player = new YT.Player(div.id, {
 			        height: '300px',
-			        width: '600px',
+			        width: '100%',
 			        videoId: (url.size > 1 ? url[url.size - 1] : url),
 			        events: {
-			          'onStateChange': function(event) {
-			          	console.log(event.data); // send task completed
-			          }
+			            'onStateChange': function(event) {
+			            	// playing: 1, stopped: 2, ended: 0
+			            	video.state = event.data;
+			            	if (video.state == 0) video.check();
+			            }
 			        }
 		    	});
+			},
+			post: function() {
+				$.post(this.postUrl, { state: this.state })
+					.fail(function() {
+						alert('could not send video solution');
+					})
+				;
 			}
 		});
 	</script>
