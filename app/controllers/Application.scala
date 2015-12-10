@@ -11,23 +11,19 @@ import scala.collection.JavaConverters._
 class Application extends Controller with Secured {
 
 	// tests
-
-	def secureTest() = withUser { user => implicit request =>
-		Ok(views.html.polytest())
-	}
-
 	def testInterpret(code: String) = Action {
 		Ok(new CodeTask("", code, "").run().consoleOutput)
-	}
-
-	def socket() = WebSocket.acceptWithActor[String, String] { request => out =>
-		MyWebSocketActor.props(out)
 	}
 
 	def test() = Action {
 		Ok("Your Application is ready.")
 	}
 
+	def solution = Action(BodyParsers.parse.json) { request =>
+		println(request.body.toString)
+		Ok(Json.obj("success" -> "done"))
+		// TODO
+	}
 	// /tests
 
 	def index() = Action {
@@ -92,22 +88,5 @@ class Application extends Controller with Secured {
 	def dashboard() = withUser { user => implicit request =>
 		val courses = user.courses.map { course => (course._1, 1) }
 		Ok(views.html.dashboard(courses.toList))
-	}
-}
-
-import akka.actor._
-
-object MyWebSocketActor {
-	def props(out: ActorRef) = Props(new MyWebSocketActor(out))
-}
-
-class MyWebSocketActor(out: ActorRef) extends Actor {
-	def receive = {
-		case msg: String => {
-			println(msg)
-			val s = new CodeTask(code = msg).run().consoleOutput
-			println(s)
-			out ! (new CodeTask(code = msg).run().consoleOutput)
-		}
 	}
 }

@@ -12,12 +12,16 @@
 			properties: {
 				url: String,
 		    	postUrl: String,
-		    	state: 2
+		    	state: {
+		    		type: Number,
+		    		value: 2
+		    	}
 		    },
 			attached: function() {
 				var video = this;
 
-				this.addDescription();
+				video.addDescription();
+				if (video.state == 0) video.check();
 
 			   	// add youtube player div
 				var div = document.createElement('div');
@@ -35,18 +39,29 @@
 			        events: {
 			            'onStateChange': function(event) {
 			            	// playing: 1, stopped: 2, ended: 0
-			            	video.state = event.data;
-			            	if (video.state == 0) video.check();
+			            	if (event.data == 0) {
+			            		video.state = 0;
+			            		video.check();
+			            	}
 			            }
 			        }
 		    	});
 			},
 			post: function() {
-				$.post(this.postUrl, { state: this.state })
-					.fail(function() {
-						alert('could not send video solution');
-					})
-				;
+				$.ajax({
+					type: 'POST',
+					url: this.postUrl,
+					data: JSON.stringify({ state: this.state }),
+					contentType: 'application/json; charset=utf-8',
+					dataType: 'json',
+					success: function(data, status, xhr) {
+						console.log(this.id + ' saved');
+					},
+					error: function(xhr, status) {
+						console.log('could not save data of ' + 
+							this.id + ' status: ' + status);
+					}
+				});
 			}
 		});
 	</script>
