@@ -3,14 +3,14 @@
 
 <dom-module id="abstract-task">
 	<style>
-		.container {
+		.task-check-container {
 			position: relative;
 			width: 100%;
 			height: 0px;
 			right: 0;
 			top: 0;
 		}
-		.square {
+		.task-check-square {
 			position: absolute;
 			width: 50px;
 			height: 50px;
@@ -21,21 +21,21 @@
 			text-align: center;
 		}
 
-		.rightTriangle {
+		.task-check-right-triangle {
 			position: absolute;
 			right: 0;
 			border-width: 0 25px 25px 0;
 			border-color: transparent #097C2C transparent transparent;
 		}
 
-		.leftTriangle {
+		.task-check-left-triangle {
 			position: absolute;
 			right: 25px;
 			border-width: 25px 25px 0 0;
 			border-color: #097C2C transparent transparent transparent;
 		}
 
-		.rightTriangle, .leftTriangle {
+		.task-check-right-triangle, .task-check-left-triangle {
 			top: 50px;
 			padding: 0px;
 			width: 0px;
@@ -47,23 +47,41 @@
 	<script>
 		Polymer({
 			is: 'abstract-task',
-			properties: {
-				description: String
+
+			// instance state
+			created: function() {
+				this.checked_ = false;
 			},
+
+			get description() { return this.description_; },
+			set description(value) { this.description_ = value; },
+			get checked() { return this.checked_; },
+			set checked(value) { this.checked_ = value; },
+
+
 			addDescription: function() {
 				var p = document.createElement('p');
 				p.innerHTML = this.description;
 				$(this).before(p);
 			},
-			check: function() {
-				$(this).before(
-					$('<div></div>').addClass('container').append(
-						$('<div>Done</div>').addClass('square'),
-						$('<div></div>').addClass('leftTriangle'),
-						$('<div></div>').addClass('rightTriangle')
-					)
-				);
-			}
+			check: function(bool) {
+				console.log(this.checked);
+				if (bool && !this.checked) {
+					var r = $('<div>Done</div>').addClass('task-check-square');
+					var tl = $('<div></div>').addClass('task-check-left-triangle');
+					var tr = $('<div></div>').addClass('task-check-right-triangle');
+
+					this.task_check_ = $('<div></div>')
+						.addClass('task-check-container')
+						.append(r, tl, tr)
+						.insertBefore(this);
+
+					this.checked = true;
+				} else if (!bool && this.checked) {
+					this.task_check_.remove();
+					this.checked = false;
+				}
+			},
 		});
 	</script>
 </dom-module>

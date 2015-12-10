@@ -1,99 +1,185 @@
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../jquery-import/jquery-import.html">
+<link rel="import" href="../abstract-task/abstract-task.html">
 <link rel="import" href="../ace-import/ace-import.html">
 <link rel="import" href="../ace-static-import/ace-static-import.html">
 
 <dom-module id="koan-task.html">
-	<!--<template>
-		<div id="koan1">
-			<div class="line">var x = 1</div>
-			<div class="line">var y = 5</div>
-			<div class="line">y should be (</div><span contenteditable="true" class="solution" ></span><div class="line">)</div>
-			<div class="line">oderso</div><span></span>
-		</div>
-	</template>-->
-
 	<style>
-		.line {
-				display: inline-block;
-				margin-top: 0px;
-				margin-bottom: 0px;
+		.koan-container {
+			padding-top: 10px;
+			padding-bottom: 10px;
 		}
-		.solution {
+		.ace-gutter {
+			margin-top: 2px;
+			margin-bottom: 2px;
+		}
+		.ace_static_highlight {	
+			font-size: 11pt !important;
+		}
+		.koan-line {
+			display: inline-block;
+			margin-top: 0px;
+			margin-bottom: 0px;
+			padding: 0px;
+		}
+		.koan-solution {
 			display: inline-block;
 			width: auto !important;
 			height: 20px;
+			font-family: "Lucida Console", Monaco, monospace;
 			min-width: 30px;
 			max-width: 50%;
 			padding-right: 5px;
 			padding-left: 5px;
 			text-align: center;
 			vertical-align: middle;
-			color: green;
-			border-bottom: 1px solid;
+			color: red;
+			border-bottom: 1.5px solid;
 			outline: none;
 			outline-style: none;
 			-moz-outline-style:none;
 		}
+		.koan-solved {
+			color: #168A0A;
+		}
 	</style>
-
 	<script>
 		Polymer({
-			is: "koan-task",
-			properties: {
-				koanCode: String,
-				aceTheme: String,
-		    	solutionsUrl: String
-		    },
-			ready: function() {
-				if (!this.id)
-					console.log("koan cant initialize without id")
-				else
-					this.initKoan();
-			},
-			initKoan: function() {
-				var div = document.createElement("DIV");
-				div.id = this.id + "-code";
-				this.appendChild(div);
+			is: 'koan-task',
+			extends: 'abstract-task',
 
-				var highlight = ace.require("ace/ext/static_highlight");
-				var opts = {
-					mode: "ace/mode/lua",
-					theme: this.aceTheme,
+			// instance state
+			created: function() {
+				this.code_ = '';
+				this.solutions_ = '';
+				this.mode_ = 'scala';
+				this.theme_ = 'solarized_dar';
+				this.postUrl_ = '';
+				this.mySolutions_ = '';
+
+				this.delimiter_ = '@@@';
+			},
+
+			get code() { return this.code_; },
+			set code(value) { this.code_ = value; },
+			get solutions() { return this.solutions_; },
+			set solutions(value) { this.solutions_ = value; },
+			get mode() { return this.mode_; },
+			set mode(value) { this.mode_ = value; },
+			get theme() { return this.theme_; },
+			set theme(value) { this.theme_ = value; },
+			get postUrl() { return this.postUrl_; },
+			set postUrl(value) { this.postUrl_ = value; },
+			get mySolutions() { return this.mySolutions_; },
+			set mySolutions(value) { this.mySolutions_ = value; },
+			
+		    attached: function() {
+		    	this.addDescription();
+
+		    	// create parent div
+		    	var parent = $('<div></div>')
+		    		.attr('id', this.id + '-code')
+		    		.addClass('ace-' + this.theme.replace('_', '-'))
+		    		.addClass('koan-container')
+		    		.appendTo(this);
+
+		    	// set up ace highlighting
+		    	var highlight = ace.require('ace/ext/static_highlight');
+		    	var opts = {
+					mode: 'ace/mode/' + this.mode,
+					theme: 'ace/theme/' + this.theme,
 					firstLineNumber: 0,
 					showGutter: false,
 					trim: true
 				};
 
-				this.koanCode.split("\n").forEach(function(line, i) {
-					line.split("__").forEach(function(part, j) {
-						if (j != 0) {
-							var solutionDiv = document.createElement("SPAN");
-							solutionDiv.setAttribute("contenteditable", true);
-							solutionDiv.classList.add("solution");
-							div.appendChild(solutionDiv);
 
+				// break up code into lines and highlight code
+				this.code.split('\n').forEach(function(line, i) {
+					line.split('__').forEach(function(part, j) {
+						if (j != 0) {
+							var span = $('<span></span>')
+								.attr('contenteditable', true)
+								.addClass('koan-solution')
+								.appendTo(parent);
+
+							// disable shift and Enter
+							$(span).keypress(function(e) {
+								return e.which != 13;
+							});
+							// not first part -> no line gutter
 							opts.showGutter = false;
 						} else {
 							opts.showGutter = true;
 							opts.firstLineNumber = i + 1;
 						}
 
-						var lineDiv = document.createElement("DIV");
-						lineDiv.textContent = part;
-						lineDiv.classList.add("line");
-						div.appendChild(lineDiv);
-						highlight(lineDiv, opts);
+						var div = $('<div></div>')
+							.text(part)
+							.addClass('koan-line')
+							.appendTo(parent);
+
+						highlight(div[0], opts);
 					});
-					var br = document.createElement("BR");
-					div.appendChild(br);
+					var br = document.createElement('br');
+					parent.append(br);
 				});
-				opts.showGutter = false;
-				var lineDiv = document.createElement("DIV");
-				lineDiv.textContent = " ";
-				lineDiv.classList.add("line");
-				div.appendChild(lineDiv);
-				highlight(lineDiv, opts);
-				highlight(div, opts);
+
+				this.mySolutions = this.mySolutions.split(this.delimiter_)
+				var solutions = this.solutions.split(this.delimiter_);
+				var this_ = this;
+
+				// prepare observer
+				var observer = new MutationObserver(function(mutations) {
+				    mutations.forEach(function(mutation) {
+				    	$(parent).find('.koan-solution').each(function(index) {
+				    		var text = $(this).text();
+				    		this_.mySolutions[index] = text;
+
+				    		if (text == solutions[index]) {
+				    			$(this).addClass('koan-solved');
+				    			if (solutions.toString() == 
+				    				this_.mySolutions.toString()) {
+				    				this_.check(true);
+				    				console.log('yes');
+				    			}
+				    		} else {
+				    			$(this).removeClass('koan-solved');
+				    			this_.check(false);
+				    				console.log('no');
+				    		}
+				    	});
+				    });
+				});
+
+				// observe parent
+				observer.observe(parent[0], {
+					attributes: true,
+					childList: true,
+					subtree: true,
+					characterData: true
+				});
+			},
+			post: function() {
+				var this_ = this;
+
+				$.ajax({
+					type: 'POST',
+					url: this.postUrl,
+					data: JSON.stringify({ 
+						mySolutions: this_.mySolutions.join(this_delimiter)
+					}),
+					contentType: 'application/json; charset=utf-8',
+					dataType: 'json',
+					success: function(data, status, xhr) {
+						console.log(this.id + ' saved');
+					},
+					error: function(xhr, status) {
+						console.log('could not save data of ' + 
+							this.id + ' status: ' + status);
+					}
+				});
 			}
 		});
 	</script>
