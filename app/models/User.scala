@@ -1,7 +1,9 @@
 package models
 
+import play.api.libs.json._
+
 // courses: Map[coursename, Map[chaptername, Map[taskname, solution]]]
-class User(var username: String, var authority: String, var password: String, var courses: Map[String, Map[String, Map[String, String]]] = Map())
+class User(var username: String, var authority: String, var password: String, var courses: Map[String, Map[String, JsObject]] = Map())
 
 trait UserRepository {
 	def findOneByUsername(username: String): Option[User]

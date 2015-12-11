@@ -48,15 +48,25 @@
 		Polymer({
 			is: 'abstract-task',
 
-			// instance state
-			created: function() {
-				this.checked_ = false;
+			// constructor
+			_super: function() {
+				this.data = {};
+				this.state = {};
+				this.state.checked = false;
 			},
 
-			get description() { return this.description_; },
-			set description(value) { this.description_ = value; },
-			get checked() { return this.checked_; },
-			set checked(value) { this.checked_ = value; },
+			get state() { return this.state_; },
+			set state(value) { this.state_ = value; },
+			get data() { return this.data_; },
+			set data(value) { this.data_ = value; },
+
+			// data
+			get description() { return this.data.description; },
+			set description(value) { this.data.description = value; },
+			
+			// state
+			get checked() { return this.state.checked; },
+			set checked(value) { this.state.checked = value; },
 
 
 			addDescription: function() {
@@ -70,17 +80,20 @@
 					var tl = $('<div></div>').addClass('task-check-left-triangle');
 					var tr = $('<div></div>').addClass('task-check-right-triangle');
 
-					this.task_check_ = $('<div></div>')
+					this.data.task_check = $('<div></div>')
 						.addClass('task-check-container')
 						.append(r, tl, tr)
 						.insertBefore(this);
 
 					this.checked = true;
 				} else if (!bool && this.checked) {
-					this.task_check_.remove();
+					this.data.task_check.remove();
 					this.checked = false;
 				}
 			},
+			//state: function() {
+			//	return this.state_;
+			//}
 		});
 	</script>
 </dom-module>

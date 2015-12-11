@@ -12,15 +12,19 @@
 			
 			// instance state
 			created: function() {
-				this.watched_ = false;
+				this._super();
+				this.watched = false;
 			},
 
-			get url() { return this.url_; },
-			set url(value) { this.url_ = value; },
-			get postUrl() { return this.postUrl_; },
-			set postUrl(value) { this.postUrl_ = value; },
-			get watched() { return this.watched_; },
-			set watched(value) { this.watched_ = value; },
+			// data
+			get url() { return this.data.url; },
+			set url(value) { this.data.url = value; },
+			get postUrl() { return this.data.postUrl; },
+			set postUrl(value) { this.data.postUrl = value; },
+
+			// state
+			get watched() { return this.state.watched; },
+			set watched(value) { this.state.watched = value; },
 
 			attached: function() {
 				this.addDescription();
@@ -50,18 +54,20 @@
 		    	});
 			},
 			post: function() {
+				var this_ = this;
+
 				$.ajax({
 					type: 'POST',
 					url: this.postUrl,
-					data: JSON.stringify({ watched: this.watched }),
+					data: JSON.stringify({ state: this.state }),
 					contentType: 'application/json; charset=utf-8',
 					dataType: 'json',
 					success: function(data, status, xhr) {
-						console.log(this.id + ' saved');
+						console.log(this_.id + ' saved');
 					},
 					error: function(xhr, status) {
 						console.log('could not save data of ' + 
-							this.id + ' status: ' + status);
+							this_.id + ' status: ' + status);
 					}
 				});
 			}

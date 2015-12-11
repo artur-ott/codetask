@@ -2,13 +2,17 @@ import org.specs2.mutable._
 
 import play.api.test._
 import play.api.test.Helpers._
+import play.api.libs.json._
 import models.CodeTask
 import models.Execution
 import models._
 
 class CourseServiceSpec extends Specification {
 	val courseService = new CourseService(Config);
-	val course1 = new Course("scala", "json")
+	val jsVal = Json.parse("1")
+	val seq = Map(("val" -> jsVal))
+	val jsObj = new JsObject(seq)
+	val course1 = new Course("scala", jsObj)
 
 	"CourseService#findOneByName" should {
 		"fail with unknown course name" in {
@@ -25,16 +29,19 @@ class CourseServiceSpec extends Specification {
 		}
 	}
 	"CourseService#findAll" should {
-		"give all Services" in {
+		"give all courses" in {
 			courseService.findAll().size shouldEqual(1)
 		}
 	}
 	"CourseService#update" should {
 		"work with existing course" in {
-			course1.json = "new json"
+			val jsVal = Json.parse("1")
+			val seq = Map(("val2" -> jsVal))
+			val jsObj = new JsObject(seq)
+			course1.jsObj = jsObj
 			courseService.update(course1)
 			val course = courseService.findOneByName("scala").get
-			course.json shouldEqual("new json")
+			course.jsObj.keys.contains("val2") must beTrue
 		}
 	}
 	"CourseService#delete" should {

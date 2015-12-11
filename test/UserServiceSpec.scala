@@ -2,6 +2,7 @@ import org.specs2.mutable._
 
 import play.api.test._
 import play.api.test.Helpers._
+import play.api.libs.json._
 import models.CodeTask
 import models.Execution
 import models._
@@ -27,11 +28,14 @@ class UserServiceSpec extends Specification {
 	"UserService#update" should {
 		"work with existing user" in {
 			user1.authority = "teacher"
-			//user1.courses = List("java", "scala")
+			val jsVal = Json.parse("1")
+			val seq = Map(("state" -> jsVal))
+			val jsObj = new JsObject(seq)
+			user1.courses = Map(("course1" -> Map(("chapter1" -> jsObj))))
 			userService.update(user1)
 			val user = userService.findOneByUsername("email").get
 			user.authority equals "teacher" must beTrue
-			//user.courses should be equalTo(List("java", "scala"))
+			user.courses.contains("course1") must beTrue
 		}
 	}
 	"UserService#delete" should {

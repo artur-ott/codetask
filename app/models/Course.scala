@@ -1,6 +1,8 @@
 package models
 
-class Course(var name: String, var json: String)
+import play.api.libs.json._
+
+class Course(var name: String, var jsObj: JsObject)
 
 trait CourseRepository {
 	def findOneByName(name: String): Option[Course]

@@ -102,29 +102,45 @@
 
 				// setup button
 				var this_ = this;
-				button.click(function() {
-					// send to interpreter
-					this_.post(this_.interpreterUrl, { 
-							code: this_.code,
-							mode: this_.mode,
-						}, 
-						function(data, status, xhr) {
-							alert(status);
-						}, function(xhr, status) {
-							alert(status);
-						});
-					this_.output.text(this_.aceEditor.getValue());
-				});
+				button.click(function() { this_.run(); });
 			},
-			post: function(url, obj, success, error) {
+			post: function() {
+				var this_ = this;
+
 				$.ajax({
 					type: 'POST',
-					url: url,
-					data: JSON.stringify(obj),
+					url: this.postUrl,
+					data: JSON.stringify({ code: this.code }),
 					contentType: 'application/json; charset=utf-8',
 					dataType: 'json',
-					success: success,
-					error: error
+					success: function(data, status, xhr) {
+						console.log(this_.id + ' saved');
+					},
+					error: function(xhr, status) {
+						console.log('could not save data of ' + 
+							this_.id + ' status: ' + status);
+					}
+				});
+			},
+			run: function() {
+				var this_ = this;
+
+				$.ajax({
+					type: 'POST',
+					url: this.interpreterUrl,
+					data: JSON.stringify({ code: this.code }),
+					contentType: 'application/json; charset=utf-8',
+					dataType: 'json',
+					success: function(data, status, xhr) {
+						if (status == 'success')
+							this_.output.text(data.output);
+						else
+							this_.output.text(data.error);
+					},
+					error: function(xhr, status) {
+						console.log('could not save data of ' + 
+							this_.id + ' status: ' + status);
+					}
 				});
 			}
 		});

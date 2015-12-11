@@ -21,8 +21,8 @@ GET     /solutions/json/:courseName     controllers.Application.solutionsJSON(co
 # User Options
 GET     /course/subscribe/:courseName      controllers.Application.courseSubscribe(courseName: String)
 GET     /course/unsubscribe/:courseName    controllers.Application.courseUnsubscribe(courseName: String)
-#POST    /user/solutions/:solutions         controllers.Application.updateSolutions(solutions: String)
-
+#POST    /solution/:courseName/:taskName    controllers.Application.solutionSave(courseName: String, taskName: String)
+#POST    /interpreter/:courseName/:taskName controllers.Application.interpreteCode(courseName: String, taskName: String)
 
 #tests
 GET     /test                       controllers.Application.test

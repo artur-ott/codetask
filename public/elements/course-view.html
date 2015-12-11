@@ -80,25 +80,31 @@
 
 		    			var koan = document.createElement("koan-task");
 		    			koan.id = key;
+		    	 		console.log('change desc');
 		    			koan.description = task.description;
-		    			koan.theme = aceTheme;
-		    			koan.mode = 'scala';
+		    			//koan.theme = aceTheme;
+		    			koan.mode = 'java';
 		    			koan.code = task.code;
-		    			koan.solutions = task.solutions;
+		    			if (typeof task.solutions == 'string') {
+		    				koan.solutions = task.solutions.split('@@@');
+		    				koan.mySolutions = task.solutions.split('@@@');
+		    			} else {
+		    				koan.solutions = task.solutions;
+		    			}
 		    			koan.postUrl = '/solution';
 		    			main.appendChild(koan);
 
 		    		} else if (key.indexOf("codetask") != -1) {
 
-		    			var editor = document.createElement("code-task");
+		    			/*var editor = document.createElement("code-task");
 		    			editor.id = key;
 		    			editor.description = task.description;
 		    			editor.interpreterUrl = '/solution';
 		    			editor.postUrl = '/solution';
-		    			editor.theme = aceTheme;
+		    			//editor.theme = aceTheme;
 		    			editor.mode = 'scala';
 		    			editor.code = task.code;
-		    			main.appendChild(editor);
+		    			main.appendChild(editor);*/
 		    		}
 		    	});
 		    },
