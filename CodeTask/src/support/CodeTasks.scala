@@ -94,7 +94,7 @@ class Parser(s: String) {
         } 
       }
       
-      map = map + (index -> ("koan" + koans, Map("description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "solutions" -> escapeHTML(solutions.mkString(";")))))
+      map = map + (index -> ("koan" + koans, Map("description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "solutions" -> escapeHTML(solutions.mkString("@@@")))))
       
       // add one so the next match is processed
       index += 1

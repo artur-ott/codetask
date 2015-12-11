@@ -10,9 +10,9 @@ class AboutLists extends CodeTaskSuite {
          | Listen sind prinzipiell immutable also unveränderbar
          | Im folgenden Video werden Listen ausfürlich erläutert""", "U23j6yH21W4")
   
-  koan("""Mit der Funktion <pre>contains</pre> kann geprüft werden ob eine Liste ein bestimmtes Element enthält.
-        | Mit der Funktion <pre>map</pre> können funktionen auf listen angewendet werden, die Ergebnisse werden in einer neuen Liste gespeichert.
-        | Versuch in dem folgenden <pre>Koan</pre> die richtigen Werte einzutragen""") {
+  koan("""Mit der Funktion <b>contains</b> kann geprüft werden ob eine Liste ein bestimmtes Element enthält.
+        | Mit der Funktion <b>map</b> können funktionen auf listen angewendet werden, die Ergebnisse werden in einer neuen Liste gespeichert.
+        | Versuch in dem folgenden <b>Koan</b> die richtigen Werte einzutragen""") {
     val l = List(1, 2, 3, 4)
     val l2 = l.map { x => x + 1 }
     val l3 = l.map { x => x * x }
@@ -22,7 +22,7 @@ class AboutLists extends CodeTaskSuite {
     l3 shouldBe List(1, 4, 9, 16)
   }
   
-  koan("Zu Listen können auch Werte hinzugefügt werden.<br>Dies kann mit <pre>++</pre> geschehen.") {
+  koan("Zu Listen können auch Werte hinzugefügt werden.<br>Dies kann mit <b>++</b> geschehen.") {
     val l = List(1, 3, 5)
     val l2 = l ++ List(6)
     
@@ -31,7 +31,7 @@ class AboutLists extends CodeTaskSuite {
   
   codetask("""schreiben sie eine function reverse die eine umgekehrte liste zurück geben.
             | Nutzen Sie nicht die bereits vorhandenen Möglichkeit
-            | List.reverse""") {
+            | <b>List.reverse</b>""") {
     def rvrs(l: List[Any]): List[Any] = {
       //solve
       l match {
