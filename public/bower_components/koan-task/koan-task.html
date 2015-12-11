@@ -54,7 +54,7 @@
 				this.code_ = '';
 				this.solutions_ = '';
 				this.mode_ = 'scala';
-				this.theme_ = 'solarized_dar';
+				this.theme_ = 'solarized_dark';
 				this.postUrl_ = '';
 				this.mySolutions_ = '';
 
@@ -94,7 +94,6 @@
 					trim: true
 				};
 
-
 				// break up code into lines and highlight code
 				this.code.split('\n').forEach(function(line, i) {
 					line.split('__').forEach(function(part, j) {
@@ -122,8 +121,7 @@
 
 						highlight(div[0], opts);
 					});
-					var br = document.createElement('br');
-					parent.append(br);
+					$(parent).append('<br>');
 				});
 
 				this.mySolutions = this.mySolutions.split(this.delimiter_)
@@ -142,12 +140,10 @@
 				    			if (solutions.toString() == 
 				    				this_.mySolutions.toString()) {
 				    				this_.check(true);
-				    				console.log('yes');
 				    			}
 				    		} else {
 				    			$(this).removeClass('koan-solved');
 				    			this_.check(false);
-				    				console.log('no');
 				    		}
 				    	});
 				    });
@@ -162,13 +158,11 @@
 				});
 			},
 			post: function() {
-				var this_ = this;
-
 				$.ajax({
 					type: 'POST',
 					url: this.postUrl,
 					data: JSON.stringify({ 
-						mySolutions: this_.mySolutions.join(this_delimiter)
+						mySolutions: this.mySolutions.join(this.delimiter_)
 					}),
 					contentType: 'application/json; charset=utf-8',
 					dataType: 'json',

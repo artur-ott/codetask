@@ -9,30 +9,32 @@
 		Polymer({
 			is: 'video-task',
 			extends: 'abstract-task',
-			properties: {
-				url: String,
-		    	postUrl: String,
-		    	state: {
-		    		type: Number,
-		    		value: 2
-		    	}
-		    },
-			attached: function() {
-				var video = this;
+			
+			// instance state
+			created: function() {
+				this.watched_ = false;
+			},
 
-				video.addDescription();
-				if (video.state == 0) video.check();
+			get url() { return this.url_; },
+			set url(value) { this.url_ = value; },
+			get postUrl() { return this.postUrl_; },
+			set postUrl(value) { this.postUrl_ = value; },
+			get watched() { return this.watched_; },
+			set watched(value) { this.watched_ = value; },
+
+			attached: function() {
+				this.addDescription();
+				
+				if (this.watched) this.check(true);
 
 			   	// add youtube player div
-				var div = document.createElement('div');
-				div.id = video.id + '-player';
-				video.appendChild(div);
-
+			   	var id = this.id + '-player';
+			   	$('<div></div>').attr('id', id).appendTo(this);
 
 				// get video code
-				var url = video.url.split('?v=');
-
-				player = new YT.Player(div.id, {
+				var url = this.url.split('?v=');
+				var this_ = this;
+				player = new YT.Player(id, {
 			        height: '300px',
 			        width: '100%',
 			        videoId: (url.size > 1 ? url[url.size - 1] : url),
@@ -40,8 +42,8 @@
 			            'onStateChange': function(event) {
 			            	// playing: 1, stopped: 2, ended: 0
 			            	if (event.data == 0) {
-			            		video.state = 0;
-			            		video.check();
+			            		this_.watched = true;
+			            		this_.check(true);
 			            	}
 			            }
 			        }
@@ -51,7 +53,7 @@
 				$.ajax({
 					type: 'POST',
 					url: this.postUrl,
-					data: JSON.stringify({ state: this.state }),
+					data: JSON.stringify({ watched: this.watched }),
 					contentType: 'application/json; charset=utf-8',
 					dataType: 'json',
 					success: function(data, status, xhr) {

@@ -1,18 +1,21 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../ace-import/ace-import.html">
+<link rel="import" href="../abstract-task/abstract-task.html">
 
 <dom-module id="code-task">
 	<style>
-		.editor {
+		.code-task-editor {
 		    /*border: 5px solid #01313f;*/
 			display: inline-block;
 		}
-		.console-output {
+		.code-task-output {
 			overflow: auto;
+			padding-top: 1px;
 			color: #93a09f;
+			font-family: "Lucida Console", Monaco, monospace;
 			background-color: #01313f;
 		}
-		.editor, .console-output {
+		.code-task-editor, .code-task-output {
 			display: inline-block;
 			height: 300px;
 			width: 50%;
@@ -20,7 +23,7 @@
 			border-radius: 0px;
 			margin-bottom: -4px;
 		}
-		.button {
+		.code-task-button {
 			font-size: 100%;
 			width: 100%;
 			height: 30px;
@@ -32,7 +35,7 @@
 			border-bottom-left-radius: 25px;
 			border-bottom-right-radius: 25px;
 		}
-		.button:hover {
+		.code-task-button:hover {
 			cursor: pointer;
 			opacity: 0.4;
     		filter: alpha(opacity=40);
@@ -41,49 +44,88 @@
 
 	<script>
 		Polymer({
-			is: "code-task",
-			properties: {
-				aceTheme: String,
-		    	interpreterUrl: String,
-		    	solutionsUrl: String
-		    },
-			ready: function() {
-				// only init with id
-				if (this.id)
-					this.initEditor();
-				else
-					console.log("cant initialize without id");			
+			is: 'code-task',
+			extends: 'abstract-task',
+
+			// instance state
+			created: function() {
+				this.code_ = '';
+				this.mode_ = 'scala';
+				this.theme_ = 'solarized_dark';
+				this.interpreterUrl_ = '';
+				this.postUrl_ = '';
 			},
-			initEditor: function() {
+
+			get code() { return this.code_; },
+			set code(value) { this.code_ = value; },
+			get mode() { return this.mode_; },
+			set mode(value) { this.mode_ = value; },
+			get theme() { return this.theme_; },
+			set theme(value) { this.theme_ = value; },
+			get interpreterUrl() { return this.interpreterUrl_; },
+			set interpreterUrl(value) { this.interpreterUrl_ = value; },
+			get postUrl() { return this.postUrl_; },
+			set postUrl(value) { this.postUrl_ = value; },
+			get aceEditor() { return this.aceEditor_; },
+			set aceEditor(value) { this.aceEditor_ = value; },
+			get output() { return this.output_; },
+			set output(value) { this.output_ = value; },
+
+			attached: function() {
+				this.addDescription();
+
 				// create children
-				var editor = document.createElement("PRE");
-				var co = document.createElement("PRE");
-				var btn = document.createElement("BUTTON");
+				var editor = $('<pre></pre>')
+					.addClass('code-task-editor')
+					.attr('id', this.id + '-editor')
+					.appendTo(this);
 
-				btn.textContent = "Run";
+				var output = $('<pre></pre>')
+					.addClass('code-task-output')
+					.attr('id', this.id + '-output')
+					.appendTo(this);
 
-				var t = this;
-				var ids = ["editor", "console-output", "button"];
+				var button = $('<button>Run</button>')
+					.addClass('code-task-button')
+					.attr('id', this.id + '-button')
+					.appendTo(this);
 
-				[editor, co, btn].forEach(function(n, i) {
-					n.id = t.id + "-" + ids[i];
-					n.classList.add(ids[i]);
-					t.appendChild(n);
+				// setupt ace editor
+				this.aceEditor_ = ace.edit(editor.attr('id'));
+				this.aceEditor.setTheme('ace/theme/' + this.theme);
+				this.aceEditor.session.setMode('ace/mode/' + this.mode);
+				this.aceEditor.setOptions({fontSize: '11pt'});
+				this.aceEditor.setValue(this.code);
+
+				// setup console
+				this.output = output;
+
+				// setup button
+				var this_ = this;
+				button.click(function() {
+					// send to interpreter
+					this_.post(this_.interpreterUrl, { 
+							code: this_.code,
+							mode: this_.mode,
+						}, 
+						function(data, status, xhr) {
+							alert(status);
+						}, function(xhr, status) {
+							alert(status);
+						});
+					this_.output.text(this_.aceEditor.getValue());
 				});
-
-				// init ace
-				this.editor = ace.edit(editor.id);
-				this.editor.setTheme(this.aceTheme);
-				this.editor.session.setMode(this.getAttribute("language") || "ace/mode/scala");
-				this.editor.setValue(this.getAttribute("code") || "");
-
-				var f = function(s) {co.textContent = s;};
-				this.setConsole = f;
-				var e = this.editor;
-
-				btn.onclick = function() {
-					f(e.getValue());
-				};
+			},
+			post: function(url, obj, success, error) {
+				$.ajax({
+					type: 'POST',
+					url: url,
+					data: JSON.stringify(obj),
+					contentType: 'application/json; charset=utf-8',
+					dataType: 'json',
+					success: success,
+					error: error
+				});
 			}
 		});
 	</script>
