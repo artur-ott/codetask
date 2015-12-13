@@ -11,6 +11,11 @@ class UserRepositoryDb4o extends UserRepository {
  		}
 	}
 
+	def findAll(): List[User] = {
+		val client = ServerSingleton.objectServer.openClient();
+		new A(client) query {user: User => true}
+	}
+
 	def create(user: User): Option[User] = {
  		val client = ServerSingleton.objectServer.openClient();
  		new A(client) query {u: User => u.username == user.username} match {
@@ -60,10 +65,12 @@ class CourseRepositoryDb4o() extends CourseRepository {
  			case _       => client.close(); None
  		}
 	}
+
 	def findAll(): List[Course] = {
 		val client = ServerSingleton.objectServer.openClient();
 		new A(client) query {course: Course => true}
 	}
+
 	def create(course: Course): Option[Course] = {
 		val client = ServerSingleton.objectServer.openClient();
  		new A(client) query {c: Course => c.name == course.name} match {
@@ -75,6 +82,7 @@ class CourseRepositoryDb4o() extends CourseRepository {
 				Some(course)
  		}
 	}
+
 	def update(course: Course): Option[Course] = {
  		var client = ServerSingleton.objectServer.openClient();
  		new A(client) query {c: Course => c.name == course.name} match {
@@ -88,6 +96,7 @@ class CourseRepositoryDb4o() extends CourseRepository {
  			case _       => client.close(); None
  		}
 	}
+
 	def delete(course: Course): Option[Course] = {
 		val client = ServerSingleton.objectServer.openClient();
  		new A(client) query {c: Course => c.name == course.name} match {

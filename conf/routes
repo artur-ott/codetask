@@ -17,17 +17,17 @@ POST    /authenticate               controllers.Auth.authenticate
 GET     /courses/json                   controllers.Application.coursesJSON
 GET     /course/json/:courseName        controllers.Application.courseJSON(courseName: String)
 GET     /solutions/json/:courseName     controllers.Application.solutionsJSON(courseName: String)
+POST    /course/json/:courseName        controllers.Application.courseSave(courseName: String)
 
 # User Options
-GET     /course/subscribe/:courseName      controllers.Application.courseSubscribe(courseName: String)
-GET     /course/unsubscribe/:courseName    controllers.Application.courseUnsubscribe(courseName: String)
-#POST    /solution/:courseName/:taskName    controllers.Application.solutionSave(courseName: String, taskName: String)
-#POST    /interpreter/:courseName/:taskName controllers.Application.interpreteCode(courseName: String, taskName: String)
+GET     /course/subscribe/:courseName                       controllers.Application.courseSubscribe(courseName: String)
+GET     /course/unsubscribe/:courseName                     controllers.Application.courseUnsubscribe(courseName: String)
+POST    /solution/:courseName/:chapterName/:taskName        controllers.Application.solutionSave(courseName: String, chapterName: String, taskName: String)
+#POST    /interpreter/:courseName/:chapterName/:taskName    controllers.Application.interpreteCode(courseName: String, chapterName: String, taskName: String)
 
 #tests
 GET     /test                       controllers.Application.test
 GET     /testInterpret/:code        controllers.Application.testInterpret(code: String)
-POST    /solution                   controllers.Application.solution
 #POST    /interpret                 controllers.Application.interpret
 
 # Map static resources from the /public folder to the /assets URL path

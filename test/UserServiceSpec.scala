@@ -25,13 +25,18 @@ class UserServiceSpec extends Specification {
 			userService.create(user1) should be(None)
 		}
 	}
+	"UserService#findAll" should {
+		"give all Users" in {
+			userService.findAll().size shouldEqual(1)
+		}
+	}
 	"UserService#update" should {
 		"work with existing user" in {
 			user1.authority = "teacher"
 			val jsVal = Json.parse("1")
 			val seq = Map(("state" -> jsVal))
 			val jsObj = new JsObject(seq)
-			user1.courses = Map(("course1" -> Map(("chapter1" -> jsObj))))
+			user1.courses = Map(("course1" -> Map("chapter1" -> Map("task1" -> jsObj))))
 			userService.update(user1)
 			val user = userService.findOneByUsername("email").get
 			user.authority equals "teacher" must beTrue

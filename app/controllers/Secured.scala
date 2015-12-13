@@ -4,12 +4,7 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
-import models.{User, UserService, CourseService, Config}
-
-object Services {
-    val userService = new UserService(Config)
-    val courseService = new CourseService(Config)
-}
+import models._
 
 trait Secured {
   def username(request: RequestHeader) = request.session.get(Security.username)
@@ -22,10 +17,18 @@ trait Secured {
     }
   }
 
-  /**
-   * This method shows how you could wrap the withAuth method to also fetch your user
-   * You will need to implement UserDAO.findOneByUsername
-   */
+   def withAuth[A](bp: BodyParser[A])(f: => String => Request[A] => Result) = {
+    Security.Authenticated(username, onUnauthorized) { user =>
+      Action(bp)(request => f(user)(request))
+    }
+  }
+
+  def withUser[A](bp: BodyParser[A])(f: User => Request[A] => Result) = withAuth(bp) { username => implicit request =>
+    Services.userService.findOneByUsername(username).map { user =>
+      f(user)(request)
+    }.getOrElse(onUnauthorized(request))
+  }
+
   def withUser(f: User => Request[AnyContent] => Result) = withAuth { username => implicit request =>
     Services.userService.findOneByUsername(username).map { user =>
       f(user)(request)
