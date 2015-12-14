@@ -2,32 +2,34 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
-GET     /                           controllers.Application.index
+# Home page navigation
 GET     /login                      controllers.Auth.login
 GET     /logout                     controllers.Auth.logout
 GET     /register                   controllers.Auth.register
+GET     /                           controllers.Application.index
 GET     /dashboard                  controllers.Application.dashboard
-GET     /course/:courseName         controllers.Application.course(courseName: String)
+GET     /course/:courseId           controllers.Application.course(courseId: Long)
+
+# User API
 POST    /submit                     controllers.Auth.submit
 POST    /authenticate               controllers.Auth.authenticate
+GET     /subscribe/:courseId        controllers.Application.subscribe(courseId: Long)
+GET     /unsubscribe/:courseId      controllers.Application.unsubscribe(courseId: Long)
 
+# Data API
+GET     /courses                    controllers.Application.coursesJson
+GET     /courses/:courseId          controllers.Application.courseJson(courseId: Long)
+POST    /courses/new                controllers.Application.storeCourseJson()
+DELETE  /courses/:courseId          controllers.Application.deleteCourse(courseId: Long)
+POST    /solutions/:courseId        controllers.Application.storeSolutionJson(courseId: Long)
+GET     /solutions/:courseId        controllers.Application.solutionsJson(courseId: Long)
 
-# Course Infos
-GET     /courses/json                   controllers.Application.coursesJSON
-GET     /course/json/:courseName        controllers.Application.courseJSON(courseName: String)
-GET     /solutions/json/:courseName     controllers.Application.solutionsJSON(courseName: String)
-POST    /course/json/:courseName        controllers.Application.courseSave(courseName: String)
-
-# User Options
-GET     /course/subscribe/:courseName                       controllers.Application.courseSubscribe(courseName: String)
-GET     /course/unsubscribe/:courseName                     controllers.Application.courseUnsubscribe(courseName: String)
-POST    /solution/:courseName/:chapterName/:taskName        controllers.Application.solutionSave(courseName: String, chapterName: String, taskName: String)
 #POST    /interpreter/:courseName/:chapterName/:taskName    controllers.Application.interpreteCode(courseName: String, chapterName: String, taskName: String)
+
 
 #tests
 GET     /test                       controllers.Application.test
-GET     /testInterpret/:code        controllers.Application.testInterpret(code: String)
+POST     /testInterpret        controllers.Application.testInterpret
 #POST    /interpret                 controllers.Application.interpret
 
 # Map static resources from the /public folder to the /assets URL path

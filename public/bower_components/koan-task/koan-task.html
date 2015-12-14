@@ -79,6 +79,11 @@
 			
 		    attached: function() {
 		    	this.addDescription();
+		    	// if checked
+		    	if (this.checked) {
+		    		this.checked = false;
+		    		this.check(true);
+		    	}
 
 		    	// create parent div
 		    	var parent = $('<div></div>')
@@ -93,8 +98,8 @@
 					mode: 'ace/mode/' + this.mode,
 					theme: 'ace/theme/' + this.theme,
 					firstLineNumber: 0,
-					showGutter: false,
-					trim: true
+					showGutter: true,
+					trim: false
 				};
 
 				// break up code into lines and highlight code

@@ -18,7 +18,7 @@
 		<!-- data -->
 		<iron-ajax
 			auto
-			url="/courses/json"
+			url="/courses"
 			handle-as="json"
 			last-response="{{courses}}">
 		</iron-ajax>
@@ -39,8 +39,8 @@
               <hr>
               <!-- repeat courses -->
               <template is="dom-repeat" items="{{courses}}" as="course" filter="{{computeFilter(searchString)}}">
-              	<span>{{course}}</span>
-              	<a href="/course/subscribe/{{course}}" type="button" class="btn btn-primary right" aria-label="Plus">
+              	<span>{{course.title}}</span>
+              	<a href="/subscribe/{{course.id}}" type="button" class="btn btn-primary right" aria-label="Plus">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </a>
                 <hr>
@@ -60,7 +60,7 @@
     			} else {
     				string = string.toLowerCase();
     				return function(course) {
-    					return course.toLowerCase().indexOf(string) != -1;
+    					return course.title.toLowerCase().indexOf(string) != -1;
     				};
     			}
     		},

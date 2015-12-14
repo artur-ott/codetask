@@ -2,10 +2,11 @@ package models
 
 import play.api.libs.json._
 
-class Course(var name: String, var jsObj: JsObject)
+class Course(var id: Long, var name: String, var json: String)
 
 trait CourseRepository {
 	def findOneByName(name: String): Option[Course]
+	def findOneById(id: Long): Option[Course]
 	def findAll(): List[Course]
 	def create(course: Course): Option[Course]
 	def update(course: Course): Option[Course]
@@ -15,6 +16,8 @@ trait CourseRepository {
 class CourseService(env: {val courseRepository: CourseRepository}) {
 	def findOneByName(name: String) =
 		env.courseRepository.findOneByName(name)
+	def findOneById(id: Long) = 
+		env.courseRepository.findOneById(id)
 	def findAll() =
 		env.courseRepository.findAll()
 	def create(course: Course) =
@@ -23,4 +26,10 @@ class CourseService(env: {val courseRepository: CourseRepository}) {
 		env.courseRepository.update(course)
 	def delete(course: Course) =
 		env.courseRepository.delete(course)
+	def getId(): Long = {
+		val courses = findAll()
+		var id = 100000
+		do { id += 1 } while (courses.find(c => c.id == id) != None)
+		id
+	}
 }

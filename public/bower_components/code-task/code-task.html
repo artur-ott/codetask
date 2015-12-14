@@ -49,6 +49,7 @@
 
 			// instance state
 			created: function() {
+				this._super();
 				this.code_ = '';
 				this.mode_ = 'scala';
 				this.theme_ = 'solarized_dark';
@@ -131,7 +132,7 @@
 				$.ajax({
 					type: 'POST',
 					url: this.interpreterUrl,
-					data: JSON.stringify({ code: this.code }),
+					data: JSON.stringify({ code: this.aceEditor.getValue() }),
 					contentType: 'application/json; charset=utf-8',
 					dataType: 'json',
 					success: function(data, status, xhr) {

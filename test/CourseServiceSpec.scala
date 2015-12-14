@@ -9,10 +9,9 @@ import models._
 
 class CourseServiceSpec extends Specification {
 	val courseService = new CourseService(Config);
-	val jsVal = Json.parse("1")
-	val seq = Map(("val" -> jsVal))
-	val jsObj = new JsObject(seq)
-	val course1 = new Course("scala", jsObj)
+	val id = courseService.getId()
+	val json1 = "{\"t\": 1 }"
+	val course1 = new Course(id, "scala", json1)
 
 	"CourseService#findOneByName" should {
 		"fail with unknown course name" in {
@@ -28,6 +27,18 @@ class CourseServiceSpec extends Specification {
 			courseService.create(course1) should be(None)
 		}
 	}
+	"CourseService#findOneByName" should {
+		"find course after creation" in {
+			val course = courseService.findOneByName(course1.name)
+			course.get.id must equalTo(course1.id)
+		}
+	}
+	"CourseService#findOneById" should {
+		"find course after creation" in {
+			val course = courseService.findOneById(course1.id)
+			course.get.name must equalTo(course1.name)
+		}
+	}
 	"CourseService#findAll" should {
 		"give all courses" in {
 			courseService.findAll().size shouldEqual(1)
@@ -35,13 +46,11 @@ class CourseServiceSpec extends Specification {
 	}
 	"CourseService#update" should {
 		"work with existing course" in {
-			val jsVal = Json.parse("1")
-			val seq = Map(("val2" -> jsVal))
-			val jsObj = new JsObject(seq)
-			course1.jsObj = jsObj
+			val json = "{\"t\": 2 }"
+			course1.json = json
 			courseService.update(course1)
 			val course = courseService.findOneByName("scala").get
-			course.jsObj.keys.contains("val2") must beTrue
+			course.json must be equalTo(json)
 		}
 	}
 	"CourseService#delete" should {

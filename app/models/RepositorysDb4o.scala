@@ -10,6 +10,14 @@ class UserRepositoryDb4o extends UserRepository {
  			case _       => client.close(); None
  		}
 	}
+	
+	def findOneById(id: Long): Option[User] = {
+ 		var client = ServerSingleton.objectServer.openClient();
+ 		new A(client) query {user: User => user.id == id} match {
+ 			case x :: xs => client.close(); Some(x)
+ 			case _       => client.close(); None
+ 		}
+	}
 
 	def findAll(): List[User] = {
 		val client = ServerSingleton.objectServer.openClient();
@@ -66,6 +74,14 @@ class CourseRepositoryDb4o() extends CourseRepository {
  		}
 	}
 
+	def findOneById(id: Long): Option[Course] = {
+		var client = ServerSingleton.objectServer.openClient();
+ 		new A(client) query {course: Course => course.id == id} match {
+ 			case x :: xs => client.close(); Some(x)
+ 			case _       => client.close(); None
+ 		}
+	}
+
 	def findAll(): List[Course] = {
 		val client = ServerSingleton.objectServer.openClient();
 		new A(client) query {course: Course => true}
@@ -88,7 +104,7 @@ class CourseRepositoryDb4o() extends CourseRepository {
  		new A(client) query {c: Course => c.name == course.name} match {
  			case x :: xs => 
  				x.name = course.name
- 				x.jsObj = course.jsObj
+ 				x.json = course.json
  				client.store(x)
  				client.commit()
  				client.close(); 
@@ -99,7 +115,7 @@ class CourseRepositoryDb4o() extends CourseRepository {
 
 	def delete(course: Course): Option[Course] = {
 		val client = ServerSingleton.objectServer.openClient();
- 		new A(client) query {c: Course => c.name == course.name} match {
+ 		new A(client) query {c: Course => c.id == course.id} match {
  			case x :: xs => 
  				client.delete(x)
  				client.commit()
@@ -114,7 +130,7 @@ import com.db4o.reflect.jdk.JdkReflector
 
 object ServerSingleton {
 	com.db4o.Db4o.configure().reflectWith(new JdkReflector( this.getClass().getClassLoader()))
-	val objectServer = Db4o.openServer("codetask.data", 0)
+	val objectServer = Db4o.openServer("database.data", 0)
 }
 
 // borrowed http://ted-gao.blogspot.de/2012/12/using-db4o-in-scala-programs.html

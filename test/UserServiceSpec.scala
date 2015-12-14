@@ -9,9 +9,11 @@ import models._
 
 class UserServiceSpec extends Specification {
 	val userService = new UserService(Config);
-	val user1 = new User("email", "student", "pw1234", Map())
 
-	"UserService#getOneByUsername" should {
+	val id = userService.getId()
+	val user1 = new User(id, "email", "student", "pw1234")
+
+	"UserService#findOneByUsername" should {
 		"fail with unknown username" in {
 			val user = userService.findOneByUsername("no name")
 			user should be(None)
@@ -25,6 +27,18 @@ class UserServiceSpec extends Specification {
 			userService.create(user1) should be(None)
 		}
 	}
+	"UserService#findOneByUsername" should {
+		"find user after creation" in {
+			val user = userService.findOneByUsername(user1.username)
+			user.get.id must equalTo(user1.id)
+		}
+	}
+	"UserService#findOneById" should {
+		"find user after creation" in {
+			val user = userService.findOneById(user1.id)
+			user.get.username must equalTo(user1.username)
+		}
+	}
 	"UserService#findAll" should {
 		"give all Users" in {
 			userService.findAll().size shouldEqual(1)
@@ -33,10 +47,7 @@ class UserServiceSpec extends Specification {
 	"UserService#update" should {
 		"work with existing user" in {
 			user1.authority = "teacher"
-			val jsVal = Json.parse("1")
-			val seq = Map(("state" -> jsVal))
-			val jsObj = new JsObject(seq)
-			user1.courses = Map(("course1" -> Map("chapter1" -> Map("task1" -> jsObj))))
+			user1.courses = Map(("course1" -> Map("chapter1" -> "json")))
 			userService.update(user1)
 			val user = userService.findOneByUsername("email").get
 			user.authority equals "teacher" must beTrue
