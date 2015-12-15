@@ -3,6 +3,7 @@ package tasks
 import support.CodeTaskSuite
 import org.scalatest.Matchers
 
+// CodeTaskSuites werden als chapters in courses hinzugefügt
 class AboutLists extends CodeTaskSuite {
   // keine tabs und indentation 2 space oder nur tabs
   video("""In diesem Kapitel sollend Listen in Scala näher erläutert werden

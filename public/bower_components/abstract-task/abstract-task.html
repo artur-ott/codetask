@@ -2,98 +2,98 @@
 <link rel="import" href="../jquery-import/jquery-import.html">
 
 <dom-module id="abstract-task">
-	<style>
-		.task-check-container {
-			position: relative;
-			width: 100%;
-			height: 0px;
-			right: 0;
-			top: 0;
-		}
-		.task-check-square {
-			position: absolute;
-			width: 50px;
-			height: 50px;
-			right: 0;
-			top: 0;
-			color: white;
-			background-color: #097C2C;
-			text-align: center;
-		}
+  <style>
+    .task-check-container {
+      position: relative;
+      width: 100%;
+      height: 0px;
+      right: 0;
+      top: 0;
+    }
+    .task-check-square {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      right: 0;
+      top: 0;
+      color: white;
+      background-color: #097C2C;
+      text-align: center;
+    }
 
-		.task-check-right-triangle {
-			position: absolute;
-			right: 0;
-			border-width: 0 25px 25px 0;
-			border-color: transparent #097C2C transparent transparent;
-		}
+    .task-check-right-triangle {
+      position: absolute;
+      right: 0;
+      border-width: 0 25px 25px 0;
+      border-color: transparent #097C2C transparent transparent;
+    }
 
-		.task-check-left-triangle {
-			position: absolute;
-			right: 25px;
-			border-width: 25px 25px 0 0;
-			border-color: #097C2C transparent transparent transparent;
-		}
+    .task-check-left-triangle {
+      position: absolute;
+      right: 25px;
+      border-width: 25px 25px 0 0;
+      border-color: #097C2C transparent transparent transparent;
+    }
 
-		.task-check-right-triangle, .task-check-left-triangle {
-			top: 50px;
-			padding: 0px;
-			width: 0px;
-			height: 0px;
-			-webkit-transform:rotate(360deg);
-			border-style: solid;
-		}
-	</style>
-	<script>
-		Polymer({
-			is: 'abstract-task',
+    .task-check-right-triangle, .task-check-left-triangle {
+      top: 50px;
+      padding: 0px;
+      width: 0px;
+      height: 0px;
+      -webkit-transform:rotate(360deg);
+      border-style: solid;
+    }
+  </style>
+  <script>
+    Polymer({
+      is: 'abstract-task',
 
-			// constructor
-			_super: function() {
-				this.data = {};
-				this.state = {};
-				this.state.checked = false;
-			},
+      // constructor
+      _super: function() {
+        this.data = {};
+        this.state = {};
+        this.state.checked = false;
+      },
 
-			get state() { return this.state_; },
-			set state(value) { this.state_ = value; },
-			get data() { return this.data_; },
-			set data(value) { this.data_ = value; },
+      get state() { return this.state_; },
+      set state(value) { this.state_ = value; },
+      get data() { return this.data_; },
+      set data(value) { this.data_ = value; },
 
-			// data
-			get description() { return this.data.description; },
-			set description(value) { this.data.description = value; },
-			
-			// state
-			get checked() { return this.state.checked; },
-			set checked(value) { this.state.checked = value; },
+      // data
+      get description() { return this.data.description; },
+      set description(value) { this.data.description = value; },
+      
+      // state
+      get checked() { return this.state.checked; },
+      set checked(value) { this.state.checked = value; },
 
 
-			addDescription: function() {
-				var p = document.createElement('p');
-				p.innerHTML = this.description;
-				$(this).before(p);
-			},
-			check: function(bool) {
-				if (bool && !this.checked) {
-					var r = $('<div>Done</div>').addClass('task-check-square');
-					var tl = $('<div></div>').addClass('task-check-left-triangle');
-					var tr = $('<div></div>').addClass('task-check-right-triangle');
+      addDescription: function() {
+        var p = document.createElement('p');
+        p.innerHTML = this.description;
+        $(this).before(p);
+      },
+      check: function(bool) {
+        if (bool && !this.checked) {
+          var r = $('<div>Done</div>').addClass('task-check-square');
+          var tl = $('<div></div>').addClass('task-check-left-triangle');
+          var tr = $('<div></div>').addClass('task-check-right-triangle');
 
-					this.data.task_check = $('<div></div>')
-						.addClass('task-check-container')
-						.append(r, tl, tr)
-						.insertBefore(this);
+          this.data.task_check = $('<div></div>')
+            .addClass('task-check-container')
+            .append(r, tl, tr)
+            .insertBefore(this);
 
-					this.checked = true;
-				} else if (!bool && this.checked) {
-					this.data.task_check.remove();
-					this.checked = false;
-				}
-			},
-			//state: function() {
-			//	return this.state_;
-			//}
-		});
-	</script>
+          this.checked = true;
+        } else if (!bool && this.checked) {
+          this.data.task_check.remove();
+          this.checked = false;
+        }
+      },
+      //state: function() {
+      //  return this.state_;
+      //}
+    });
+  </script>
 </dom-module>

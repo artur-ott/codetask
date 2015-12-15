@@ -5,72 +5,72 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <dom-module id="video-task.html">
-	<script>
-		Polymer({
-			is: 'video-task',
-			extends: 'abstract-task',
-			
-			// instance state
-			created: function() {
-				this._super();
-				this.watched = false;
-			},
+  <script>
+    Polymer({
+      is: 'video-task',
+      extends: 'abstract-task',
+      
+      // instance state
+      created: function() {
+        this._super();
+        this.watched = false;
+      },
 
-			// data
-			get url() { return this.data.url; },
-			set url(value) { this.data.url = value; },
-			get postUrl() { return this.data.postUrl; },
-			set postUrl(value) { this.data.postUrl = value; },
+      // data
+      get url() { return this.data.url; },
+      set url(value) { this.data.url = value; },
+      get postUrl() { return this.data.postUrl; },
+      set postUrl(value) { this.data.postUrl = value; },
 
-			// state
-			get watched() { return this.state.watched; },
-			set watched(value) { this.state.watched = value; },
+      // state
+      get watched() { return this.state.watched; },
+      set watched(value) { this.state.watched = value; },
 
-			attached: function() {
-				this.addDescription();
-				
-				if (this.watched) this.check(true);
+      attached: function() {
+        this.addDescription();
+        
+        if (this.watched) this.check(true);
 
-			   	// add youtube player div
-			   	var id = this.id + '-player';
-			   	$('<div></div>').attr('id', id).appendTo(this);
+           // add youtube player div
+           var id = this.id + '-player';
+           $('<div></div>').attr('id', id).appendTo(this);
 
-				// get video code
-				var url = this.url.split('?v=');
-				var this_ = this;
-				player = new YT.Player(id, {
-			        height: '300px',
-			        width: '100%',
-			        videoId: (url.size > 1 ? url[url.size - 1] : url),
-			        events: {
-			            'onStateChange': function(event) {
-			            	// playing: 1, stopped: 2, ended: 0
-			            	if (event.data == 0) {
-			            		this_.watched = true;
-			            		this_.check(true);
-			            	}
-			            }
-			        }
-		    	});
-			},
-			post: function() {
-				var this_ = this;
+        // get video code
+        var url = this.url.split('?v=');
+        var this_ = this;
+        player = new YT.Player(id, {
+          height: '300px',
+          width: '100%',
+          videoId: (url.size > 1 ? url[url.size - 1] : url),
+          events: {
+            'onStateChange': function(event) {
+              // playing: 1, stopped: 2, ended: 0
+              if (event.data == 0) {
+                this_.watched = true;
+                this_.check(true);
+              }
+            }
+          }
+        });
+      },
+      post: function() {
+        var this_ = this;
 
-				$.ajax({
-					type: 'POST',
-					url: this.postUrl,
-					data: JSON.stringify({ state: this.state }),
-					contentType: 'application/json; charset=utf-8',
-					dataType: 'json',
-					success: function(data, status, xhr) {
-						console.log(this_.id + ' saved');
-					},
-					error: function(xhr, status) {
-						console.log('could not save data of ' + 
-							this_.id + ' status: ' + status);
-					}
-				});
-			}
-		});
-	</script>
+        $.ajax({
+          type: 'POST',
+          url: this.postUrl,
+          data: JSON.stringify({ state: this.state }),
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          success: function(data, status, xhr) {
+            console.log(this_.id + ' saved');
+          },
+          error: function(xhr, status) {
+            console.log('could not save data of ' +
+              this_.id + ' status: ' + status);
+          }
+        });
+      }
+    });
+  </script>
 </dom-module>

@@ -6,209 +6,209 @@
 <link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="course-view">
-	<template>
-		<!-- data -->
-		<iron-ajax
-			auto
-			url="/courses/{{courseId}}"
-			handle-as="json"
-			on-response="courseLoaded">
-		</iron-ajax>
+  <template>
+    <!-- data -->
+    <iron-ajax
+      auto
+      url="/courses/{{courseId}}"
+      handle-as="json"
+      on-response="courseLoaded">
+    </iron-ajax>
 
-		<iron-ajax
-			auto
-			url="/solutions/{{courseId}}"
-			handle-as="json"
-			on-response="solutionsLoaded">
-		</iron-ajax>
+    <iron-ajax
+      auto
+      url="/solutions/{{courseId}}"
+      handle-as="json"
+      on-response="solutionsLoaded">
+    </iron-ajax>
 
-		<div class="row">
-			<div id="navigation" class="col-md-3 center"></div>
-			<div id="main" class="col-md-8"></div>
-		</div>
-	</template>
+    <div class="row">
+      <div id="navigation" class="col-md-3 center"></div>
+      <div id="main" class="col-md-8"></div>
+    </div>
+  </template>
 
-	<style>
-		#main {
-			padding: 10px;
-			padding-top: 10px;
-		}
-		#navigation {
-			padding-top: 30px;
-			margin-left: 10px;
-			margin-right: 20px;
-		}
-	</style>
+  <style>
+    #main {
+      padding: 10px;
+      padding-top: 10px;
+    }
+    #navigation {
+      padding-top: 30px;
+      margin-left: 10px;
+      margin-right: 20px;
+    }
+  </style>
 
-	<script>
-		Polymer({
-			is: "course-view",
-			properties: {
-		    	courseId: Number
-		    },
-		    created: function() {
-		    	this.loaded_ = {};
-		    },
-		    courseLoaded: function(e, request) {
-		    	var course = request.xhr.response.course;
-		    	this.loaded_.course = course;
-		    	if (this.loaded_.solutions)
-		    		this.initialize(course, this.loaded_.solutions);
-		    },
-		    solutionsLoaded: function(e, request) {
-		    	var solutions = request.xhr.response.course;
-		    	this.loaded_.solutions = solutions;
-		    	if (this.loaded_.course)
-		    		this.initialize(this.loaded_.course, solutions);
-		    },
-		    initialize: function(course, solutions) {
-		    	var this_ = this;
-		    	// build navigation
-				var ol = $('<div></div>').addClass('list-group');
-				course.chapters.forEach(function(chapter, index) {
-					var solution = solutions.chapters.find(function(solution) {
-						return solution.title == chapter.title;
-					});
+  <script>
+    Polymer({
+      is: "course-view",
+      properties: {
+        courseId: Number
+      },
 
-					var li = $('<li></li>')
-						.addClass('list-group-item')
-						.html(chapter.title)
-						.click(function() {
-							var solution = solutions.chapters.find(function(solution) {
-								return solution.title == course.chapters[0].title;
-							});
-							this_.loadChapter(chapter, solution);
-						});
+      created: function() {
+        this.loaded_ = {};
+      },
 
-					var checked = 0;
-					var keys = [];
+      courseLoaded: function(e, request) {
+        var course = request.xhr.response.course;
+        this.loaded_.course = course;
+        if (this.loaded_.solutions)
+          this.initialize(course, this.loaded_.solutions);
+      },
 
-					if (solution && solution.tasks && solution.tasks.states) {
-						var keys = Object.keys(solution.tasks.states);
-						keys.forEach(function(key) {
-							if (solution.tasks.states[key].state.checked) checked += 1;
-						});
-					}
-					var badge = $('<span></span>').addClass('badge').text(checked + '/' + Object.keys(chapter.tasks).length);
-					li.append(badge);
-					if (index == 0) {
-						li.addClass('active');
-						this_.badge_ = badge;
-					} else {
-						li.click(function() {
-							this_.loadChapter(course.chapters[index], solution);
-						});
-					}
-					li.appendTo(ol);
-				});
-				$('#navigation').append(ol)
+      solutionsLoaded: function(e, request) {
+        var solutions = request.xhr.response.course;
+        this.loaded_.solutions = solutions;
+        if (this.loaded_.course)
+          this.initialize(this.loaded_.course, solutions);
+      },
 
-				var solution = solutions.chapters.find(function(solution) {
-					return solution.title == course.chapters[0].title;
-				});
-				this.loadChapter(course.chapters[0], solution)
-		    },
-		    loadChapter: function(chapter, solution) {
-		    	var main = document.getElementById("main");
-		    	// clear previous chapter
-		    	$(main).children().attr('visible', false);
+      initialize: function(course, solutions) {
+        var this_ = this;
+        // build navigation
+        var ol = $('<div></div>').addClass('list-group');
+        course.chapters.forEach(function(chapter, index) {
+          var solution = solutions.chapters.find(function(solution) {
+            return solution.title == chapter.title;
+          });
 
-		    	var h1 = document.createElement("H1");
-		    	h1.textContent = chapter.title;
-		    	main.appendChild(h1);
+          var li = $('<li></li>')
+            .addClass('list-group-item')
+            .html(chapter.title)
+            .click(function() {
+              var solution = solutions.chapters.find(function(solution) {
+                return solution.title == course.chapters[0].title;
+              });
+              this_.loadChapter(chapter, solution);
+            });
 
-		    	var tasks = chapter.tasks;
-		    	var elements = [];
+          var checked = 0;
+          var keys = [];
 
-		    	Object.keys(tasks).forEach(function(key) {
-		    		var task = tasks[key];
-		    		var re = /(^[^1-9]*)[1-9]*$/;
-		    		var match = re.exec(key);
-		    		var tag = match[1].replace('task','') + '-task'
-		    		var element = document.createElement(tag);
+          if (solution && solution.tasks && solution.tasks.states) {
+            var keys = Object.keys(solution.tasks.states);
+            keys.forEach(function(key) {
+              if (solution.tasks.states[key].state.checked) checked += 1;
+            });
+          }
+          var badge = $('<span></span>').addClass('badge').text(checked + '/' + Object.keys(chapter.tasks).length);
+          li.append(badge);
+          if (index == 0) {
+            li.addClass('active');
+            this_.badge_ = badge;
+          } else {
+            li.click(function() {
+              this_.loadChapter(course.chapters[index], solution);
+            });
+          }
+          li.appendTo(ol);
+        });
+        $('#navigation').append(ol)
 
-		    		element.id = key;
-		    		Object.keys(task).forEach(function(k) {
-		    			element[k] = task[k];
-		    		});
-		    		var state = undefined;
-		    		if (solution && solution.tasks) {
-		    			state = solution.tasks.states[key];
-		    		}
-		    		if (state) {
-		    			Object.keys(state).forEach(function(k, i) {
-		    				element[k] = state[k];
-		    			});
-		    		}
-		    		element.interpreterUrl = '/testInterpret';
-		    		main.appendChild(element);
-		    		elements.push(element);
+        var solution = solutions.chapters.find(function(solution) {
+          return solution.title == course.chapters[0].title;
+        });
+        this.loadChapter(course.chapters[0], solution)
+      },
 
-		    	 	/*if (key.indexOf("video") != -1) {
+      loadChapter: function(chapter, solution) {
+        var main = document.getElementById("main");
+        // clear previous chapter
+        $(main).children().attr('visible', false);
 
-		    	 		var video = document.createElement("video-task");
-		    	 		video.id = key;
-		    	 		video.description = task.description;
-		    			video.url = task.url;
-		    			video.postUrl = '/solution';
-		    			//video.state = 0;
-		    	 		main.appendChild(video);
+        var h1 = document.createElement("H1");
+        h1.textContent = chapter.title;
+        main.appendChild(h1);
 
-		    		} else if (key.indexOf("koan") != -1) {
+        var tasks = chapter.tasks;
+        var elements = [];
 
-		    			var koan = document.createElement("koan-task");
-		    			koan.id = key;
-		    	 		console.log('change desc');
-		    			koan.description = task.description;
-		    			//koan.theme = aceTheme;
-		    			koan.mode = 'java';
-		    			koan.code = task.code;
-		    			if (typeof task.solutions == 'string') {
-		    				koan.solutions = task.solutions.split('@@@');
-		    				koan.mySolutions = task.solutions.split('@@@');
-		    			} else {
-		    				koan.solutions = task.solutions;
-		    			}
-		    			koan.postUrl = '/solution/scala1/About Scala Lists/koan2';
-		    			main.appendChild(koan);
+        Object.keys(tasks).forEach(function(key) {
+          var task = tasks[key];
+          var re = /(^[^1-9]*)[1-9]*$/;
+          var match = re.exec(key);
+          var tag = match[1].replace('task','') + '-task'
+          var element = document.createElement(tag);
 
-		    		} else if (key.indexOf("codetask") != -1) {
+          element.id = key;
+          Object.keys(task).forEach(function(k) {
+            element[k] = task[k];
+          });
+          var state = undefined;
+          if (solution && solution.tasks) {
+            state = solution.tasks.states[key];
+          }
+          if (state) {
+            Object.keys(state).forEach(function(k, i) {
+              element[k] = state[k];
+            });
+          }
+          element.interpreterUrl = '/testInterpret';
+          main.appendChild(element);
+          elements.push(element);
 
-		    			/*var editor = document.createElement("code-task");
-		    			editor.id = key;
-		    			editor.description = task.description;
-		    			editor.interpreterUrl = '/solution';
-		    			editor.postUrl = '/solution';
-		    			//editor.theme = aceTheme;
-		    			editor.mode = 'scala';
-		    			editor.code = task.code;
-		    			main.appendChild(editor);
-		    		}*/
-		    	});
-				// initialize hook
-				var this_ = this;
-	    		setInterval(function() {
-	    			console.log('interval');
-	    			var checked = elements.reduce(function(amount, el) {
-	    				return el.checked ? amount + 1 : amount;
-	    			}, 0);
-	    			console.log(checked);
+           /*if (key.indexOf("video") != -1) {
 
-	    			this_.badge_.text(checked + '/' + elements.length);
-	    		}, 1000);
-		    },
-		    processTasks: function(tasks) {
-		    	var keys = Object.keys(tasks);
-		    	return keys.map(function(key) {
-		    		return {name: key, task: tasks[key]};
-		    	});
-		    }
-		});
+             var video = document.createElement("video-task");
+             video.id = key;
+             video.description = task.description;
+            video.url = task.url;
+            video.postUrl = '/solution';
+            //video.state = 0;
+             main.appendChild(video);
 
-		function addDescription(element, description) {
-	    	var p = document.createElement("P");
-	    	p.innerHTML = description;
-	    	element.appendChild(p);
-	    }
-	</script>
+          } else if (key.indexOf("koan") != -1) {
+
+            var koan = document.createElement("koan-task");
+            koan.id = key;
+             console.log('change desc');
+            koan.description = task.description;
+            //koan.theme = aceTheme;
+            koan.mode = 'java';
+            koan.code = task.code;
+            if (typeof task.solutions == 'string') {
+              koan.solutions = task.solutions.split('@@@');
+              koan.mySolutions = task.solutions.split('@@@');
+            } else {
+              koan.solutions = task.solutions;
+            }
+            koan.postUrl = '/solution/scala1/About Scala Lists/koan2';
+            main.appendChild(koan);
+
+          } else if (key.indexOf("codetask") != -1) {
+
+            /*var editor = document.createElement("code-task");
+            editor.id = key;
+            editor.description = task.description;
+            editor.interpreterUrl = '/solution';
+            editor.postUrl = '/solution';
+            //editor.theme = aceTheme;
+            editor.mode = 'scala';
+            editor.code = task.code;
+            main.appendChild(editor);
+          }*/
+        });
+        // initialize hook
+        var this_ = this;
+        setInterval(function() {
+          console.log('interval');
+          var checked = elements.reduce(function(amount, el) {
+            return el.checked ? amount + 1 : amount;
+          }, 0);
+          console.log(checked);
+
+          this_.badge_.text(checked + '/' + elements.length);
+        }, 1000);
+      },
+
+      processTasks: function(tasks) {
+        var keys = Object.keys(tasks);
+        return keys.map(function(key) {
+          return {name: key, task: tasks[key]};
+        });
+      }
+    });
+  </script>
 </dom-module>
