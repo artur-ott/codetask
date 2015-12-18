@@ -1,35 +1,52 @@
 package models
 
 import play.api.libs.json._
+import play.api.libs.functional.syntax._
+import Services._
 
-class Course(var id: Long, var name: String, var json: String)
+case class Course(id: Long, title: String, chapters: List[Chapter])
+case class Chapter(id: Long, title: String, tasks: List[Task])
+case class Task(id: String, tag: String, data: String)
 
-trait CourseRepository {
-	def findOneByName(name: String): Option[Course]
-	def findOneById(id: Long): Option[Course]
-	def findAll(): List[Course]
-	def create(course: Course): Option[Course]
-	def update(course: Course): Option[Course]
-	def delete(course: Course): Option[Course]
-}
+object Course {
+  implicit val TaskReads: Reads[Task] = (
+    (__ \ "id").read[String] and
+    (__ \ "tag").read[String] and
+    new Reads[String] {
+      def reads(js: JsValue): JsResult[String] = {
+        (js \ "data") match {
+          case JsDefined(data) => JsSuccess(data.toString)
+          case _: JsUndefined => JsError("missing data")
+        }
+      }
+    }
+  )(Task.apply _)
 
-class CourseService(env: {val courseRepository: CourseRepository}) {
-	def findOneByName(name: String) =
-		env.courseRepository.findOneByName(name)
-	def findOneById(id: Long) = 
-		env.courseRepository.findOneById(id)
-	def findAll() =
-		env.courseRepository.findAll()
-	def create(course: Course) =
-		env.courseRepository.create(course)
-	def update(course: Course) =
-		env.courseRepository.update(course)
-	def delete(course: Course) =
-		env.courseRepository.delete(course)
-	def getId(): Long = {
-		val courses = findAll()
-		var id = 100000
-		do { id += 1 } while (courses.find(c => c.id == id) != None)
-		id
-	}
+  implicit val ChapterReads: Reads[Chapter] = (
+    (__ \ "id").read[Long] and
+    (__ \ "title").read[String] and
+    (__ \ "tasks").read[List[Task]]
+  )(Chapter.apply _)
+
+  implicit val CourseReads: Reads[Course] = (
+    (__ \ "id").read[Long] orElse Reads.pure(courseService.getId()) and
+    (__ \ "title").read[String] and
+    (__ \ "chapters").read[List[Chapter]]
+  )(Course.apply _)
+
+  def progressOf(course: Course): Int = {
+    var checkNum: Double = 0
+  	var taskNum: Double = 0
+    course.chapters.foreach { chapter =>
+      chapter.tasks.foreach { task => 
+      	try {
+          if ((Json.parse(task.data) \ "checked").as[Boolean]) checkNum += 1	
+      	} catch {
+      	  case _: Exception =>
+      	}
+      }
+      taskNum += chapter.tasks.size
+    }
+    ((checkNum / taskNum) * 100).toInt
+  }
 }

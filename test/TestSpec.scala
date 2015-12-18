@@ -3,41 +3,68 @@ import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.libs.json._
-import models.CodeTask
-import models.Execution
 import models._
 
 class TestSpec extends Specification {
-	//val user1 = new User("email", "student", "pw1234", Map())
+  val id = 0;
+  val course0 = new Course(id, "scala", List(
+    new Chapter(1, "First Chapter", List(
+      new Task("koan1", "koan-task", "{\"checked\":false}")
+    ))
+  ))
 
-	"UserService#update" should {
-		"work with existing user" in {
-			/*user1.authority = "teacher"
-			val jsVal = Json.parse("1")
-			val seq = Map(("state" -> jsVal))
-			val jsObj = new JsObject(seq)
-			user1.courses = Map(("course1" -> Map("chapter1" -> Map("task1" -> jsObj, "task2" -> jsObj),
-												  "chapter2" -> Map("task1" -> jsObj),
-												  "chapter3" -> Map("task1" -> jsObj),
-												  "chapter4" -> Map("task1" -> jsObj))))
+  val course50 = new Course(id, "scala", List(
+    new Chapter(1, "First Chapter", List(
+      new Task("koan1", "koan-task", "{\"checked\":false}")
+    )),
+    new Chapter(2, "First Chapter", List(
+      new Task("koan1", "koan-task", "{\"checked\":true}")
+    ))
+  ))
 
-			val chapters = user1.courses("course1").map { chapter =>
-				//val tasks = chapter._2.map { task => (task._1, task._2) }
-				JsObject(Seq(
-					"title" -> JsString(chapter._1),
-					"tasks" -> JsObject(chapter._2)
-				))
-			}
-			val result = JsObject(Seq(
-				"course" -> JsObject(Seq(
-					"title" -> JsString("course1"),
-					"chapters" -> JsArray(chapters.toList)
-				))
-			))
+  val course33 = new Course(id, "scala", List(
+    new Chapter(1, "First Chapter", List(
+      new Task("koan1", "koan-task", "{\"checked\":false}")
+    )),
+    new Chapter(2, "First Chapter", List(
+      new Task("koan1", "koan-task", "{\"checked\":false}")
+    )),
+    new Chapter(3, "First Chapter", List(
+      new Task("koan1", "koan-task", "{\"checked\":true}")
+    ))
+  ))
 
-			println(result.toString)*/
+  val course100 = new Course(id, "scala", List(
+    new Chapter(1, "First Chapter", List(
+      new Task("koan1", "koan-task", "{\"checked\":true}")
+    ))
+  ))
 
-			true must beTrue
-		}
-	}
+  val course = new Course(id, "scala", List(
+    new Chapter(1, "First Chapter", List())
+  ))
+
+
+  "Course#progressOf" should {
+    "be 0% for course0" in {
+      val completion = Course.progressOf(course0)
+      completion should equalTo(0)
+    }
+    "be 50% for course50" in {
+      val completion = Course.progressOf(course50)
+      completion should equalTo(50)
+    }
+    "be 33% for course33" in {
+      val completion = Course.progressOf(course33)
+      completion should equalTo(33)
+    }
+    "be 100% for course100" in {
+      val completion = Course.progressOf(course100)
+      completion should equalTo(100)
+    }
+    "be 0% for course" in {
+      val completion = Course.progressOf(course0)
+      completion should equalTo(0)
+    }
+  }
 }
