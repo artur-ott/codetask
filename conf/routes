@@ -3,24 +3,24 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
-GET     /dashboard                  controllers.Application.dashboard
-#GET     /course/:courseId           controllers.Application.course(courseId: Long)
-GET     /login                      controllers.Auth.login
-GET     /logout                     controllers.Auth.logout
-GET     /register                   controllers.Auth.register
-POST    /submit                     controllers.Auth.submit
-POST    /authenticate               controllers.Auth.authenticate
-#GET     /subscribe/:courseId        controllers.Application.subscribe(courseId: Long)
-#GET     /unsubscribe/:courseId      controllers.Application.unsubscribe(courseId: Long)
+GET     /                               controllers.Application.index
+GET     /dashboard                      controllers.Application.dashboard
+GET     /course/:courseId               controllers.Application.course(courseId: Long)
+GET     /login                          controllers.Auth.login
+GET     /logout                         controllers.Auth.logout
+GET     /register                       controllers.Auth.register
+POST    /submit                         controllers.Auth.submit
+POST    /authenticate                   controllers.Auth.authenticate
+GET     /subscribe/:courseId            controllers.Application.subscribe(courseId: Long)
+GET     /unsubscribe/:courseId          controllers.Application.unsubscribe(courseId: Long)
 
 # API
 GET     /api/courses                    controllers.Application.coursesJson
-#GET     /api/courses/:courseId          controllers.Application.courseJson(courseId: Long)
+GET     /api/courses/:courseId          controllers.Application.courseJson(courseId: Long)
 POST    /api/courses/new                controllers.Application.saveCourseJson()
-#DELETE  /api/courses/:courseId          controllers.Application.deleteCourse(courseId: Long)
-#POST    /api/solutions/:courseId        controllers.Application.storeSolutionJson(courseId: Long)
-#GET     /api/solutions/:courseId        controllers.Application.solutionsJson(courseId: Long)
+DELETE  /api/courses/:courseId          controllers.Application.deleteCourse(courseId: Long)
+POST    /api/solutions/:courseId        controllers.Application.storeSolutionJson(courseId: Long)
+GET     /api/solutions/:courseId        controllers.Application.solutionsJson(courseId: Long)
 #ǴET     /api/user/:userId
 #POST    /api/user/:userId
 #DELETE  /api/user/:userId
@@ -30,7 +30,6 @@ POST    /api/courses/new                controllers.Application.saveCourseJson()
 
 
 #tests
-GET     /test                       controllers.Application.test
 POST     /testInterpret        controllers.Application.testInterpret
 #POST    /interpret                 controllers.Application.interpret
 

@@ -1,23 +1,23 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="../bower_components/koan-task/koan-task.html">
-<link rel="import" href="../bower_components/video-task/video-task.html">
-<link rel="import" href="../bower_components/code-task/code-task.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../koan-task/koan-task.html">
+<link rel="import" href="../video-task/video-task.html">
+<link rel="import" href="../code-task/code-task.html">
 
-<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
 
 <dom-module id="course-view">
   <template>
     <!-- data -->
     <iron-ajax
       auto
-      url="/courses/{{courseId}}"
+      url="/api/courses/{{courseId}}"
       handle-as="json"
       on-response="courseLoaded">
     </iron-ajax>
 
     <iron-ajax
       auto
-      url="/solutions/{{courseId}}"
+      url="/api/solutions/{{courseId}}"
       handle-as="json"
       on-response="solutionsLoaded">
     </iron-ajax>
@@ -52,17 +52,19 @@
       },
 
       courseLoaded: function(e, request) {
-        var course = request.xhr.response.course;
+        var course = request.xhr.response;
         this.loaded_.course = course;
         if (this.loaded_.solutions)
           this.initialize(course, this.loaded_.solutions);
+        if (e) console.log(e);
       },
 
       solutionsLoaded: function(e, request) {
-        var solutions = request.xhr.response.course;
+        var solutions = request.xhr.response;
         this.loaded_.solutions = solutions;
         if (this.loaded_.course)
           this.initialize(this.loaded_.course, solutions);
+        if (e) console.log(e);
       },
 
       initialize: function(course, solutions) {
@@ -70,16 +72,16 @@
         // build navigation
         var ol = $('<div></div>').addClass('list-group');
         course.chapters.forEach(function(chapter, index) {
-          var solution = solutions.chapters.find(function(solution) {
-            return solution.title == chapter.title;
+          var solution = solutions.find(function(solution) {
+            return solution.chapterId == chapter.id;
           });
 
           var li = $('<li></li>')
             .addClass('list-group-item')
             .html(chapter.title)
             .click(function() {
-              var solution = solutions.chapters.find(function(solution) {
-                return solution.title == course.chapters[0].title;
+              var solution = solutions.find(function(solution) {
+                return solution.chapterId == course.chapters[0].id;
               });
               this_.loadChapter(chapter, solution);
             });
@@ -87,10 +89,10 @@
           var checked = 0;
           var keys = [];
 
-          if (solution && solution.tasks && solution.tasks.states) {
-            var keys = Object.keys(solution.tasks.states);
-            keys.forEach(function(key) {
-              if (solution.tasks.states[key].state.checked) checked += 1;
+          // count checked tasks
+          if (solution && solution.tasksStates) {
+            solution.taskStates.forEach(function(state) {
+              if (state.checked) checked += 1;
             });
           }
           var badge = $('<span></span>').addClass('badge').text(checked + '/' + Object.keys(chapter.tasks).length);
@@ -107,8 +109,8 @@
         });
         $('#navigation').append(ol)
 
-        var solution = solutions.chapters.find(function(solution) {
-          return solution.title == course.chapters[0].title;
+        var solution = solutions.find(function(solution) {
+          return solution.chapterId == course.chapters[0].id;
         });
         this.loadChapter(course.chapters[0], solution)
       },
@@ -122,73 +124,30 @@
         h1.textContent = chapter.title;
         main.appendChild(h1);
 
-        var tasks = chapter.tasks;
+
         var elements = [];
 
-        Object.keys(tasks).forEach(function(key) {
-          var task = tasks[key];
-          var re = /(^[^1-9]*)[1-9]*$/;
-          var match = re.exec(key);
-          var tag = match[1].replace('task','') + '-task'
-          var element = document.createElement(tag);
-
-          element.id = key;
-          Object.keys(task).forEach(function(k) {
-            element[k] = task[k];
+        chapter.tasks.forEach(function(task) {
+          var taskSolution = solution.taskStates.find(function(state) {
+            return state.taskId == task.id;
           });
-          var state = undefined;
-          if (solution && solution.tasks) {
-            state = solution.tasks.states[key];
-          }
-          if (state) {
-            Object.keys(state).forEach(function(k, i) {
-              element[k] = state[k];
+          var element = document.createElement(task.tag);
+          element.id = task.id;
+
+          Object.keys(task.data).forEach(function(key) {
+            element[key] = task.data[key];
+          });
+          if (taskSolution) {
+            Object.keys(taskSolution.state).forEach(function(key) {
+              element[key] = taskSolution.state[key];
             });
           }
+          
+          console.dir(solution);
+          console.dir(element);
           element.interpreterUrl = '/testInterpret';
           main.appendChild(element);
           elements.push(element);
-
-           /*if (key.indexOf("video") != -1) {
-
-             var video = document.createElement("video-task");
-             video.id = key;
-             video.description = task.description;
-            video.url = task.url;
-            video.postUrl = '/solution';
-            //video.state = 0;
-             main.appendChild(video);
-
-          } else if (key.indexOf("koan") != -1) {
-
-            var koan = document.createElement("koan-task");
-            koan.id = key;
-             console.log('change desc');
-            koan.description = task.description;
-            //koan.theme = aceTheme;
-            koan.mode = 'java';
-            koan.code = task.code;
-            if (typeof task.solutions == 'string') {
-              koan.solutions = task.solutions.split('@@@');
-              koan.mySolutions = task.solutions.split('@@@');
-            } else {
-              koan.solutions = task.solutions;
-            }
-            koan.postUrl = '/solution/scala1/About Scala Lists/koan2';
-            main.appendChild(koan);
-
-          } else if (key.indexOf("codetask") != -1) {
-
-            /*var editor = document.createElement("code-task");
-            editor.id = key;
-            editor.description = task.description;
-            editor.interpreterUrl = '/solution';
-            editor.postUrl = '/solution';
-            //editor.theme = aceTheme;
-            editor.mode = 'scala';
-            editor.code = task.code;
-            main.appendChild(editor);
-          }*/
         });
         // initialize hook
         var this_ = this;

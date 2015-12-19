@@ -9,6 +9,7 @@ import scala.collection.JavaConverters._
 import models._
 import Services._
 import models.Course._
+import models.User._
 
 class Application extends Controller with Secured {
 
@@ -18,45 +19,40 @@ class Application extends Controller with Secured {
 
   def dashboard() = withUser { user => implicit request =>
     var info: List[(Long, String, Int)] = List()
-
-    user.chapterStates.foreach { chapterState =>
-      courseService.findOneById(chapterState.courseId) match {
-        case Some(c) => info = (c.id, c.title, progressOf(c)) :: info
+    user.subscriptions.foreach { courseId =>
+      val states = user.chapterStates.filter(_.courseId == courseId)
+      courseService.findOneById(courseId) match {
+        case Some(c) => info = (c.id, c.title, progressOf(c, states)) :: info
         case None =>
       }
     }
     Ok(views.html.dashboard(info))
   }
-//
-//  def course(courseId: Long) = withUser { user => implicit request =>
-//    val course = Services.courseService.findOneById(courseId)
-//    val courseName = course.get.name
-//    if (user.courses.contains(courseName) && (course.isEmpty != true)) {
-//      Ok(views.html.course(courseId, courseName))
-//    } else {
-//      Redirect(routes.Application.dashboard)
-//    }
-//  }
-//
-//  def subscribe(courseId: Long) = withUser { user => implicit request =>
-//    val course = Services.courseService.findOneById(courseId)
-//    val courseName = course.get.name
-//    if (course != None && 
-//      user.courses.find { course => course._1 == courseName } == None) {
-//      user.courses += (courseName -> Map())
-//      Services.userService.update(user)
-//    }
-//    Redirect(routes.Application.dashboard)
-//  }
-//
-//  def unsubscribe(courseId: Long) = withUser { user => implicit request =>
-//    val course = Services.courseService.findOneById(courseId)
-//    val courseName = course.get.name
-//    user.courses -= courseName
-//    Services.userService.update(user)
-//    Redirect(routes.Application.dashboard)
-//  }
-//
+
+  def course(courseId: Long) = withUser { user => implicit request =>
+    val course = courseService.findOneById(courseId)
+    if (user.subscriptions.contains(courseId) && !course.isEmpty)
+      Ok(views.html.course(course.get.id, course.get.title))
+    else
+      Redirect(routes.Application.dashboard)
+  }
+
+  def subscribe(courseId: Long) = withUser { user => implicit request =>
+    courseService.findOneById(courseId) match {
+      case Some(course) => 
+        user.subscriptions = user.subscriptions + courseId
+        userService.update(user)
+      case None => 
+    }
+    Redirect(routes.Application.dashboard)
+  }
+
+  def unsubscribe(courseId: Long) = withUser { user => implicit request =>
+    user.subscriptions = user.subscriptions.filter(_ != courseId)
+    userService.update(user)
+    Redirect(routes.Application.dashboard)
+  }
+
   def coursesJson() = Action {
     val list = Services.courseService.findAll.map {
         course => JsObject(Map(
@@ -66,13 +62,13 @@ class Application extends Controller with Secured {
     }.toSeq
     Ok(Json.toJson(list))
   }
-//
-//  def courseJson(courseId: Long) = withUser { user => implicit request =>
-//    Services.courseService.findOneById(courseId) match {
-//      case Some(course) => Ok(course.json)
-//      case None     => Ok(Json.obj("error" -> "course not found"))
-//    }
-//  }
+
+  def courseJson(courseId: Long) = withUser { user => implicit request =>
+    Services.courseService.findOneById(courseId) match {
+      case Some(course) => Ok(Json.toJson(course))
+      case None => Ok(Json.obj("error" -> "course not found"))
+    }
+  }
 
   def saveCourseJson() = withUser(parse.json) { user => implicit request =>
     val courseResult = request.body.validate[Course]
@@ -98,70 +94,46 @@ class Application extends Controller with Secured {
     )
   }
 
-//  def storeSolutionJson(courseId: Long) = withUser(parse.json) { 
-//    user => implicit request =>
-//
-//    val course = Services.courseService.findOneById(courseId)
-//    val courseName = course.get.name
-//    var json = request.body.toString
-//    var result = Json.obj("success" -> "state saved")
-//    var chapterName = request.body.as[JsObject].value("title").as[String]
-//    try {
-//      val course = user.courses(courseName) + (chapterName -> json)
-//      user.courses = user.courses + (courseName -> course)
-//
-//      Services.userService.update(user)
-//    } catch {
-//      case e: Exception => 
-//        result = Json.obj("error" -> "false course/chapter")
-//    }
-//
-//
-//    Ok(result)
-//  }
-//
-//  def solutionsJson(courseId: Long) = withUser { user => implicit request =>
-//    val course = Services.courseService.findOneById(courseId)
-//    val courseName = course.get.name
-//    try {
-//      if (!user.courses(courseName).isEmpty) {
-//        val chapters = user.courses(courseName).map { chapter =>
-//          JsObject(Seq(
-//            "title" -> JsString(chapter._1),
-//            "tasks" -> Json.parse(chapter._2)
-//          ))
-//        }
-//         val result = JsObject(Seq(
-//          "course" -> JsObject(Seq(
-//            "title" -> JsString("course1"),
-//            "chapters" -> JsArray(chapters.toList)
-//          ))
-//        ))
-//        Ok(result)
-//      } else {
-//        Ok(Json.obj("error" -> "no solution for course"))
-//      }
-//    } catch {
-//      case e: Exception => Ok(Json.obj("error" -> e.getMessage))
-//    }
-//  }
-//  
-//  def deleteCourse(courseId: Long) = withUser { user => implicit request =>
-//    Services.courseService.delete(new Course(courseId, "", "")) match {
-//      case Some(x) => Ok(Json.obj("success" -> "course deleted"))
-//      case None => Ok(Json.obj("error" -> "could not delete course"))
-//    }
-//  }
-//
+  def storeSolutionJson(courseId: Long) = withUser(parse.json) { 
+    user => implicit request =>
+
+    val chapterStateResult = request.body.validate[ChapterState]
+    chapterStateResult.fold(
+      errors =>  {
+        BadRequest(Json.obj(
+          "status" -> "KO", 
+          "message" -> JsError.toJson(errors)
+        ))
+      },
+      state => {
+        user.chapterStates = state :: user.chapterStates.filter {
+          x => x.courseId != state.courseId && x.chapterId != state.chapterId
+        }
+        userService.update(user)
+        Ok(Json.obj("status" -> "OK", "message" -> ("User updated")))
+      }
+    )
+  }
+
+  def solutionsJson(courseId: Long) = withUser { user => implicit request =>
+    val states = user.chapterStates.filter(_.courseId == courseId)
+    Ok(Json.toJson(states))
+  }
+  
+  def deleteCourse(courseId: Long) = withUser { user => implicit request =>
+    courseService.findOneById(courseId) match {
+      case Some(course) =>
+        courseService.delete(course)
+        Ok(Json.obj("success" -> "course deleted"))
+      case None => Ok(Json.obj("error" -> "could not delete course"))
+    }
+  }
+
   // tests
   def testInterpret() = withUser(parse.json) { user => implicit request =>
     var code = request.body.as[JsObject].value("code").as[String]
     println(code)
     Ok(Json.obj("output" -> new CodeTask("", code, "").run().consoleOutput))
-  }
-
-  def test() = Action {
-    Ok("Your Application is ready.")
   }
   // /tests
 }

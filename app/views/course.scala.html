@@ -1,16 +1,16 @@
-@(courseId: Long, courseName: String)
+@(courseId: Long, courseTitle: String)
 
 @extra = {
-    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/course.css")">
-    <script src="@routes.Assets.versioned("bower_components/webcomponentsjs/webcomponents-lite.min.js")" type="text/javascript"></script>
-    <link rel="import" href="@routes.Assets.versioned("bower_compontents/course-view/course-view.html")">
+  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/course.css")">
+  <script src="@routes.Assets.versioned("bower_components/webcomponentsjs/webcomponents-lite.min.js")" type="text/javascript"></script>
+  <link rel="import" href="@routes.Assets.versioned("bower_components/course-view/course-view.html")">
 }
 
-@main(courseName, extra) {
-	<ol class="breadcrumb">
-		<li><a href="/dashboard">Dashboard</a></li>
-        <li class="active">@courseName</li>
+@main(courseTitle, extra) {
+  <ol class="breadcrumb">
+    <li><a href="/dashboard">Dashboard</a></li>
+      <li class="active">@courseTitle</li>
     </ol>
 
-	<course-view course-id="@courseId"></course-view>
+  <course-view course-id="@courseId"></course-view>
 }

@@ -15,10 +15,11 @@ import models._
 @RunWith(classOf[JUnitRunner])
 class ApplicationSpec extends Specification {
   val id1 = Services.userService.newId()
-  val id2 = Services.userService.newId()
   val user1 = new User(id1, "admin@test.de", "teacher", "test", List())
-  val user2 = new User(id2, "test@test.de", "student", "test", List())
   Services.userService.create(user1)
+
+  val id2 = Services.userService.newId()
+  val user2 = new User(id2, "test@test.de", "student", "test", List())
   Services.userService.create(user2)
 
   "Application" should {
@@ -28,11 +29,9 @@ class ApplicationSpec extends Specification {
     }
 
     "render the index page" in new WithApplication{
-      val home = route(FakeRequest(GET, "/test")).get
+      val home = route(FakeRequest(GET, "/")).get
 
-      status(home) must equalTo(OK)
-      contentType(home) must beSome.which(_ == "text/plain")
-      contentAsString(home) must contain ("Your Application is ready.")
+      status(home) must equalTo(SEE_OTHER)
     }
 
     // User Actions
@@ -63,7 +62,6 @@ class ApplicationSpec extends Specification {
     "create course" in new WithApplication {
         // create course
         val json: JsValue = Json.parse("""{
-            "id": null,
             "title": "Scala For Beginners",
             "chapters": [
               {
@@ -183,37 +181,71 @@ class ApplicationSpec extends Specification {
         status(result.get) must equalTo(OK)
         contentAsString(result.get) must contain("{\"id\":100001,\"title\":\"Scala For Beginners\"")
     }
-//
-//    "retreive course json" in new WithApplication {
-//        val request = FakeRequest(GET, "/courses/100001")
-//          .withSession("username" -> "test@test.de", "password" -> "test")
-//        val result = route(request)
-//
-//        status(result.get) must equalTo(OK)
-//        contentAsString(result.get) must contain("\"title\":\"Scala For Beginners\"")
-//    }
-//
-//    "store state of chapter" in new WithApplication {
-//        val json: JsValue = Json.parse("""{"title": "About Scala Lists", "states": {"koan1": {"state": {"checked": true,"mySolutions": ["List(1, 2, 3, 4)","List(2, 3, 4, 5)","List(1, 4, 9, 16)"]}}}}""")
-//
-//        val request = FakeRequest(POST, "/solutions/100001")
-//          .withJsonBody(json)
-//          .withSession("username" -> "test@test.de", "password" -> "test")
-//        val result = route(request)
-//
-//        contentAsString(result.get) must contain("{\"success\":\"state saved\"}")
-//        status(result.get) must equalTo(OK)
-//    }
-//
-//    "retreive chapter states" in new WithApplication {
-//        val request = FakeRequest(GET, "/solutions/100001")
-//          .withSession("username" -> "test@test.de", "password" -> "test")
-//        val result = route(request)
-//
-//        status(result.get) must equalTo(OK)
-//        contentAsString(result.get) must contain("\"mySolutions\":[\"List(1, 2, 3, 4)\"")
-//    }
-//
+
+    "retreive course json" in new WithApplication {
+        val request = FakeRequest(GET, "/api/courses/100001")
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        status(result.get) must equalTo(OK)
+        contentAsString(result.get) must contain("\"title\":\"Scala For Beginners\"")
+    }
+
+    "store state of chapter" in new WithApplication {
+        val json: JsValue = Json.parse(
+          """{
+            "courseId": 100001,
+            "chapterId": 1,
+            "taskStates": [
+              {
+                "taskId": "koan-task1",
+                "state": {"checked": true, "mySolutions": ["List(1, 2, 3, 4)","List(2, 3, 4, 5)","List(1, 4, 9, 16)"]}
+              }
+            ]
+          }"""
+        )
+
+        val request = FakeRequest(POST, "/api/solutions/100001")
+          .withJsonBody(json)
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+
+        contentAsString(result.get) must contain("\"status\":\"OK\"")
+        status(result.get) must equalTo(OK)
+    }
+
+    "fail to store malformated state of chapter" in new WithApplication {
+        val json: JsValue = Json.parse(
+          """{
+            "courseId": 100001,
+            "chapterId": 1,
+            "taskStates": [
+              {
+                "taskId": "koan-task1"
+              }
+            ]
+          }"""
+        )
+
+        val request = FakeRequest(POST, "/api/solutions/100001")
+          .withJsonBody(json)
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        contentAsString(result.get) must contain("\"status\":\"KO\"")
+        status(result.get) must equalTo(BAD_REQUEST)
+    }
+
+    "retreive chapter states" in new WithApplication {
+        val request = FakeRequest(GET, "/api/solutions/100001")
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        status(result.get) must equalTo(OK)
+        contentAsString(result.get) must contain("\"mySolutions\":[\"List(1, 2, 3, 4)\"")
+    }
+
 //    "unsubscribe user from course" in new WithApplication {
 //      val request = FakeRequest(GET, "/unsubscribe/100001")
 //        .withSession("username" -> "test@test.de", "password" -> "test")
@@ -224,7 +256,7 @@ class ApplicationSpec extends Specification {
 //    }
 //
 //    "delete course" in new WithApplication {
-//        val request = FakeRequest(DELETE, "/courses/100001")
+//        val request = FakeRequest(DELETE, "/api/courses/100001")
 //          .withSession("username" -> "admin@test.de", "password" -> "test")
 //        val result = route(request)
 //
