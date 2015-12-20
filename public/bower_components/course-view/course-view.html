@@ -102,7 +102,7 @@
             this_.badge_ = badge;
           } else {
             li.click(function() {
-              this_.loadChapter(course.chapters[index], solution);
+              this_.loadChapter(course.chapters[index], solution, course.id);
             });
           }
           li.appendTo(ol);
@@ -112,10 +112,10 @@
         var solution = solutions.find(function(solution) {
           return solution.chapterId == course.chapters[0].id;
         });
-        this.loadChapter(course.chapters[0], solution)
+        this.loadChapter(course.chapters[0], solution, course.id)
       },
 
-      loadChapter: function(chapter, solution) {
+      loadChapter: function(chapter, solution, courseId) {
         var main = document.getElementById("main");
         // clear previous chapter
         $(main).children().attr('visible', false);
@@ -143,31 +143,68 @@
             });
           }
           
-          console.dir(solution);
-          console.dir(element);
           element.interpreterUrl = '/testInterpret';
           main.appendChild(element);
           elements.push(element);
         });
+
         // initialize hook
         var this_ = this;
-        setInterval(function() {
-          console.log('interval');
+
+        var updateBadges = function() {
+          // set checked count of nav badge
           var checked = elements.reduce(function(amount, el) {
             return el.checked ? amount + 1 : amount;
           }, 0);
-          console.log(checked);
-
           this_.badge_.text(checked + '/' + elements.length);
-        }, 1000);
-      },
+        };
 
-      processTasks: function(tasks) {
-        var keys = Object.keys(tasks);
-        return keys.map(function(key) {
-          return {name: key, task: tasks[key]};
-        });
-      }
+        var saveState = function(options) {
+          return function() {
+            var chapterState = {
+              courseId: courseId,
+              chapterId: chapter.id,
+              taskStates: []
+            };
+
+            elements.forEach(function(element) {
+              chapterState.taskStates.push({
+                taskId: element.id,
+                state: element.state
+              });
+            });
+            console.log(chapterState);
+            $.ajax({
+              type: 'POST',
+              url: '/api/solutions/' + courseId,
+              data: JSON.stringify(chapterState),
+              contentType: 'application/json; charset=utf-8',
+              dataType: 'json',
+              async: options.async,
+              success: function(data, status, xhr) {
+                if (status == 'success')
+                  console.log('state saved');
+              },
+              error: function(xhr, status, y) {
+                //console.log('could not save state');
+                console.log(status);
+                console.dir(chapterState)
+              }
+            });
+          };
+        };
+
+        if (!this.initialized_) {
+          this.initialized_ = true;
+          setInterval(updateBadges, 1000);
+          setInterval(saveState({async: true}), 30000);
+          window.onbeforeunload = function(){
+             saveState({async: false})();
+             console.log('saved0');
+             return null;
+          };
+        }
+      },
     });
   </script>
 </dom-module>

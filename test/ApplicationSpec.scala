@@ -83,7 +83,7 @@ class ApplicationSpec extends Specification {
                   },{
                     "id": "code1",
                     "tag": "code-task",
-                    "data": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben.\n Nutzen Sie nicht die bereits vorhandenen Möglichkeit\n <b>List.reverse</b>", "mode":"scala", "code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"}
+                    "data": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben.\n Nutzen Sie nicht die bereits vorhandenen Möglichkeit\n <b>List.reverse</b>", "mode":"scala", "code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}","test": "assert(rvrs(List(1, 2, 3)) == List(3, 2, 1), \"rvrs is not working\")"}
                   },{
                     "id": "koan3",
                     "tag": "koan-task",
@@ -198,7 +198,7 @@ class ApplicationSpec extends Specification {
             "chapterId": 1,
             "taskStates": [
               {
-                "taskId": "koan-task1",
+                "taskId": "koan1",
                 "state": {"checked": true, "mySolutions": ["List(1, 2, 3, 4)","List(2, 3, 4, 5)","List(1, 4, 9, 16)"]}
               }
             ]
@@ -222,7 +222,7 @@ class ApplicationSpec extends Specification {
             "chapterId": 1,
             "taskStates": [
               {
-                "taskId": "koan-task1"
+                "taskId": "koan1"
               }
             ]
           }"""
