@@ -40,6 +40,7 @@ object User {
     (__ \ "state").format(new OWrites[String] {
       def writes(state: String): JsObject = {
         // fails on empty data -> prevented by Reads
+        println("state: " + state)
         Json.parse(state).as[JsObject]
       }
     })

@@ -49,6 +49,7 @@ class Application extends Controller with Secured {
 
   def unsubscribe(courseId: Long) = withUser { user => implicit request =>
     user.subscriptions = user.subscriptions.filter(_ != courseId)
+    user.chapterStates = user.chapterStates.filter(_.courseId != courseId)
     userService.update(user)
     Redirect(routes.Application.dashboard)
   }
@@ -94,7 +95,7 @@ class Application extends Controller with Secured {
     )
   }
 
-  def storeSolutionJson(courseId: Long) = withUser(parse.json) { 
+  def storeSolutionsJson(courseId: Long) = withUser(parse.json) { 
     user => implicit request =>
 
     val chapterStateResult = request.body.validate[ChapterState]
@@ -106,9 +107,11 @@ class Application extends Controller with Secured {
         ))
       },
       state => {
+        println("chapterState now: " + user.chapterStates)
         user.chapterStates = state :: user.chapterStates.filter {
-          x => x.courseId != state.courseId && x.chapterId != state.chapterId
+          x => x.courseId != state.courseId || x.chapterId != state.chapterId
         }
+        println("\nchapterState new: " + user.chapterStates)
         userService.update(user)
         Ok(Json.obj("status" -> "OK", "message" -> ("User updated")))
       }

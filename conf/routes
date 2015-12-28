@@ -19,7 +19,7 @@ GET     /api/courses                    controllers.Application.coursesJson
 GET     /api/courses/:courseId          controllers.Application.courseJson(courseId: Long)
 POST    /api/courses/new                controllers.Application.saveCourseJson()
 DELETE  /api/courses/:courseId          controllers.Application.deleteCourse(courseId: Long)
-POST    /api/solutions/:courseId        controllers.Application.storeSolutionJson(courseId: Long)
+POST    /api/solutions/:courseId        controllers.Application.storeSolutionsJson(courseId: Long)
 GET     /api/solutions/:courseId        controllers.Application.solutionsJson(courseId: Long)
 #ǴET     /api/user/:userId
 #POST    /api/user/:userId

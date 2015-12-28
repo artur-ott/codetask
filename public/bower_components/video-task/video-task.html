@@ -29,11 +29,12 @@
       attached: function() {
         this.addDescription();
         
+        this.checked = false;
         if (this.watched) this.check(true);
 
-           // add youtube player div
-           var id = this.id + '-player';
-           $('<div></div>').attr('id', id).appendTo(this);
+        // add youtube player div
+        var id = this.id + '-player';
+        $('<div></div>').attr('id', id).appendTo(this);
 
         // get video code
         var url = this.url.split('?v=');
@@ -41,7 +42,7 @@
         player = new YT.Player(id, {
           height: '300px',
           width: '100%',
-          videoId: (url.size > 1 ? url[url.size - 1] : url),
+          videoId: (url.length > 1 ? url[1] : url),
           events: {
             'onStateChange': function(event) {
               // playing: 1, stopped: 2, ended: 0
