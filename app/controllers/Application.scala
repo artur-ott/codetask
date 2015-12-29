@@ -95,6 +95,33 @@ class Application extends Controller with Secured {
     )
   }
 
+  def updateCourseJson(courseId: Long) = withUser(parse.json) { 
+    user => implicit request =>
+
+    val courseResult = request.body.validate[Course]
+    courseResult.fold(
+      errors => {
+        BadRequest(Json.obj(
+          "status" -> "KO",
+          "message" -> JsError.toJson(errors)
+        ))
+      },
+      course => {
+        course.id = courseId
+        courseService.update(course) match {
+          case Some(saved) =>  Ok(Json.obj(
+            "status" -> "OK", 
+            "message" -> ("Course '" + saved.title + "' saved")
+          ))
+          case None =>  BadRequest(Json.obj(
+            "status" -> "KO", 
+            "message" -> ("Course id: '" + courseId + "' does not exists")
+          ))
+        }
+      }
+    )
+  }
+
   def storeSolutionsJson(courseId: Long) = withUser(parse.json) { 
     user => implicit request =>
 

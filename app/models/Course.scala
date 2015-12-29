@@ -4,7 +4,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import Services._
 
-case class Course(id: Long, var title: String, var chapters: List[Chapter])
+case class Course(var id: Long, var title: String, var chapters: List[Chapter])
 case class Chapter(id: Long, title: String, tasks: List[Task])
 case class Task(id: String, tag: String, data: String)
 

@@ -18,6 +18,7 @@ GET     /unsubscribe/:courseId          controllers.Application.unsubscribe(cour
 GET     /api/courses                    controllers.Application.coursesJson
 GET     /api/courses/:courseId          controllers.Application.courseJson(courseId: Long)
 POST    /api/courses/new                controllers.Application.saveCourseJson()
+PUT     /api/courses/:courseId          controllers.Application.updateCourseJson(courseId: Long)
 DELETE  /api/courses/:courseId          controllers.Application.deleteCourse(courseId: Long)
 POST    /api/solutions/:courseId        controllers.Application.storeSolutionsJson(courseId: Long)
 GET     /api/solutions/:courseId        controllers.Application.solutionsJson(courseId: Long)
