@@ -17,8 +17,8 @@ codetask update course "Kursname" /pfad/zu/scala/tests  // course aktualisieren
 codetask delete course "Kursname"                       // course löschen
 ```
 Das Script übersetzt mit *create* und *update* die *.scala* Dateien von 
-'CodeTaskSuite' Klassen in eine *.json* Datei und sendet diese an den Server.
-Einzelne 'CodeTaskSuite' Klassen bilden die Chapter eines Courses. Beispiel:
+`CodeTaskSuite` Klassen in eine *.json* Datei und sendet diese an den Server.
+Einzelne `CodeTaskSuite` Klassen bilden die Chapter eines Courses. Beispiel:
 
 ```
 /folder
@@ -32,10 +32,10 @@ Die oben beschriebene Ordnerstruktur würde in einen Course mit drei Chaptern
 
 ##CodeTaskSuite
 
-Im Ordner /CodeTask befindet sich ein Eclipse Projekt das die 'CodeTaskSuite' 
-Klasse beinhaltet. Diese erbt von 'org.scalatest.FunSuite' und kann als test
-ausgeführt werden. Außerdem verfügt sie über die Methoden 'video', 'koan' und
-'codetask' mit denen die Aufgaben der einzelenen Chaptern definiert werden.
+Im Ordner `/CodeTask` befindet sich ein Eclipse Projekt das die `CodeTaskSuite` 
+Klasse beinhaltet. Diese erbt von `org.scalatest.FunSuite` und kann als test
+ausgeführt werden. Außerdem verfügt sie über die Methoden `video`, `koan` und
+`codetask` mit denen die Aufgaben der einzelenen Chaptern definiert werden.
 Eine Suite könnte zum Beispiel so aussehen:
 
 ```scala
@@ -88,8 +88,8 @@ class AboutLists extends CodeTaskSuite {
 ```
 ###Videos
 
-Videos werden mit der methode 'video' definiert und haben eine Description und
-eine Youtube-URL.
+Videos werden mit der methode `video` definiert und haben eine Description und
+eine Youtube-URL oder den Video-Key.
 
 ###Koans
 
@@ -109,7 +109,7 @@ result shouldBe x         // -> result shouldBe __
 Codetasks sind Aufgaben bei denen der User einen Code schreiben muss der
 bestimmte assertions erfüllen muss. Die Aufgabe kann formuliert werden so dass
 der Test ausführbar is. Bei der umwandlung in *.json* wird die Lösung die
-zwischen einzeiligen '//solve' und '//endsolve' Kommentaren geschrieben wird,
+zwischen einzeiligen `//solve` und `//endsolve` Kommentaren geschrieben wird,
 aus dem code herausgenommen. 
-Die Assertions die zutreffen sollen werden zwischen einzeilige '//test' und 
-'//endtest' Kommentare geschrieben.
+Die Assertions die zutreffen sollen werden zwischen einzeilige `//test` und 
+`//endtest` Kommentare geschrieben.
