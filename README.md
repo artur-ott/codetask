@@ -39,6 +39,7 @@ ausgeführt werden. Außerdem verfügt sie über die Methoden `video`, `koan` un
 Eine Suite könnte zum Beispiel so aussehen:
 
 ```scala
+// Inhalt von AboutLists.scala
 package tasks
 
 import support.CodeTaskSuite
