@@ -93,8 +93,8 @@ class Parser(s: String) {
           code = code.replace(m2.toString, m2.group(g).toString() + replace)
         } 
       }
-      
-      map = map + (index -> ("koan" + koans, Map("description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "solutions" -> escapeHTML(solutions.mkString("@@@")))))
+      val sol = "[%s]".format(solutions.map(x => "\"" + escapeHTML(x) + "\"").mkString(","))
+      map = map + (index -> ("koan" + koans, Map("description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "solutions" -> sol)))
       
       // add one so the next match is processed
       index += 1
@@ -196,7 +196,10 @@ class Parser(s: String) {
     map foreach { task =>
       json = json + "%s%s%s\"%s\": {".format(t, t, t, task._2._1)
       task._2._2 foreach { value =>
-        json = json + "\"%s\": \"%s\",".format(value._1, value._2)
+        if (value._1 != "solutions")
+          json = json + "\"%s\": \"%s\",".format(value._1, value._2)
+        else
+          json = json + "\"%s\": %s,".format(value._1, value._2)
       }
       // strip last ,
       if (json.last == ',') json = json.slice(0, json.size - 1)

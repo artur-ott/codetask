@@ -25,11 +25,11 @@ class Test extends FlatSpec with Matchers {
     val mRecursive = Test.koanRecursive.parse
     val mMultiple = Test.koanMultiple.parse
     
-    mRegular should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "1 should be __", "solutions" -> "1"))))
-    mNewlines should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "some code{}\\n\\\"text\\\" should be __", "solutions" -> "\\\"text\\\""))))
-    mRecursive should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "if(what) {\\ndo that\\n}\\nsome code{}\\n1 should be __", "solutions" -> "1"))))
-    mMultiple should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "if(what) {\\ndo that\\n}\\nsome code{}\\n1 should be __", "solutions" -> "1")),
-                                85 -> ("koan2", Map("description" -> "a koan", "code" -> "if(what) {\\ndo that\\n}\\nsome code{}\\n1 should be __", "solutions" -> "1"))))
+    mRegular should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "1 should be __", "solutions" -> "[\"1\"]"))))
+    mNewlines should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "some code{}\\n\\\"text\\\" should be __", "solutions" -> "[\"\\\"text\\\"\"]"))))
+    mRecursive should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "if(what) {\\ndo that\\n}\\nsome code{}\\n1 should be __", "solutions" -> "[\"1\"]"))))
+    mMultiple should equal(Map(5 -> ("koan1", Map("description" -> "a koan", "code" -> "if(what) {\\ndo that\\n}\\nsome code{}\\n1 should be __", "solutions" -> "[\"1\"]")),
+                                85 -> ("koan2", Map("description" -> "a koan", "code" -> "if(what) {\\ndo that\\n}\\nsome code{}\\n1 should be __", "solutions" -> "[\"1\"]"))))
  }
   
   "Parser#parse" should "parse codetask into map" in {
@@ -102,7 +102,7 @@ class AboutLists extends CodeTaskSuite {
         "title": "AboutTest",
         "tasks": {
             "video1": {"description": "description","url": "http://youtube/watch?lpk42"},
-            "koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten","code": "result should equal (__)\n    result should === (__)\n    result should be __\n    result shouldEqual __\n    result shouldBe __","solutions": "3@@@3@@@List(3, 2, 1)@@@\"text\"@@@3"},
+            "koan1": {"description": "das ist ein koan eine aufgabe mit fehlenden assert werten","code": "result should equal (__)\n    result should === (__)\n    result should be __\n    result shouldEqual __\n    result shouldBe __","solutions": ["3","3","List(3, 2, 1)","\"text\"","3"]},
             "codetask1": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben","code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"}
         }
     }
@@ -173,9 +173,9 @@ class AboutLists extends CodeTaskSuite {
         "tasks": {
             "video1": {"description": "description\nis a new description","url": "http://youtube/watch?lpk42"},
             "video2": {"description": "description\nis a new description","url": "http://youtube/watch?lpk42"},
-            "koan1": {"description": "description\nis a new description","code": "result should equal (__)","solutions": "3"},
+            "koan1": {"description": "description\nis a new description","code": "result should equal (__)","solutions": ["3"]},
             "codetask1": {"description": "description\nis a new description","code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"},
-            "koan2": {"description": "description\nis a new description","code": "result should equal (__)\n  \tresult shouldBe __\n  \tresult should equal __","solutions": "3@@@List(2)@@@\"was\""},
+            "koan2": {"description": "description\nis a new description","code": "result should equal (__)\n  \tresult shouldBe __\n  \tresult should equal __","solutions": ["3","List(2)","\"was\""]},
             "codetask2": {"description": "description\nis a new description","code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}","test": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"}
         }
     }
