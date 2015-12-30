@@ -51,7 +51,8 @@ class AboutLists extends CodeTaskSuite {
   video("Viedeo zu Scala-Listen.", "U23j6yH21W4")
   
   koan("""Mit der Funktion <b>contains</b> kann geprüft werden ob eine Liste ein bestimmtes Element enthält.
-        | Mit der Funktion <b>map</b> können funktionen auf listen angewendet werden, die Ergebnisse werden in einer neuen Liste gespeichert.
+        | Mit der Funktion <b>map</b> können funktionen auf listen angewendet werden, die
+        | Ergebnisse werden in einer neuen Liste gespeichert.
         | Versuch in dem folgenden <b>Koan</b> die richtigen Werte einzutragen""") {
     val l = List(1, 2, 3, 4)
     val l2 = l.map { x => x + 1 }
