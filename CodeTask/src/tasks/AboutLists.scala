@@ -1,6 +1,6 @@
 package tasks
 
-import support.CodeTaskSuite
+import codetask.CodeTaskSuite
 import org.scalatest.Matchers
 
 // CodeTaskSuites werden als chapters in courses hinzugefügt

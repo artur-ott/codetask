@@ -377,7 +377,27 @@ class ApplicationSpec extends Specification {
 //        val result = route(request)
 //
 //        status(result.get) must equalTo(OK)
-//        contentAsString(result.get) must contain("{\"success\":\"course deleted\"")
+//        contentAsString(result.get) must contain("{\"status\":\"OK\"")
 //    }
+
+    "interpret scala code" in new WithApplication {
+      val json: JsValue = Json.parse(
+          """{
+            "courseId": 100001,
+            "chapterId": 1,
+            "taskId": "code1",
+            "code": "def rvrs(l: List[Any]): List[Any] = {\n  l.reverse\n}"
+          }"""
+        )
+
+        val request = FakeRequest(POST, "/api/interpreter/scala")
+          .withJsonBody(json)
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        contentAsString(result.get) must contain("\"status\":\"OK\"")
+        contentAsString(result.get) must contain("\"output\":\"true\"")
+        status(result.get) must equalTo(OK)
+    }
   }
 }

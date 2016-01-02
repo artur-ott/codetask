@@ -12,6 +12,7 @@ libraryDependencies ++= Seq(
   ws,
   specs2 % Test,
   "org.scala-lang" % "scala-compiler" % "2.11.6",
+  "org.scalatest" % "scalatest_2.10" % "2.0" % "test",
   "com.db4o" % "com.db4o" % "7.7.67"
   //"com.twitter" % "util-eval_2.11" % "6.29.0"
 )

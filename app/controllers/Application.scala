@@ -5,6 +5,7 @@ import play.api.mvc._
 import play.api.libs.functional.syntax._
 import play.api.Play.current
 import play.api.libs.json._
+import play.api.libs.json.JsValue._
 import scala.collection.JavaConverters._
 import models._
 import Services._
@@ -154,16 +155,60 @@ class Application extends Controller with Secured {
     courseService.findOneById(courseId) match {
       case Some(course) =>
         courseService.delete(course)
-        Ok(Json.obj("success" -> "course deleted"))
-      case None => Ok(Json.obj("error" -> "could not delete course"))
+        Ok(Json.obj("status" -> "OK", "message" -> "course deleted"))
+      case None => Ok(Json.obj(
+        "status" -> "KO", 
+        "message" -> "could not delete course"
+      ))
     }
   }
 
+  case class InterpreterRequest(courseId: Long, chapterId: Long, taskId: String, code: String)
+  implicit val interpreterRequestReads: Reads[InterpreterRequest] = (
+    (__ \ "courseId").read[Long] and
+    (__ \ "chapterId").read[Long] and
+    (__ \ "taskId").read[String] and
+    (__ \ "code").read[String]
+  )(InterpreterRequest.apply _)
+
   // tests
-  def testInterpret() = withUser(parse.json) { user => implicit request =>
-    var code = request.body.as[JsObject].value("code").as[String]
-    println(code)
-    Ok(Json.obj("output" -> new CodeTask("", code, "").run().consoleOutput))
+  def interpreter() = withUser(parse.json) { user => implicit request =>
+    val irResult = request.body.validate[InterpreterRequest]
+    irResult.fold(
+      errors =>  {
+        BadRequest(Json.obj(
+          "status" -> "KO", 
+          "message" -> JsError.toJson(errors)
+        ))
+      },
+      ir => {
+        val noCourse = "course " + ir.courseId + " does not exist."
+        val noChapter = "chapter " + ir.chapterId + " does not exist."
+        val noTask = "task " + ir.taskId + " does not exist."
+
+        courseService.findOneById(ir.courseId) match {
+          case Some(course) => 
+            course.chapters.find(_.id == ir.chapterId) match {
+              case Some(chapter) => 
+                chapter.tasks.find(_.id == ir.taskId) match {
+                  case Some(task) =>
+                    val data = Json.parse(task.data)
+                    // todo: check data
+                    val test = (data \ "test").as[String]
+                    val code = ir.code + "\n" + test
+                    val result = Interpreter.run("scala", code)
+                    Ok(Json.obj("status" -> "OK", "output" -> result.output))
+                  case None => BadRequest(Json.obj("status" -> "KO", 
+                    "message" -> noTask))
+                }
+              case None => BadRequest(Json.obj("status" -> "KO", 
+                "message" -> noChapter))
+            }
+          case None => BadRequest(Json.obj("status" -> "KO", 
+            "message" -> noCourse))
+        }
+      }
+    )
   }
   // /tests
 }

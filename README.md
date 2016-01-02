@@ -90,24 +90,26 @@ class AboutLists extends CodeTaskSuite {
 ```
 ###Videos
 
-Videos werden mit der methode `video` definiert und haben eine Description und
+Videos werden mit der Methode `video` definiert und haben eine Description und
 eine Youtube-URL oder den Video-Key.
 
 ###Koans
 
-Koans sind Code-Lückentexte bei denen die Assertion vom User eingegeben werden
+Koans werden mit der `koan` Methode definiert. Koans sind Code-Lückentexte bei 
+denen die Assertion vom User eingegeben werden
 muss. Für die folgenden Assertions werden Ergebnise ersetzt:
 
 ```
-result should equal (x)   // -> result should equal (__) 
-result should === (x)     // -> result should === (__)   
-result should be (x)      // -> result should be (__)    
-result shouldEqual x      // -> result shouldEqual __    
+result should equal (x)   // -> result should equal (__)
+result should === (x)     // -> result should === (__)
+result should be (x)      // -> result should be (__)
+result shouldEqual x      // -> result shouldEqual __
 result shouldBe x         // -> result shouldBe __
 ```
 
 ###Codetask
 
+Mit der Methode `codetask` werden Codetasks definiert.
 Codetasks sind Aufgaben bei denen der User einen Code schreiben muss der
 bestimmte assertions erfüllen muss. Die Aufgabe kann formuliert werden so dass
 der Test ausführbar is. Bei der umwandlung in *.json* wird die Lösung die

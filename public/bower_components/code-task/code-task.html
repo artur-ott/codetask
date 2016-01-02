@@ -116,31 +116,18 @@
         // check
         this.check(this.checked);
       },
-      post: function() {
-        var this_ = this;
-
-        $.ajax({
-          type: 'POST',
-          url: this.postUrl,
-          data: JSON.stringify({ code: this.code }),
-          contentType: 'application/json; charset=utf-8',
-          dataType: 'json',
-          success: function(data, status, xhr) {
-            console.log(this_.id + ' saved');
-          },
-          error: function(xhr, status) {
-            console.log('could not save data of ' +
-              this_.id + ' status: ' + status);
-          }
-        });
-      },
       run: function() {
         var this_ = this;
 
         $.ajax({
           type: 'POST',
           url: this.interpreterUrl,
-          data: JSON.stringify({ code: this.aceEditor.getValue() }),
+          data: JSON.stringify({
+            courseId: 100001,
+            chapterId: 1,
+            taskId: 'code1',
+            code: this.aceEditor.getValue() 
+          }),
           contentType: 'application/json; charset=utf-8',
           dataType: 'json',
           success: function(data, status, xhr) {
@@ -150,8 +137,9 @@
               this_.output.text(data.error);
           },
           error: function(xhr, status) {
-            console.log('could not save data of ' +
+            console.log('could not interpret code of ' +
               this_.id + ' status: ' + status);
+            this_.output.text('error while sending data');
           }
         });
       }
