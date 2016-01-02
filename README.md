@@ -1,6 +1,6 @@
 #CodeTask
 
-CodeTask ist ein Programm der interaktives Lernen von Scala ermöglicht. 
+CodeTask ist ein Programm das interaktives Lernen von Scala ermöglicht. 
 User können videos sehen, koans lösen und eigene codeaufgaben einreichen.
 Der Fortschritt der User wird auf dem Server gespeichert.
 
