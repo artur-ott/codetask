@@ -396,8 +396,168 @@ class ApplicationSpec extends Specification {
         val result = route(request)
 
         contentAsString(result.get) must contain("\"status\":\"OK\"")
-        contentAsString(result.get) must contain("\"output\":\"true\"")
+        contentAsString(result.get) must contain("\"message\":\"Code executed successfull.\"")
         status(result.get) must equalTo(OK)
+    }
+
+    "fail with error" in new WithApplication {
+      val json: JsValue = Json.parse(
+          """{
+            "courseId": 100001,
+            "chapterId": 1,
+            "taskId": "code1",
+            "code": "def rvrs(l: List[Any]): List[Any] = {\n  l\n}"
+          }"""
+        )
+
+        val request = FakeRequest(POST, "/api/interpreter/scala")
+          .withJsonBody(json)
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        contentAsString(result.get) must contain("\"status\":\"KO\"")
+        //contentAsString(result.get) must contain("\"message\":\"\"")
+        status(result.get) must equalTo(BAD_REQUEST)
+    }
+
+    "fail with infinite loop" in new WithApplication {
+      val json: JsValue = Json.parse(
+          """{
+            "courseId": 100001,
+            "chapterId": 1,
+            "taskId": "code1",
+            "code": "def rvrs(l: List[Any]): List[Any] = {\n  while(true) {}\nl\n}"
+          }"""
+        )
+
+        val request = FakeRequest(POST, "/api/interpreter/scala")
+          .withJsonBody(json)
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        contentAsString(result.get) must contain("\"status\":\"KO\"")
+        contentAsString(result.get) must contain("\"message\":\"No completion check your code for infinite loops.\"")
+        status(result.get) must equalTo(BAD_REQUEST)
+    }
+
+    "fail with infinite recursion" in new WithApplication {
+      val json: JsValue = Json.parse(
+          """{
+            "courseId": 100001,
+            "chapterId": 1,
+            "taskId": "code1",
+            "code": "def rvrs(l: List[Any]): List[Any] = {\n rvrs(l)\n l\n}"
+          }"""
+        )
+
+        val request = FakeRequest(POST, "/api/interpreter/scala")
+          .withJsonBody(json)
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        contentAsString(result.get) must contain("\"status\":\"KO\"")
+        contentAsString(result.get) must contain("java.lang.StackOverflowError")
+        status(result.get) must equalTo(BAD_REQUEST)
+    }
+
+    "fail with System.exit()" in new WithApplication {
+      val json: JsValue = Json.parse(
+          """{
+            "courseId": 100001,
+            "chapterId": 1,
+            "taskId": "code1",
+            "code": "def rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}\nSystem.exit(1)"
+          }"""
+        )
+
+        val request = FakeRequest(POST, "/api/interpreter/scala")
+          .withJsonBody(json)
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        contentAsString(result.get) must contain("\"status\":\"KO\"")
+        contentAsString(result.get) must contain("\"message\":\"Your code uses prohibited code in line: 4\"")
+        status(result.get) must equalTo(BAD_REQUEST)
+    }
+
+    "fail with invalid import scala._" in new WithApplication {
+      val json: JsValue = Json.parse(
+          """{
+            "courseId": 100001,
+            "chapterId": 1,
+            "taskId": "code1",
+            "code": "import scala._\ndef rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}"
+          }"""
+        )
+
+        val request = FakeRequest(POST, "/api/interpreter/scala")
+          .withJsonBody(json)
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        contentAsString(result.get) must contain("\"status\":\"KO\"")
+        contentAsString(result.get) must contain("\"message\":\"Your code uses prohibited code in line: 1\"")
+        status(result.get) must equalTo(BAD_REQUEST)
+    }
+
+    "fail with invalid import tools._" in new WithApplication {
+      val json: JsValue = Json.parse(
+          """{
+            "courseId": 100001,
+            "chapterId": 1,
+            "taskId": "code1",
+            "code": "import tools._\ndef rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}"
+          }"""
+        )
+
+        val request = FakeRequest(POST, "/api/interpreter/scala")
+          .withJsonBody(json)
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        contentAsString(result.get) must contain("\"status\":\"KO\"")
+        contentAsString(result.get) must contain("\"message\":\"Your code uses prohibited code in line: 1\"")
+        status(result.get) must equalTo(BAD_REQUEST)
+    }
+
+    "fail with invalid use of library tools" in new WithApplication {
+      val json: JsValue = Json.parse(
+          """{
+            "courseId": 100001,
+            "chapterId": 1,
+            "taskId": "code1",
+            "code": "def rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}\nval x = new tools.nsc.interpreter.IMain()"
+          }"""
+        )
+
+        val request = FakeRequest(POST, "/api/interpreter/scala")
+          .withJsonBody(json)
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        contentAsString(result.get) must contain("\"status\":\"KO\"")
+        contentAsString(result.get) must contain("\"message\":\"Your code uses prohibited code in line: 4\"")
+        status(result.get) must equalTo(BAD_REQUEST)
+    }
+
+     "fail with ascii encoded use of library tools" in new WithApplication {
+      val json: JsValue = Json.parse(
+          """{
+            "courseId": 100001,
+            "chapterId": 1,
+            "taskId": "code1",
+            "code": "def rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}\nval x = new \164ools.nsc.interpreter.IMain()"
+          }"""
+        )
+
+        val request = FakeRequest(POST, "/api/interpreter/scala")
+          .withJsonBody(json)
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        contentAsString(result.get) must contain("\"status\":\"KO\"")
+        contentAsString(result.get) must contain("\"message\":\"Your code uses prohibited code in line: 4\"")
+        status(result.get) must equalTo(BAD_REQUEST)
     }
   }
 }

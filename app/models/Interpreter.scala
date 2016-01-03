@@ -12,6 +12,7 @@ import java.util.concurrent.TimeoutException
 import java.io.File
 
 class InterpreterResult(
+  val invalid: Boolean = false,
   var error: Boolean = false,
   var incomplete: Boolean = false,
   var success: Boolean = false,
@@ -19,7 +20,9 @@ class InterpreterResult(
 )
 
 object Interpreter {
-  val stdImport = "import org.scalatest.Matchers._\n"
+  val stdImportScala = "import org.scalatest.Matchers._\n"
+  //val whitelistScala = List("math\..*")
+  //val blacklistScala = List("scala", "annotation", "beans", "compat", "io", "ref", "reflect", "runtime", "sys", "text")
 
   def run(language: String, code: String) : InterpreterResult = {
     language match {
@@ -29,8 +32,6 @@ object Interpreter {
 
   def runScala(code: String): InterpreterResult = {
     val settings = new Settings
-    //settings.embeddedDefaults(org.scalatest.Matchers.getClass().getClassLoader())
-
 
     // borrowed: http://stackoverflow.com/questions/16511233/scala-tools-nsc-imain-within-play-2-1
     //settings.bootclasspath.value += scala.tools.util.PathResolver.Environment.javaBootClassPath + File.pathSeparator + "lib/scala-library.jar"
@@ -48,7 +49,7 @@ object Interpreter {
     lazy val f = Future {
       scala.Console.withOut(out) {
         // add stdImport
-        val newCode = stdImport + code
+        val newCode = stdImportScala + code
         im.interpret(newCode) match {
           case Results.Error => ir.error = true;
           case Results.Incomplete => ir.incomplete = true;
@@ -63,7 +64,7 @@ object Interpreter {
       case e: TimeoutException => ir.incomplete = true
     }
 
-    ir.output = out.toString().replaceFirst(stdImport, "")
+    ir.output = out.toString().replaceFirst(stdImportScala, "")
     ir
   }
 }
