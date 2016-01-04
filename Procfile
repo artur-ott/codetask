@@ -1,1 +1,1 @@
-web: target/start -Dapplication.secret="SDAFs3$45DK%salkdfj&s453lkdweo354iur" -Dhttps.port=${PORT} ${JAVA_OPTS}
+web: codeTraining/bin/codeTraining -Dapplication.secret="SDAFs3$45DK%salkdfj&s453lkdweo354iur" -Dhttps.port=${PORT} ${JAVA_OPTS}
