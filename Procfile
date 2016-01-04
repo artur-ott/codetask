@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/codetask -Dhttp.port=disabled -Dhttps.port=$PORT
+web: target/universal/stage/bin/codetask -Dhttp.port=$PORT
