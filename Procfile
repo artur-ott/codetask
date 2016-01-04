@@ -1,1 +1,1 @@
-web: target/universal/stage/bin/codetask -Dhttp.port=$PORT
+web: target/universal/stage/bin/codetask -Dhttp.port=disabled -Dapplication.secret="SDAFs3$45DK%salkdfj&s453lkdweo354iur" -Dhttps.port=${PORT}
