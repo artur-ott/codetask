@@ -7,7 +7,7 @@ Der Fortschritt der User wird auf dem Server gespeichert.
 ##Course erstellen
 
 Course basieren auf einem festgelegten format das als *.json* an den Server
-gesendet wird. Zur erstellung von Coursen steht ein Hilfsscript *codetask.sbt* 
+gesendet wird. Zur erstellung von Coursen steht ein Hilfsscript *codetask* 
 bereit. Das Script wird folgendermaßen benutzt:
 
 ```

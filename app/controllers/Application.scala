@@ -163,7 +163,9 @@ class Application extends Controller with Secured {
     }
   }
 
-  case class InterpreterRequest(courseId: Long, chapterId: Long, taskId: String, code: String)
+  case class InterpreterRequest(courseId: Long, chapterId: Long, taskId: String, 
+    code: String)
+  
   implicit val interpreterRequestReads: Reads[InterpreterRequest] = (
     (__ \ "courseId").read[Long] and
     (__ \ "chapterId").read[Long] and
@@ -171,8 +173,7 @@ class Application extends Controller with Secured {
     (__ \ "code").read[String]
   )(InterpreterRequest.apply _)
 
-  // tests
-  def interpreter() = withUser(parse.json) { user => implicit request =>
+  def interpretScala() = withUser(parse.json) { user => implicit request =>
     val irResult = request.body.validate[InterpreterRequest]
     irResult.fold(
       errors =>  {
@@ -182,33 +183,37 @@ class Application extends Controller with Secured {
         ))
       },
       ir => {
-        val noCourse = "course " + ir.courseId + " does not exist."
-        val noChapter = "chapter " + ir.chapterId + " does not exist."
-        val noTask = "task " + ir.taskId + " does not exist."
-
         courseService.findOneById(ir.courseId) match {
           case Some(course) => 
             course.chapters.find(_.id == ir.chapterId) match {
               case Some(chapter) => 
                 chapter.tasks.find(_.id == ir.taskId) match {
                   case Some(task) =>
-                    val data = Json.parse(task.data)
-                    // todo: check data
-                    val test = (data \ "test").as[String]
-                    val code = ir.code + "\n" + test
-                    val result = Interpreter.run("scala", code)
-                    Ok(Json.obj("status" -> "OK", "output" -> result.output))
-                  case None => BadRequest(Json.obj("status" -> "KO", 
-                    "message" -> noTask))
+                    try {
+                      val data = Json.parse(task.data)
+                      val test = (data \ "test").as[String]
+                      val code = ir.code + "\n" + test
+                      val result = Interpreter.run("scala", code)
+
+                      Ok(Json.obj("status" -> "OK", "output" -> result.output))
+                    } catch {
+                      case e: Exception => BadRequest(Json.obj(
+                        "status"  -> "KO", 
+                        "message" -> "error while converting data.test."))
+                    }
+                  case None => BadRequest(Json.obj(
+                    "status"  -> "KO", 
+                    "message" -> ("task " + ir.taskId + " does not exist.")))
                 }
-              case None => BadRequest(Json.obj("status" -> "KO", 
-                "message" -> noChapter))
+              case None => BadRequest(Json.obj(
+                "status"  -> "KO", 
+                "message" -> ("chapter " + ir.chapterId + " does not exist.")))
             }
-          case None => BadRequest(Json.obj("status" -> "KO", 
-            "message" -> noCourse))
+          case None => BadRequest(Json.obj(
+            "status"  -> "KO", 
+            "message" -> ("course " + ir.courseId + " does not exist.")))
         }
       }
     )
   }
-  // /tests
 }

@@ -11,7 +11,7 @@ import ExecutionContext.Implicits.global
 import java.util.concurrent.TimeoutException
 import java.io.File
 
-class InterpreterResult(
+case class InterpreterResult(
   val invalid: Boolean = false,
   var error: Boolean = false,
   var incomplete: Boolean = false,
@@ -21,8 +21,9 @@ class InterpreterResult(
 
 object Interpreter {
   val stdImportScala = "import org.scalatest.Matchers._\n"
-  //val whitelistScala = List("math\..*")
-  //val blacklistScala = List("scala", "annotation", "beans", "compat", "io", "ref", "reflect", "runtime", "sys", "text")
+  val whitelistScala = List("math")
+  val blacklistScala = List("scala", "annotation", "beans", "compat", "io", 
+    "ref", "reflect", "runtime", "sys", "text", "System", "java")
 
   def run(language: String, code: String) : InterpreterResult = {
     language match {
@@ -55,6 +56,7 @@ object Interpreter {
           case Results.Incomplete => ir.incomplete = true;
           case Results.Success => ir.success = true;
         }
+        im.close()
       }
     }
 

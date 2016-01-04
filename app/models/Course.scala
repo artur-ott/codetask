@@ -56,20 +56,4 @@ object Course {
     (__ \ "title").write[String] and
     (__ \ "chapters").write[List[Chapter]]
   )(unlift(Course.unapply))
-
-//  def progressOf(course: Course): Int = {
-//    var checkNum: Double = 0
-//  	var taskNum: Double = 0
-//    course.chapters.foreach { chapter =>
-//      chapter.tasks.foreach { task => 
-//      	try {
-//          if ((Json.parse(task.data) \ "checked").as[Boolean]) checkNum += 1	
-//      	} catch {
-//      	  case _: Exception =>
-//      	}
-//      }
-//      taskNum += chapter.tasks.size
-//    }
-//    ((checkNum / taskNum) * 100).toInt
-//  }
 }
