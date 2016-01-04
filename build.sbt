@@ -1,4 +1,4 @@
-name := """scalaTest"""
+name := """codetask"""
 
 version := "1.0-SNAPSHOT"
 
