@@ -1,0 +1,91 @@
+#!/bin/sh
+exec scala -classpath "lib/scalatest_2.11-2.2.4.jar:lib/play-json_2.11.jar:lib/codetask.jar:lib/scalaj-http_2.10-1.1.4" "$0" "$@"
+!#
+
+import play.api.libs.json._
+import codetask.Parser
+
+def help() = {
+  println("""
+help                                                     | show help
+create course "Course Title" /path/to/scala/tests        | create course
+update course "Course Title" /path/to/scala/tests        | update course
+delete course "Course Title"                             | delete course
+parse "Course Title" /path/to/scala/tests ./to/file.json | create json file of course
+create course /path/to/file.json                         | create course from json file
+update course /path/to/file.json                         | update course from json file
+  """)
+}
+
+implicit def string2Parser(s: String) = new Parser(s)
+  
+def parseCourse(dir: String, title: String): String = {
+  var files = Array[java.io.File]()
+  try {
+    files = new java.io.File(dir).listFiles.filter(_.getName.endsWith(".scala"))
+  } catch {
+    case e: Exception => println("no or empty directory")
+  }
+    
+  val chapters = files.map { file =>
+    val r = """([A-Z])[a-z0-9]""".r
+    var chapterTitle = file.getName
+    chapterTitle = chapterTitle.replace(".scala", "")
+    
+    // split CamelCase to Camel Case
+    val matches = r findAllMatchIn chapterTitle
+    matches.foreach { m =>
+      val g1 = m.group(1).toString
+      chapterTitle = chapterTitle.replace(g1, " " + g1)
+    }
+    
+    // remove first space
+    chapterTitle = chapterTitle.replaceAll("^ ", "")
+    
+    scala.io.Source.fromFile(file).mkString parseChapter chapterTitle
+  }
+
+  // build course
+  val course = "{\"title\": \"%s\",\"chapters\": [%s]}".format(title, chapters.mkString(","))
+  println(course)
+  println(chapters.mkString(","))
+  course
+}
+
+if (args.size > 0) {
+  args(0) match {
+    case "help" => help()
+    case "create" => {
+      if (args.size > 2) {
+        val dir = args(2)
+        val title = args(1)
+        val course = parseCourse(dir, title)
+        println("course " + title + " created.")
+      } else if (args.size > 1) {
+        // create from json
+      } else {
+        println("missing arguments.")
+      }
+    }
+    case "parse" => {
+      if (args.size > 3) {
+        val dir = args(2)
+        val title = args(1)
+        val filename = args(3)
+        val course = parseCourse(dir, title)
+        try {
+          val pw = new java.io.PrintWriter(filename)
+          pw.write(course)
+          pw.close()
+          println(filename + " created.")
+        } catch {
+          case e: Exception => println("writing to " + filename + "not possible.")
+        }
+      } else {
+        println("missing arguments.")
+      }
+    }
+  }
+} else {
+  help()
+}

@@ -6,14 +6,21 @@ import scala.util.matching.Regex
 import scala.util.control.Exception
 import scala.collection.immutable.TreeMap
 import scala.io.Source._
+import scalaj.http.Http
 
 case class MatchException(smth:String)  extends Exception(smth)
 
-object CodeTasks {
+object CodeTask {
   implicit def string2Parser(s: String) = new Parser(s)
   
   def parseCourse(dir: String, title: String): String = {
-    val files = new java.io.File(dir).listFiles.filter(_.getName.endsWith(".scala"))
+    var files
+    try {
+      files = new java.io.File(dir).listFiles.filter(_.getName.endsWith(".scala"))
+    } catch {
+      case e: Exception => println("no or empty directory")
+    }
+      
     val chapters = files.map { file =>
       val r = """([A-Z])[a-z0-9]""".r
       var chapterTitle = file.getName
@@ -33,8 +40,9 @@ object CodeTasks {
     }
 
     // build course
-    val course = "{\"title\": \"%s\",\"chapters\": [%s]}".format(title, chapters.toString)
+    val course = "{\"title\": \"%s\",\"chapters\": [%s]}".format(title, chapters.mkString(","))
     println(course)
+    println(chapters.mkString(","))
     course
   }
 }
