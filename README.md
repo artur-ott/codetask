@@ -11,10 +11,13 @@ gesendet wird. Zur erstellung von Coursen steht ein Hilfsscript *codetask*
 bereit. Das Script wird folgendermaßen benutzt:
 
 ```
-codetask help                                           // hilfe anzeigen
-codetask create course "Kursname" /pfad/zu/scala/tests  // course erstellen
-codetask update course "Kursname" /pfad/zu/scala/tests  // course aktualisieren
-codetask delete course "Kursname"                       // course löschen
+help                                                     | show help
+create course "Course Title" /path/to/scala/tests        | create course
+update course "Course Title" /path/to/scala/tests        | update course
+delete course "Course Title"                             | delete course
+parse "Course Title" /path/to/scala/tests ./to/file.json | create json file of course
+create course /path/to/file.json                         | create course from json file
+update course /path/to/file.json                         | update course from json file
 ```
 Das Script übersetzt mit *create* und *update* die *.scala* Dateien von 
 `CodeTaskSuite` Klassen in eine *.json* Datei und sendet diese an den Server.

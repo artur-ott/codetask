@@ -14,12 +14,8 @@ object CodeTask {
   implicit def string2Parser(s: String) = new Parser(s)
   
   def parseCourse(dir: String, title: String): String = {
-    var files
-    try {
-      files = new java.io.File(dir).listFiles.filter(_.getName.endsWith(".scala"))
-    } catch {
-      case e: Exception => println("no or empty directory")
-    }
+
+    val files = new java.io.File(dir).listFiles.filter(_.getName.endsWith(".scala"))
       
     val chapters = files.map { file =>
       val r = """([A-Z])[a-z0-9]""".r
@@ -80,7 +76,7 @@ class Parser(s: String) {
       
       videos += 1
       val description = if (m.group(3) != null) m.group(3) else m.group(2).stripMargin('|')
-      map = map + (index -> ("video" + videos, Map("description" -> escapeHTML(description), "url" -> escapeHTML(m.group(7)))))
+      map = map + (index -> ("video" + videos, Map("tag" -> "video-task", "description" -> escapeHTML(description), "url" -> escapeHTML(m.group(7)))))
     }
   }
   
@@ -133,7 +129,7 @@ class Parser(s: String) {
         } 
       }
       val sol = "[%s]".format(solutions.map(x => "\"" + escapeHTML(x) + "\"").mkString(","))
-      map = map + (index -> ("koan" + koans, Map("description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "solutions" -> sol)))
+      map = map + (index -> ("koan" + koans, Map("tag" -> "koan-task", "description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "solutions" -> sol)))
       
       // add one so the next match is processed
       index += 1
@@ -194,7 +190,7 @@ class Parser(s: String) {
         testCode = testCode.replace("\n    ", "\n") 
       }
       
-      map = map + (index -> ("codetask" + codetasks, Map("description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "test" -> escapeHTML(testCode))))
+      map = map + (index -> ("code" + codetasks, Map("tag" -> "code-task", "description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "ext" -> escapeHTML(testCode))))
       
       // add one so the next match is processed
       index += 1
@@ -227,7 +223,7 @@ class Parser(s: String) {
     map
   }
   
-  def parseChapter(title: String, id: Long = -1):String = {
+  /*def parseChapter(title: String, id: Long = -1):String = {
     parse
     // tabsize
     val t = "  "
@@ -249,5 +245,42 @@ class Parser(s: String) {
     // strip last ,\n
     if (json.slice(json.size - 2, json.size) == ",\n") json = json.slice(0, json.size - 2)
     json + "\n%s%s}\n%s}\n}".format(t, t, t)
+  }*/
+  
+  def parseChapter(title: String, id: Long = 1):String = {
+    parse
+    // tabsize
+    val t = "  "
+    var json = "{\n%s\"id\": %d,\n%s\"title\": \"%s\",\n%s\"tasks\": [\n%s%s".format(t, id, t, title, t, t, t)
+    // convert map to json string
+    map foreach { task =>
+      json += "{\n%s%s%s\"id\": \"%s\",\n".format(t, t, t, task._2._1)
+      
+      task._2._2.find(_._1 == "tag") match {
+        case Some(x) => json += t + t + t + "\"tag\": " + "\"" + x._2 + "\",\n"
+        case _ =>
+      }
+      
+      json += "%s%s%s\"data\": {".format(t, t, t)
+      
+      task._2._2 foreach { value =>
+        if (value._1 != "ext" && value._1 != "tag" && value._1 != "solutions") json += "\"%s\": \"%s\",".format(value._1, value._2)
+        else if (value._1 == "solutions") json += "\"%s\": %s,".format(value._1, value._2)
+      }
+      // strip last ,
+      if (json.last == ',') json = json.slice(0, json.size - 1)
+      json += "}"
+      
+      task._2._2.find(_._1 == "ext") match {
+        case Some(x) => json += ",\n" + t + t + t + "\"ext\": " + "\"" + x._2 + "\""
+        case _ =>
+      }
+      
+      json += "\n%s%s},".format(t, t)
+    }
+    // strip last ,\n
+    if (json.last == ',') json = json.slice(0, json.size - 1)
+    if (json.slice(json.size - 2, json.size) == ",\n") json = json.slice(0, json.size - 2)
+    json + "\n%s]\n}".format(t)
   }
 }
