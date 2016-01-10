@@ -47,11 +47,11 @@ object Interpreter {
     settings.classpath.value += File.pathSeparator + "lib/scalatest.jar"
     println(settings.classpath.value)
 
-    val classLoader = new java.net.URLClassLoader("lib/scala-library.jar", null)
+    //val classLoader = new java.net.URLClassLoader("lib/scala-library.jar", null)
     
     val im = new IMain(settings) {
-      //override protected def parentClassLoader = settings.getClass.getClassLoader()
-      override protected def parentClassLoader = classLoader
+      override protected def parentClassLoader = settings.getClass.getClassLoader()
+      //override protected def parentClassLoader = classLoader
     }
     // /borrowed
 
