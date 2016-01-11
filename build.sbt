@@ -18,7 +18,6 @@ libraryDependencies ++= Seq(
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 resolvers += "db4o-repo" at "http://maven.restlet.org/"
-//resolvers += "twitter-repo" at "http://maven.twttr.com/"
 
 // Play provides two styles of routers, one expects its actions to be injected, the
 // other, legacy style, accesses its actions statically.

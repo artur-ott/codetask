@@ -61,6 +61,7 @@ object User {
       chapterState.taskStates.foreach { taskState => 
         try {
           if ((Json.parse(taskState.state) \ "checked").as[Boolean]) checks += 1  
+          //if (taskStates.checked) checks += 1  
         } catch {
           case _: Exception =>
         }

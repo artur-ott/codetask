@@ -1,0 +1,194 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../koan-task/koan-task.html">
+<link rel="import" href="../video-task/video-task.html">
+<link rel="import" href="../code-task/code-task.html">
+
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+<dom-module id="course-show">
+  <template>
+    <!-- data -->
+    <iron-ajax
+      auto
+      url="/api/courses"
+      handle-as="json"
+      on-response="courseLoaded">
+    </iron-ajax>
+
+    <iron-ajax
+      auto
+      url="/api/users"
+      handle-as="json"
+      on-response="solutionsLoaded">
+    </iron-ajax>
+
+    <div class="row">
+      <div id="navigation" class="col-md-3 center"></div>
+      <div id="main" class="col-md-8"></div>
+    </div>
+  </template>
+
+  <style>
+    #main {
+      padding: 10px;
+      padding-top: 10px;
+    }
+    #navigation {
+      padding-top: 30px;
+      margin-left: 10px;
+      margin-right: 20px;
+    }
+  </style>
+
+  <script>
+    Polymer({
+      is: 'course-show',
+      properties: {
+        courseId: Number,
+        userId: Number
+      },
+
+      created: function() {
+        this.loaded_ = {};
+        this.chapter_ = null;
+        this.elements_ = [];
+      },
+
+      courseLoaded: function(e, request) {
+        this_ = this;
+        this.loaded_.course = request.xhr.response.find(function(course) {
+          return course.id == this_.courseId;
+        });
+        console.dir(this.loaded_.course);
+        if (this.loaded_.solutions)
+          this.initialize(this.loaded_.course, this.loaded_.solutions);
+        if (e) console.log(e);
+      },
+
+      solutionsLoaded: function(e, request) {
+        this_ = this;
+        var user = request.xhr.response.find(function(user) {
+          return user.id = this_.userId;
+        });
+        this.loaded_.solutions = user.chapterStates.filter(function(cState) {
+          return cState.courseId == this_.courseId;
+        });
+        console.dir(this.loaded_.solutions);
+        if (this.loaded_.course)
+          this.initialize(this.loaded_.course, this.loaded_.solutions);
+        if (e) console.log(e);
+      },
+
+      initialize: function(course, solutions) {
+        var this_ = this;
+
+        // selected chapter
+        currentChapter = course.chapters[0];
+        var hash = window.location.hash.substring(1);
+
+        if (hash != '') {
+          var result = course.chapters.find(function(chapter) {
+            return chapter.title.split(' ').join('').toLowerCase() == hash;
+          });
+          currentChapter = result || currentChapter;
+        }
+
+        this.chapter_ = currentChapter;
+
+        // build navigation
+        var div = $('<div></div>').addClass('list-group');
+
+        // build link for each chapter
+        course.chapters.forEach(function(chapter, index) {
+          // solution to chapter
+          var solution = solutions.find(function(solution) {
+            return solution.chapterId == chapter.id;
+          });
+
+          // link
+          var li = $('<li></li>')
+            .addClass('list-group-item')
+            .css('cursor', 'pointer')
+            .html(chapter.title)
+            .click(function() {
+              // change active link and load new chapter
+              $(this).parent().children().each(function() {
+                $(this).removeClass('active');
+              });
+              $(this).addClass('active');
+
+              this_.loadChapter(course.id, chapter, solution);
+            });
+
+          // solved tasks
+          var checked = !(solution && solution.taskStates) 
+            ? 0 
+            : solution.taskStates.reduce(function(checked, taskState) {
+              return taskState.state.checked ? checked + 1 : checked;
+            }, 0);
+
+          // badge
+          var badge = $('<span></span>')
+            .addClass('badge')
+            .text(checked + '/' + Object.keys(chapter.tasks).length)
+            .addClass((index == 0 ? 'active' : ''));
+
+          if (chapter.id == currentChapter.id) {
+            li.addClass('active');
+          }
+
+          li.append(badge).appendTo('#navigation');
+        });
+
+        // load first or url selected chapter
+        var solution = solutions.find(function(solution) {
+          return solution.chapterId == currentChapter.id;
+        });
+
+        this.loadChapter(course.id, currentChapter, solution)
+      },
+
+      loadChapter: function(courseId, chapter, solution) {
+        var this_ = this;
+        var main = $('#main');
+
+        // reset
+        var elements = this.elements_ = [];
+        this.chapter_ = chapter;
+        main.html('');
+
+        // set url anchor
+        var hash = chapter.title.split(' ').join('').toLowerCase();
+        location.hash = encodeURIComponent(hash);
+
+        // create chapter title
+        $('<h1></h1>').text(chapter.title).appendTo(main);
+
+        // create elements
+        chapter.tasks.forEach(function(task) {
+          var element = document.createElement(task.tag);
+          element.id = task.id;
+
+          Object.keys(task.data).forEach(function(key) {
+            element[key] = task.data[key];
+          });
+
+          if (solution) {
+            var result = solution.taskStates.find(function(state) {
+              return state.taskId == task.id;
+            });
+            if (result) {
+              Object.keys(result.state).forEach(function(key) {
+                element[key] = result.state[key];
+              });
+            }
+          }
+
+          element.interpreterUrl = '/api/interpreter/scala'; // TODO: better way to provide interpret url
+          main.append(element);
+          elements.push(element);
+        });
+      }
+    });
+  </script>
+</dom-module>

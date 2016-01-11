@@ -1,0 +1,158 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+
+<dom-module id="teacher-dashboard">
+  <style>
+    .group-selection {
+      margin-top: -6px;
+    }
+    .searchfield {
+      width: 90%;
+      height: 35px;
+    }
+    .progress {
+      float: left;
+      width: 200px;
+    }
+    .left {
+      position: relative;
+      left: 0;
+    }
+  </style>
+  <template>
+    <!-- data -->
+    <iron-ajax
+      auto
+      url="/api/users"
+      handle-as="json"
+      last-response="{{users}}">
+    </iron-ajax>
+
+    <iron-ajax
+      auto
+      url="/api/courses"
+      handle-as="json"
+      last-response="{{courses}}">
+    </iron-ajax>
+
+    <div class="btn-group group-selection">
+      <button type="button" class="btn btn-default">{{searchMode}}</button>
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="caret"></span>
+        <span class="sr-only">Toggle Dropdown</span>
+      </button>
+      <ul class="dropdown-menu">
+        <li><a id="search-students">Students</a></li>
+        <li><a id="search-courses">Courses</a></li>
+      </ul>
+    </div>
+
+    <input id="input-field" value="{{searchString::input}}" class="searchfield">
+    <hr>
+    <template is="dom-if" if="{{isStudents(searchMode)}}">
+      <template is="dom-repeat" items="{{users}}" as="user" filter="{{userFilter(searchString)}}">
+        <div><b>{{user.username}}</b>, ID: <b>{{user.id}}</b></div>
+        <template is="dom-repeat" items="{{courses}}" as="course" filter"{{isSubscribed(course, user)}}">
+              <div class="container">
+                <div class="col-md-2">{{course.title}}</div>
+                <div class="col-md-2 left">
+                  ID: {{course.id}}
+                </div>
+                <div class="col-md-3">
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="{{progress(course.id, user)}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress(course.id, user)}}%;">
+                      {{progress(course.id, user)}}%
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3 left">
+                  <a href="/course/{{course.id}}/{{user.id}}">see solution</a>
+                </div>
+              </div>
+        </template>
+      </template>
+    </template>
+    <template is="dom-if" if="{{!isStudents(searchMode)}}">
+      <template is="dom-repeat" items="{{courses}}" as="course" filter="{{courseFilter(searchString)}}">
+        <div><b>{{course.title}}</b>, ID: <b>{{course.id}}</b></div>
+        <template is="dom-repeat" items="{{users}}" as="user" filter="{{isSubscribed(course, user)}}">
+               <div class="container">
+                <div class="col-md-2">{{user.username}}</div>
+                <div class="col-md-2 left">
+                  ID: {{user.id}}
+                </div>
+                <div class="col-md-3">
+                  <div class="progress">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="{{progress(course.id, user)}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress(course.id, user)}}%;">
+                      {{progress(course.id, user)}}%
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3 left">
+                  <a href="/course/{{course.id}}/{{user.id}}">see solution</a>
+                </div>
+              </div>
+        </template>
+      </template>
+    </template>
+  </template>
+
+    <script>
+      Polymer({
+        is: 'teacher-dashboard',
+        properties: {
+          searchMode: {
+            type: String,
+            value: 'Students',
+            observe: 'changeSearchMode'
+          }
+        },
+        log: function(a) {
+          console.log(a);
+        },
+        changeSearchMode: function(string) {
+          this.searchMode = string;
+        },
+        isStudents: function(x) {
+          return (x == 'Students');
+        },
+        isSubscribed: function(course, user) {
+          return user.subscriptions.find(function(s){return s == course.id;});
+        },
+        progress: function(courseId, user) {
+          return user.progress.find(function(p){return p[0] == courseId})[1];
+        },
+        attached: function() {
+          var this_ = this;
+          $('#search-students')
+            .click(function() { this_.changeSearchMode('Students'); });
+          $('#search-courses')
+            .click(function() { this_.changeSearchMode('Courses'); });
+          this.changeSearchMode('Students');
+        },
+        userFilter: function(string) {
+          if (!string) {
+            return null;
+          } else {
+            return function(user) {
+              var s = string.toLowerCase();
+              return user.username.toLowerCase().indexOf(s) != -1 || 
+                (user.id + '').indexOf(s) != -1;
+            };
+          }
+        },
+        courseFilter: function(string) {
+          if (!string) {
+            return null;
+          } else {
+            return function(course) {
+              var s = string.toLowerCase();
+              return course.title.toLowerCase().indexOf(s) != -1 || 
+                (course.id + '').indexOf(s) != -1;
+            };
+          }
+        }
+      })
+    </script>
+</dom-module>
