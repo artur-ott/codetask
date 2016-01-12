@@ -45,7 +45,7 @@
   <script>
     Polymer({
       is: 'code-task',
-      extends: 'abstract-task',
+      behaviors: [AbstractTask],
 
       // instance state
       created: function() {

@@ -8,7 +8,7 @@
   <script>
     Polymer({
       is: 'video-task',
-      extends: 'abstract-task',
+      behaviors: [AbstractTask],
       
       // instance state
       created: function() {

@@ -47,7 +47,7 @@
   <script>
     Polymer({
       is: 'koan-task',
-      extends: 'abstract-task',
+      behaviors: [AbstractTask],
 
       // constructor
       created: function() {
