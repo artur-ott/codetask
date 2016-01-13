@@ -5,7 +5,7 @@
 
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 
-<dom-module id="course-show">
+<dom-module id="teacher-course-view">
   <template>
     <!-- data -->
     <iron-ajax
@@ -23,7 +23,7 @@
     </iron-ajax>
 
     <div class="row">
-      <div id="navigation" class="col-md-3 center"></div>
+      <div id="navigation" class="col-md-3 center"><div id="nav-content" class="col-md-3 center"></div></div>
       <div id="main" class="col-md-8"></div>
     </div>
   </template>
@@ -38,11 +38,16 @@
       margin-left: 10px;
       margin-right: 20px;
     }
+    #nav-content {
+      position: fixed;
+      margin-left: 10px;
+      margin-right: 20px;
+    }
   </style>
 
   <script>
     Polymer({
-      is: 'course-show',
+      is: 'teacher-course-view',
       properties: {
         courseId: Number,
         userId: Number
@@ -138,7 +143,7 @@
             li.addClass('active');
           }
 
-          li.append(badge).appendTo('#navigation');
+          li.append(badge).appendTo('#nav-content');
         });
 
         // load first or url selected chapter

@@ -3,11 +3,11 @@
 @extra = {
   <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/course.css")">
   <script src="@routes.Assets.versioned("bower_components/webcomponentsjs/webcomponents-lite.min.js")" type="text/javascript"></script>
-  <link rel="import" href="@routes.Assets.versioned("bower_components/course-show/course-show.html")">
+  <link rel="import" href="@routes.Assets.versioned("bower_components/teacher-course-view/teacher-course-view.html")">
 }
 
 @main(courseTitle, extra) {
   @navigation(List(("Dashboard", "/dashboard"), (courseTitle, "")))
   
-  <course-show course-id="@courseId" user-id="@userId"></course-show>
+  <teacher-course-view course-id="@courseId" user-id="@userId"></teacher-course-view>
 }

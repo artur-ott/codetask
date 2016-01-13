@@ -20,7 +20,7 @@ class Application extends Controller with Secured {
 
   def dashboard() = withUser { user => implicit request =>
     if (user.authority == "teacher") {
-      Ok(views.html.teacherdashboard())
+      Ok(views.html.teacherDashboard())
     } else {
       var info: List[(Long, String, Int)] = List()
       user.subscriptions.foreach { courseId =>
@@ -58,7 +58,7 @@ class Application extends Controller with Secured {
     if (user.authority != "teacher") BadRequest("no authority")
     courseService.findOneById(courseId) match {
       case Some(course) => 
-        Ok(views.html.courseshow(courseId, userId, course.title))
+        Ok(views.html.teacherCourse(courseId, userId, course.title))
       case None => BadRequest("course does not exist")
     }
   }
