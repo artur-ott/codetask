@@ -78,11 +78,8 @@
       
       attached: function() {
         this.addDescription();
-        // if checked
-        if (this.checked) {
-          this.checked = false;
-          this.check(true);
-        }
+
+        if (this.checked) this.addCheckFlag();
 
         // create parent div
         var parent = $('<div></div>')
@@ -133,24 +130,47 @@
 
         var this_ = this;
 
+        // set mySolutions
+        $(parent).find('.koan-solution').each(function(index) {
+          var text = this_.mySolutions[index];
+          if (text) $(this).text(text);
+        });
+
+        // remember current Solutions
+        var currentInput = this.mySolutions.toString();
+
+        var checkUserInput = function() {
+          $(parent).find('.koan-solution').each(function(index) {
+            var text = $(this).text();
+            this_.mySolutions[index] = text;
+
+            if (text == this_.solutions[index]) {
+              $(this).addClass('koan-solved');
+              if (this_.solutions.toString() == 
+                this_.mySolutions.toString()) {
+                this_.checked = true;
+                this_.addCheckFlag();
+              }
+            } else {
+              $(this).removeClass('koan-solved');
+              this_.checked = false;
+              this_.removeCheckFlag();
+            }
+
+            // check if dirty
+            if (currentInput != this_.mySolutions.toString()) {
+              this_.dirty = true;
+              currentInput = this_.mySolutions.toString();
+            }
+         });
+       }
+
+       checkUserInput();
+
         // prepare observer
         var observer = new MutationObserver(function(mutations) {
           mutations.forEach(function(mutation) {
-            $(parent).find('.koan-solution').each(function(index) {
-              var text = $(this).text();
-              this_.mySolutions[index] = text;
-
-              if (text == this_.solutions[index]) {
-                $(this).addClass('koan-solved');
-                if (this_.solutions.toString() == 
-                  this_.mySolutions.toString()) {
-                  this_.check(true);
-                }
-              } else {
-                $(this).removeClass('koan-solved');
-                this_.check(false);
-              }
-            });
+            checkUserInput();
           });
         });
 
@@ -160,12 +180,6 @@
           childList: true,
           subtree: true,
           characterData: true
-        });
-
-        // set mySolutions
-        $(parent).find('.koan-solution').each(function(index) {
-          var text = this_.mySolutions[index];
-          if (text) $(this).text(text);
         });
       },
       post: function() {

@@ -83,6 +83,8 @@
       attached: function() {
         this.addDescription();
 
+        if (this.checked) this.addCheckFlag();
+
         // create children
         var editor = $('<pre></pre>')
           .addClass('code-task-editor')
@@ -112,9 +114,6 @@
         // setup button
         var this_ = this;
         button.click(function() { this_.run(); });
-
-        // check
-        this.check(this.checked);
       },
       run: function() {
         var this_ = this;

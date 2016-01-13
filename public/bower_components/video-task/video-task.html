@@ -13,7 +13,6 @@
       // instance state
       created: function() {
         this._super();
-        this.watched = false;
       },
 
       // data
@@ -29,8 +28,7 @@
       attached: function() {
         this.addDescription();
         
-        this.checked = false;
-        if (this.watched) this.check(true);
+        if (this.checked) this.addCheckFlag();
 
         // add youtube player div
         var id = this.id + '-player';
@@ -46,9 +44,10 @@
           events: {
             'onStateChange': function(event) {
               // playing: 1, stopped: 2, ended: 0
-              if (event.data == 0) {
-                this_.watched = true;
-                this_.check(true);
+              if (event.data == 0 && !this_.checked) {
+                this_.checked = true;
+                this_.dirty = true;
+                this_.addCheckFlag;
               }
             }
           }

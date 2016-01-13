@@ -23,7 +23,7 @@
     </iron-ajax>
 
     <div class="row">
-      <div id="navigation" class="col-md-3 center"></div>
+      <div id="navigation" class="col-md-3 center"><div id="nav-content" class="col-md-3 center"></div></div>
       <div id="main" class="col-md-8"></div>
     </div>
   </template>
@@ -35,6 +35,11 @@
     }
     #navigation {
       padding-top: 30px;
+      margin-left: 10px;
+      margin-right: 20px;
+    }
+    #nav-content {
+      position: fixed;
       margin-left: 10px;
       margin-right: 20px;
     }
@@ -52,6 +57,17 @@
         this.chapter_ = null;
         this.elements_ = [];
         this.isLoadingChapter_ = false;
+        this.savedState_ = '';
+      },
+
+      isDirty: function() {
+        var es = this.elements_.map(function(e) {return e.dirty;});
+        console.log(es);
+        return this.elements_.find(function(e) {return e.dirty;}) != undefined;
+      },
+
+      resetDirty: function() {
+        this.elements_.forEach(function(e) {e.dirty = false;});
       },
 
       courseLoaded: function(e, request) {
@@ -70,6 +86,8 @@
 
       initialize: function(course, solutions) {
         var this_ = this;
+        var confirmationMessage = 'Ihre Eingaben haben sich geändert.'
+                + 'Wollen Sie die Seite ohne Speichern verlassen?';
 
         // selected chapter
         currentChapter = course.chapters[0];
@@ -97,24 +115,31 @@
           // link
           var li = $('<li></li>')
             .addClass('list-group-item')
+            .attr('position', 'fixed')
             .css('cursor', 'pointer')
             .html(chapter.title)
             .click(function() {
-              this_.isLoadingChapter_ = true;
+              var loadNewChapter = function() {
+                // load new chapter
+                this_.loadChapter(course.id, chapter, solution);
+                $("html, body").animate({ scrollTop: 0 }, "slow");
+              }
+
+              var dirty = this_.isDirty();
+              if (dirty && !window.confirm(confirmationMessage || dirty)) {
+                return;
+              }
+              console.log(dirty);
+
               // change active link and load new chapter
               $(this).parent().children().each(function() {
                 $(this).removeClass('active');
               });
               $(this).addClass('active');
 
-              // save user input and load new chapter
-              var callback = function() {
-                this_.loadChapter(course.id, chapter, solution);
-                this_.isLoadingChapter_ = false;
-              };
-
-              this_.saveUserInput(course.id, this_.chapter_.id, this_.elements_, 
-                {async: true}, callback);
+              // load new chapter
+              this_.loadChapter(course.id, chapter, solution);
+              $("html, body").animate({ scrollTop: 0 }, "slow");
             });
 
           // solved tasks
@@ -134,8 +159,19 @@
             li.addClass('active');
           }
 
-          li.append(badge).appendTo('#navigation');
+          li.append(badge).appendTo('#nav-content');
         });
+
+        $('<br><button>Speichern</button>')
+          .addClass('btn')
+          .addClass('btn-default')
+          .click(function() {
+            this_.saveUserInput(course.id, this_.chapter_.id, this_.elements_, 
+              {async: false});
+            this_.savedState_ = $('#main').html();
+            this_.resetDirty();
+          })
+          .appendTo('#nav-content');
 
         // load first or url selected chapter
         var solution = solutions.find(function(solution) {
@@ -145,11 +181,16 @@
         this.loadChapter(course.id, currentChapter, solution)
 
         // save user input onbeforeunload
-        window.onbeforeunload = function(){
-          this_.saveUserInput(course.id, this_.chapter_.id, this_.elements_, 
-            {async: false});
-          return null;
-        };
+        window.addEventListener('beforeunload', function (e) {
+          if (this_.isDirty()) {
+            e.returnValue = confirmationMessage;
+            return confirmationMessage;
+          } else {
+            return null;
+          }
+        });
+
+          $("html, body").animate({ scrollTop: 0 }, "slow");
 
         // update badges for checked elements every second
         var updateBadges = function() {
