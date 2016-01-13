@@ -68,7 +68,7 @@
       solutionsLoaded: function(e, request) {
         this_ = this;
         var user = request.xhr.response.find(function(user) {
-          return user.id = this_.userId;
+          return user.id == this_.userId;
         });
         console.dir(request.xhr.response);
         this.loaded_.solutions = user.chapterStates.filter(function(cState) {

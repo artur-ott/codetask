@@ -1,11 +1,11 @@
 @(path: List[(String, String)])
 
 <ol class="breadcrumb">
-	@for(step <- path.take(path.size - 1)) {
-       <li href="@step._2">@step._1</li>
-	}
-	@if(path.size > 0) {
-    	<li class="active">@path.last._1</li>
-	}
-    <a href="/logout" style="float: right">logout</a>
+  @for(step <- path.take(path.size - 1)) {
+    <li><a href="@step._2">@step._1</a></li>
+  }
+  @if(path.size > 0) {
+    <li class="active">@path.last._1</li>
+  }
+  <a href="/logout" style="float: right">logout</a>
 </ol>
