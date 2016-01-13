@@ -141,40 +141,32 @@
           this.changeSearchMode('Students');
         },
         courseSubFilter: function(user) {
-          console.log('works');
           if (!user) return null;
           return function(course) {
             return user.subscriptions.find(function(s){return s == course.id;});
           };
         },
         userSubFilter: function(course) {
-          console.log('works');
           if (!course) return null;
-          return function(course) {
+          return function(user) {
             return user.subscriptions.find(function(s){return s == course.id;});
           };
         },
         userFilter: function(string) {
-          if (!string) {
-            return null;
-          } else {
-            return function(user) {
-              var s = string.toLowerCase();
-              return user.username.toLowerCase().indexOf(s) != -1 || 
-                (user.id + '').indexOf(s) != -1;
-            };
-          }
+          if (!string) return null;
+          return function(user) {
+            var s = string.toLowerCase();
+            return user.username.toLowerCase().indexOf(s) != -1 || 
+              (user.id + '').indexOf(s) != -1;
+          };
         },
         courseFilter: function(string) {
-          if (!string) {
-            return null;
-          } else {
-            return function(course) {
-              var s = string.toLowerCase();
-              return course.title.toLowerCase().indexOf(s) != -1 || 
-                (course.id + '').indexOf(s) != -1;
-            };
-          }
+          if (!string) return null;
+          return function(course) {
+            var s = string.toLowerCase();
+            return course.title.toLowerCase().indexOf(s) != -1 || 
+              (course.id + '').indexOf(s) != -1;
+          };
         }
       })
     </script>
