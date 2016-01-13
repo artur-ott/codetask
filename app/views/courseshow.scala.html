@@ -7,10 +7,7 @@
 }
 
 @main(courseTitle, extra) {
-  <ol class="breadcrumb">
-    <li><a href="/dashboard">Dashboard</a></li>
-      <li class="active">@courseTitle</li>
-    </ol>
-
+  @navigation(List(("Dashboard", "/dashboard"), (courseTitle, "")))
+  
   <course-show course-id="@courseId" user-id="@userId"></course-show>
 }

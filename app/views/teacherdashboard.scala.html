@@ -4,9 +4,8 @@
 }
 
 @main("Dashboard", extra) {
-    <ol class="breadcrumb">
-        <li class="active">Dashboard</li>
-    </ol>
+    @navigation(List(("Dashboard", "")))
+    
     <div class="container">
         <teacher-dashboard></teacher-dashboard>
     </div>
