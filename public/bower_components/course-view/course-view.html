@@ -268,7 +268,8 @@
             });
             if (result) {
               Object.keys(result.state).forEach(function(key) {
-                element[key] = result.state[key];
+                // clone state
+                element[key] = JSON.parse(JSON.stringify(result.state[key]));
               });
             }
           }

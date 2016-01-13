@@ -70,6 +70,7 @@
         var user = request.xhr.response.find(function(user) {
           return user.id = this_.userId;
         });
+        console.dir(request.xhr.response);
         this.loaded_.solutions = user.chapterStates.filter(function(cState) {
           return cState.courseId == this_.courseId;
         });

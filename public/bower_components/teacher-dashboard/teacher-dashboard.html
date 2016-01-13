@@ -63,7 +63,7 @@
     <template is="dom-if" if="{{isStudents(searchMode)}}">
       <template is="dom-repeat" items="{{users}}" as="user" filter="{{userFilter(searchString)}}">
         <div><b>{{user.username}}</b>, ID: <b>{{user.id}}</b></div>
-        <template is="dom-repeat" items="{{courses}}" as="course" filter"{{isSubscribed(course, user)}}">
+        <template is="dom-repeat" items="{{courses}}" as="course" filter="{{courseSubFilter(user)}}">
               <div class="container">
                 <div class="col-md-2">{{course.title}}</div>
                 <div class="col-md-2 left">
@@ -86,7 +86,7 @@
     <template is="dom-if" if="{{!isStudents(searchMode)}}">
       <template is="dom-repeat" items="{{courses}}" as="course" filter="{{courseFilter(searchString)}}">
         <div><b>{{course.title}}</b>, ID: <b>{{course.id}}</b></div>
-        <template is="dom-repeat" items="{{users}}" as="user" filter="{{isSubscribed(course, user)}}">
+        <template is="dom-repeat" items="{{users}}" as="user" filter="{{userSubFilter(course)}}">
                <div class="container">
                 <div class="col-md-2">{{user.username}}</div>
                 <div class="col-md-2 left">
@@ -125,13 +125,12 @@
           this.searchMode = string;
         },
         isStudents: function(x) {
+          console.log('wat');
           return (x == 'Students');
         },
-        isSubscribed: function(course, user) {
-          return user.subscriptions.find(function(s){return s == course.id;});
-        },
         progress: function(courseId, user) {
-          return user.progress.find(function(p){return p[0] == courseId})[1];
+          var p = user.progress.find(function(p){return p[0] == courseId});
+          return p ? p[1] : 0;
         },
         attached: function() {
           var this_ = this;
@@ -140,6 +139,20 @@
           $('#search-courses')
             .click(function() { this_.changeSearchMode('Courses'); });
           this.changeSearchMode('Students');
+        },
+        courseSubFilter: function(user) {
+          console.log('works');
+          if (!user) return null;
+          return function(course) {
+            return user.subscriptions.find(function(s){return s == course.id;});
+          };
+        },
+        userSubFilter: function(course) {
+          console.log('works');
+          if (!course) return null;
+          return function(course) {
+            return user.subscriptions.find(function(s){return s == course.id;});
+          };
         },
         userFilter: function(string) {
           if (!string) {
