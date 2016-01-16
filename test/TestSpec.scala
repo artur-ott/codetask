@@ -11,11 +11,11 @@ class TestSpec extends Specification {
     "be 0% for course0" in {
       val course0 = new Course(100001, "scala", List(
         new Chapter(1, "First Chapter", List(
-          new Task("koan1", "koan-task", "data")))))
+          new Task("koan1", "koan-task", null)))))
 
       val chapterStates0 = List(
-        new ChapterState(100001, 1, List(
-          new TaskState("koan1", "{\"checked\":false}"))))
+        new ChapterSolution(100001, 1, List(
+          new TaskSolution("koan1", null, Some(false)))))
 
       val completion = progressOf(course0, chapterStates0)
       completion should equalTo(0)
@@ -23,15 +23,15 @@ class TestSpec extends Specification {
     "be 50% for course50" in {
       val course50 = new Course(100001, "scala", List(
         new Chapter(1, "First Chapter", List(
-          new Task("koan1", "koan-task", "data"),
-          new Task("koan2", "koan-task", "data")
+          new Task("koan1", "koan-task", null),
+          new Task("koan2", "koan-task", null)
         ))
       ))
 
       val chapterStates50 = List(
-        new ChapterState(100001, 1, List(
-          new TaskState("koan1", "{\"checked\":false}"),
-          new TaskState("koan2", "{\"checked\":true}"))))
+        new ChapterSolution(100001, 1, List(
+          new TaskSolution("koan1", null, Some(false)),
+          new TaskSolution("koan2", null, Some(true)))))
 
       val completion = progressOf(course50, chapterStates50)
       completion should equalTo(50)
@@ -39,19 +39,19 @@ class TestSpec extends Specification {
     "be 33% for course33" in {
       val course33 = new Course(100001, "scala", List(
         new Chapter(1, "First Chapter", List(
-          new Task("koan1", "koan-task", "data")
+          new Task("koan1", "koan-task", null)
         )),
         new Chapter(2, "First Chapter", List(
-          new Task("koan1", "koan-task", "data")
+          new Task("koan1", "koan-task", null)
         )),
         new Chapter(3, "First Chapter", List(
-          new Task("koan1", "koan-task", "data")
+          new Task("koan1", "koan-task", null)
         ))
       ))
 
       val chapterStates33 = List(
-        new ChapterState(100001, 3, List(
-          new TaskState("koan1", "{\"checked\":true}")
+        new ChapterSolution(100001, 3, List(
+          new TaskSolution("koan1", null, Some(true))
         ))
       )
 
@@ -61,13 +61,13 @@ class TestSpec extends Specification {
     "be 100% for course100" in {
       val course100 = new Course(100001, "scala", List(
         new Chapter(1, "First Chapter", List(
-          new Task("koan1", "koan-task", "data")
+          new Task("koan1", "koan-task", null)
         ))
       ))
 
       val chapterStates100 = List(
-        new ChapterState(100001, 1, List(
-          new TaskState("koan1", "{\"checked\":true}")
+        new ChapterSolution(100001, 1, List(
+          new TaskSolution("koan1", null, Some(true))
         ))
       )
 
@@ -80,7 +80,7 @@ class TestSpec extends Specification {
       ))
 
       val chapterStates = List(
-        new ChapterState(100001, 1, List())
+        new ChapterSolution(100001, 1, List())
       )
 
       val completion = progressOf(course, chapterStates)

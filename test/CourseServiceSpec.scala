@@ -3,16 +3,15 @@ import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.libs.json._
-import models.CodeTask
-import models.Execution
 import models._
+import models.tasks._
 
 class CourseServiceSpec extends Specification {
   val courseService = new CourseService(Config);
   val id = courseService.getId()
   val course1 = new Course(id, "scala", List(
     new Chapter(1, "First Chapter", List(
-      new Task("koan1", "koan-task", "{\"checked\":false}")
+      new Task("koan1", "koan-task", null, Some("false"))
     ))
   ))
 
@@ -51,10 +50,10 @@ class CourseServiceSpec extends Specification {
     "work with existing course" in {
       val course2 = new Course(id, "scala", List(
         new Chapter(1, "First Chapter", List(
-          new Task("koan1", "koan-task", "{\"checked\":false}")
+          new Task("koan1", "koan-task", null, Some("false"))
         )),
         new Chapter(1, "First Chapter", List(
-          new Task("koan1", "koan-task", "{\"checked\":false}")
+          new Task("koan1", "koan-task", null, Some("false"))
         ))
       ))
 

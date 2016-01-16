@@ -2,6 +2,8 @@ package models
 
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import models.tasks.Tasks._
+import models.tasks._
 
 // courses: Map[coursename, Map[chaptername, Map[taskname, solution]]]
 case class User(
@@ -9,61 +11,49 @@ case class User(
   username: String,
   var authority: String,
   var password: String,
-  var chapterStates: List[ChapterState] = List(),
+  var chapterSolutions: List[ChapterSolution] = List(),
   var subscriptions: Set[Long] = Set()
 )
 
-case class ChapterState(courseId: Long, chapterId: Long, taskStates: List[TaskState])
-case class TaskState(taskId: String, state: String)
+case class ChapterSolution(courseId: Long, chapterId: Long, taskSolutions: List[TaskSolution])
+//case class TaskSolution(taskId: String, state: String) // checked: Boolean = false)
+case class TaskSolution(taskId: String, taskState: TaskState, var checked: Option[Boolean] = Some(false))
 
 object User {
-  implicit val taskStateReads: Reads[TaskState] = (
+  implicit val taskSolutionReads: Reads[TaskSolution] = (
     (__ \ "taskId").read[String] and
-    new Reads[String] {
-      def reads(js: JsValue): JsResult[String] = {
-        (js \ "state") match {
-          case JsDefined(state) => JsSuccess(state.toString)
-          case _: JsUndefined => JsError("missing data")
-        }
-      }
-    }
-  )(TaskState.apply _)
+    (__ \ "taskState").read[TaskState] and
+    (__ \ "checked").readNullable[Boolean]
+  )(TaskSolution.apply _)
 
-  implicit val chapterStateReads: Reads[ChapterState] = (
+  implicit val chapterSolutionReads: Reads[ChapterSolution] = (
     (__ \ "courseId").read[Long] and
     (__ \ "chapterId").read[Long] and
-    (__ \ "taskStates").read[List[TaskState]]
-  )(ChapterState.apply _)
+    (__ \ "taskSolutions").read[List[TaskSolution]]
+  )(ChapterSolution.apply _)
 
-  implicit val taskStateWrites: Writes[TaskState] = (
+  implicit val taskSolutionWrites: Writes[TaskSolution] = (
     (__ \ "taskId").write[String] and
-    (__ \ "state").format(new OWrites[String] {
-      def writes(state: String): JsObject = {
-        // fails on empty data -> prevented by Reads
-        println("state: " + state)
-        Json.parse(state).as[JsObject]
-      }
-    })
-  )(unlift(TaskState.unapply))
+    (__ \ "taskState").write[TaskState] and
+    (__ \ "checked").writeNullable[Boolean]
+  )(unlift(TaskSolution.unapply))
 
-  implicit val chapterStateWrites: Writes[ChapterState] = (
+  implicit val chapterSolutionWrites: Writes[ChapterSolution] = (
     (__ \ "courseId").write[Long] and
     (__ \ "chapterId").write[Long] and
-    (__ \ "taskStates").write[List[TaskState]]
-  )(unlift(ChapterState.unapply))
+    (__ \ "taskSolutions").write[List[TaskSolution]]
+  )(unlift(ChapterSolution.unapply))
 
-   def progressOf(course: Course, chapterStates: List[ChapterState]): Int = {
+  def progressOf(course: Course, chapterSolutions: List[ChapterSolution]): Int = {
     var checks = 0.0
     var sum = 0.0
-    val sizes = course.chapters.foreach { chapter => sum += chapter.tasks.size } 
+    val sizes = course.chapters.foreach { chapter => sum += chapter.tasks.size }
 
-    chapterStates.foreach { chapterState => 
-      chapterState.taskStates.foreach { taskState => 
-        try {
-          if ((Json.parse(taskState.state) \ "checked").as[Boolean]) checks += 1  
-          //if (taskStates.checked) checks += 1  
-        } catch {
-          case _: Exception =>
+    chapterSolutions.foreach { chapterSolution => 
+      chapterSolution.taskSolutions.foreach { taskSolution => 
+        taskSolution.checked match {
+          case Some(true) => checks += 1
+          case _ =>
         }
       }
     }

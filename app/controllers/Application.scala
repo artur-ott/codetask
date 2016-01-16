@@ -24,9 +24,9 @@ class Application extends Controller with Secured {
     } else {
       var info: List[(Long, String, Int)] = List()
       user.subscriptions.foreach { courseId =>
-        val states = user.chapterStates.filter(_.courseId == courseId)
+        val solutions = user.chapterSolutions.filter(_.courseId == courseId)
         courseService.findOneById(courseId) match {
-          case Some(c) => info = (c.id, c.title, progressOf(c, states)) :: info
+          case Some(c) => info = (c.id, c.title, progressOf(c, solutions)) :: info
           case None =>
         }
       }
@@ -65,7 +65,7 @@ class Application extends Controller with Secured {
 
   def unsubscribe(courseId: Long) = withUser { user => implicit request =>
     user.subscriptions = user.subscriptions.filter(_ != courseId)
-    user.chapterStates = user.chapterStates.filter(_.courseId != courseId)
+    user.chapterSolutions = user.chapterSolutions.filter(_.courseId != courseId)
     userService.update(user)
     Redirect(routes.Application.dashboard)
   }
@@ -82,14 +82,14 @@ class Application extends Controller with Secured {
         "subscriptions" -> Json.toJson(user.subscriptions),
         "progress" -> Json.toJson(user.subscriptions.map { s => 
           val course = courseService.findOneById(s)
-          val chapterStates = user.chapterStates.filter(_.courseId == s)
+          val chapterSolutions = user.chapterSolutions.filter(_.courseId == s)
           val progress = course match {
-            case Some(c) => progressOf(c, chapterStates)
+            case Some(c) => progressOf(c, chapterSolutions)
             case None => 0
           }
           JsArray(Seq(JsNumber(s), JsNumber(progress)))
         }),
-        "chapterStates" -> Json.toJson(user.chapterStates)
+        "chapterSolutions" -> Json.toJson(user.chapterSolutions)
       ))
     }).toSeq
     println(userService.findAll())
@@ -152,8 +152,9 @@ class Application extends Controller with Secured {
         ))
       },
       course => {
-        course.id = courseId
-        courseService.update(course) match {
+        // set id in case user send different
+        val c = new Course(courseId, course.title, course.chapters)
+        courseService.update(c) match {
           case Some(saved) =>  Ok(Json.obj(
             "status" -> "OK", 
             "message" -> ("Course '" + saved.title + "' saved")
@@ -170,20 +171,41 @@ class Application extends Controller with Secured {
   def storeSolutionsJson(courseId: Long) = withUser(parse.json) { 
     user => implicit request =>
 
-    val chapterStateResult = request.body.validate[ChapterState]
-    chapterStateResult.fold(
+    val chapterSolutionResult = request.body.validate[ChapterSolution]
+    chapterSolutionResult.fold(
       errors =>  {
         BadRequest(Json.obj(
           "status" -> "KO", 
           "message" -> JsError.toJson(errors)
         ))
       },
-      state => {
-        println("chapterState now: " + user.chapterStates)
-        user.chapterStates = state :: user.chapterStates.filter {
-          x => x.courseId != state.courseId || x.chapterId != state.chapterId
+      sol => {
+        // proof if tasks are solved
+        sol.taskSolutions.foreach { ts =>
+          courseService.findOneById(sol.courseId) match {
+            case Some(course) => 
+              course.chapters.find(_.id == sol.chapterId) match {
+                case Some(chapter) => 
+                  chapter.tasks.find(_.id == ts.taskId) match {
+                    case Some(task) => 
+                      task.solution match {
+                        case Some(string) =>
+                          ts.checked = Some(ts.taskState.isSolved(string))
+                        case None => println("error solution")
+                      }
+                    case None => println("error no task")
+                  }
+                case None => println("error no chapter")
+              }
+            case None => println("error no course")
+          }
         }
-        println("\nchapterState new: " + user.chapterStates)
+
+        //println("chapterSolution now: " + user.chapterSolutions)
+        user.chapterSolutions = sol :: user.chapterSolutions.filter {
+          x => x.courseId != sol.courseId || x.chapterId != sol.chapterId
+        }
+        //println("\nchapterSolution new: " + user.chapterSolutions)
         userService.update(user)
         Ok(Json.obj("status" -> "OK", "message" -> ("User updated")))
       }
@@ -191,8 +213,8 @@ class Application extends Controller with Secured {
   }
 
   def solutionsJson(courseId: Long) = withUser { user => implicit request =>
-    val states = user.chapterStates.filter(_.courseId == courseId)
-    Ok(Json.toJson(states))
+    val solutions = user.chapterSolutions.filter(_.courseId == courseId)
+    Ok(Json.toJson(solutions))
   }
   
   def deleteCourse(courseId: Long) = withUser { user => implicit request =>
@@ -234,14 +256,16 @@ class Application extends Controller with Secured {
                 chapter.tasks.find(_.id == ir.taskId) match {
                   case Some(task) =>
                     try {
-                      val code = ir.code + "\n" + task.ext.get
+                      val code = ir.code + "\n" + task.solution.get
                       val result = Interpreter.run("scala", code)
 
                       Ok(Json.obj("status" -> "OK", "output" -> result.output))
                     } catch {
-                      case e: Exception => BadRequest(Json.obj(
-                        "status"  -> "KO", 
-                        "message" -> "error while converting data.test."))
+                      case e: Exception => 
+                        println(e)
+                        BadRequest(Json.obj(
+                          "status"  -> "KO", 
+                          "message" -> "could not interprete code"))
                     }
                   case None => BadRequest(Json.obj(
                     "status"  -> "KO", 

@@ -143,10 +143,10 @@
             });
 
           // solved tasks
-          var checked = !(solution && solution.taskStates) 
+          var checked = !(solution && solution.taskSolutions) 
             ? 0 
-            : solution.taskStates.reduce(function(checked, taskState) {
-              return taskState.state.checked ? checked + 1 : checked;
+            : solution.taskSolutions.reduce(function(checked, taskSolution) {
+              return taskSolution.checked ? checked + 1 : checked;
             }, 0);
 
           // badge
@@ -167,9 +167,10 @@
           .addClass('btn-default')
           .click(function() {
             this_.saveUserInput(course.id, this_.chapter_.id, this_.elements_, 
-              {async: false});
-            this_.savedState_ = $('#main').html();
-            this_.resetDirty();
+              {async: true}, function() {
+                this_.savedState_ = $('#main').html();
+                this_.resetDirty();
+              });
           })
           .appendTo('#nav-content');
 
@@ -207,32 +208,39 @@
       },
 
       saveUserInput: function(courseId, chapterId, elements, opts, callback) {
-        var chapterState = {
+        var chapterSolution = {
           courseId: courseId,
           chapterId: chapterId,
-          taskStates: []
+          taskSolutions: []
         };
 
         elements.forEach(function(element) {
-          chapterState.taskStates.push({
+          chapterSolution.taskSolutions.push({
             taskId: element.id,
-            state: element.state
+            taskState: element.state
           });
         });
 
         $.ajax({
           type: 'POST',
           url: '/api/solutions/' + courseId,
-          data: JSON.stringify(chapterState),
+          data: JSON.stringify(chapterSolution),
           contentType: 'application/json; charset=utf-8',
           dataType: 'json',
           async: opts.async,
-          success: callback || function(data, status, xhr) {
-            if (status == 'success')
+          success: function(data, status, xhr) {
+            if (callback) callback();
+
+            if (status == 'success') {
               console.log('state saved: chapter ' + chapterId);
+              alert('Daten gespeichert');
+            } else {
+              console.log(status);
+            }
           },
           error: function(xhr, status, y) {
             console.log('could not save state');
+            alert('Daten konnten nicht gespeichert werden');
           }
         });
       },
@@ -263,13 +271,13 @@
           });
 
           if (solution) {
-            var result = solution.taskStates.find(function(state) {
+            var result = solution.taskSolutions.find(function(state) {
               return state.taskId == task.id;
             });
             if (result) {
-              Object.keys(result.state).forEach(function(key) {
+              Object.keys(result.taskState).forEach(function(key) {
                 // clone state
-                element[key] = JSON.parse(JSON.stringify(result.state[key]));
+                element[key] = JSON.parse(JSON.stringify(result.taskState[key]));
               });
             }
           }

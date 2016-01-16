@@ -3,8 +3,6 @@ import org.specs2.mutable._
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.libs.json._
-import models.CodeTask
-import models.Execution
 import models._
 
 class UserServiceSpec extends Specification {
@@ -12,11 +10,11 @@ class UserServiceSpec extends Specification {
 
   val id = userService.newId()
   val user1 = new User(id, "email", "student", "pw1234", List(
-    new ChapterState(100001, 2, List(
-      new TaskState("koan-task1", "{\"checked\":true}")
+    new ChapterSolution(100001, 2, List(
+      new TaskSolution("koan-task1", null, Some(true))
     )),
-    new ChapterState(100002, 2, List(
-      new TaskState("koan-task1", "{\"checked\":true}")
+    new ChapterSolution(100002, 2, List(
+      new TaskSolution("koan-task1", null, Some(true))
     ))
   ))
 
@@ -53,28 +51,27 @@ class UserServiceSpec extends Specification {
   }
   "UserService#update" should {
     "work with existing user" in {
-      val tsk = new TaskState("koan-task1", "{\"checked\":false}")
-      var chpt = new ChapterState(100001, 1, List(tsk))
+      val tsk = new TaskSolution("koan-task1", null, Some(false))
+      var chpt = new ChapterSolution(100001, 1, List(tsk))
 
       // replace -> 100001, 1
-      val chapterStates = chpt :: user1.chapterStates.filter {
+      val chapterSolutions = chpt :: user1.chapterSolutions.filter {
         x => x.courseId == chpt.courseId && x.chapterId == chpt.chapterId
       }
 
       val userNew = new User(user1.id, user1.username, "teacher",
-        user1.password, chapterStates)
+        user1.password, chapterSolutions)
       userService.update(userNew)
 
       val user = userService.findOneByUsername(userNew.username)
       user.isDefined must beTrue
       user.get.authority equals "teacher" must beTrue
       
-      val chapterState = user.get.chapterStates.find(x => x.courseId == 100001 && x.chapterId == 1)
-      chapterState.isDefined must beTrue
-      val taskState = chapterState.get.taskStates.find(x => x.taskId == "koan-task1")
+      val chapterSolution = user.get.chapterSolutions.find(x => x.courseId == 100001 && x.chapterId == 1)
+      chapterSolution.isDefined must beTrue
+      val taskState = chapterSolution.get.taskSolutions.find(x => x.taskId == "koan-task1")
       taskState.isDefined must beTrue
-      println(taskState.get.state)
-      taskState.get.state.contains("false") must beTrue
+      taskState.get.checked shouldEqual(Some(false))
     }
     "fail without existing user" in {
       val result = userService.update(new User(0, "user", "teacher", "pw", List()))

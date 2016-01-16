@@ -71,38 +71,48 @@ class ApplicationSpec extends Specification {
                   {
                     "id": "video1",
                     "tag": "video-task",
-                    "data": {"description": "In diesem Kapitel sollend Listen in Scala näher erläutert werden\n Listen sind collections und können objekte speichern\n Listen sind prinzipiell immutable also unveränderbar\n Im folgenden Video werden Listen ausfürlich erläutert","url": "U23j6yH21W4"}
+                    "data": {
+                      "description": "In diesem Kapitel sollend Listen in Scala näher erläutert werden\n Listen sind collections und können objekte speichern\n Listen sind prinzipiell immutable also unveränderbar\n Im folgenden Video werden Listen ausfürlich erläutert",
+                      "url": "U23j6yH21W4"
+                    },
+                    "solution": "watched"
                   },{
                     "id": "koan1",
                     "tag": "koan-task",
-                    "data": {"description": "Mit der Funktion <b>contains</b> kann geprüft werden ob eine Liste ein bestimmtes Element enthält.\n Mit der Funktion <b>map</b> können funktionen auf listen angewendet werden, die Ergebnisse werden in einer neuen Liste gespeichert.\n Versuch in dem folgenden <b>Koan</b> die richtigen Werte einzutragen","code": "val l = List(1, 2, 3, 4)\nval l2 = l.map { x => x + 1 }\nval l3 = l.map { x => x * x }\n\nl should be (__)\nl2 should be(__)\nl3 shouldBe __","solutions": ["List(1, 2, 3, 4)","List(2, 3, 4, 5)","List(1, 4, 9, 16)"]} 
+                    "data": {
+                      "description": "Mit der Funktion <b>contains</b> kann geprüft werden ob eine Liste ein bestimmtes Element enthält.\n Mit der Funktion <b>map</b> können funktionen auf listen angewendet werden, die Ergebnisse werden in einer neuen Liste gespeichert.\n Versuch in dem folgenden <b>Koan</b> die richtigen Werte einzutragen",
+                      "code": "val l = List(1, 2, 3, 4)\nval l2 = l.map { x => x + 1 }\nval l3 = l.map { x => x * x }\n\nl should be (__)\nl2 should be(__)\nl3 shouldBe __",
+                      "solutions": ["List(1, 2, 3, 4)","List(2, 3, 4, 5)","List(1, 4, 9, 16)"]
+                    },
+                    "solution": "List(1, 2, 3, 4),List(2, 3, 4, 5),List(1, 4, 9, 16)"
                   },{
                     "id": "koan2",
                     "tag": "koan-task",
-                    "data": {"description": "Zu Listen können auch Werte hinzugefügt werden.<br>Dies kann mit <b>++</b> geschehen.","code": "val x = 1\nval y = 300\n//some\n//lonely\n//comment\n//to\n//add\n//lines\nval l = List(1, 3, 5)\nval l2 = l ++ List(6)\n    \nl2 shouldBe __","solutions": ["List(1, 3, 5, 6)"]}
+                    "data": {
+                      "description": "Zu Listen können auch Werte hinzugefügt werden.<br>Dies kann mit <b>++</b> geschehen.",
+                      "code": "val x = 1\nval y = 300\n//some\n//lonely\n//comment\n//to\n//add\n//lines\nval l = List(1, 3, 5)\nval l2 = l ++ List(6)\n    \nl2 shouldBe __",
+                      "solutions": ["List(1, 3, 5, 6)"]
+                    },
+                    "solution": "List(1, 2, 3, 4),List(2, 3, 4, 5),List(1, 4, 9, 16)"
                   },{
                     "id": "code1",
                     "tag": "code-task",
-                    "data": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben.\n Nutzen Sie nicht die bereits vorhandenen Möglichkeit\n <b>List.reverse</b>", "mode":"scala", "code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}"},
-                    "ext": "assert(rvrs(List(1, 2, 3)) == List(3, 2, 1), \"rvrs is not working\")"
+                    "data": {
+                      "description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben.\n Nutzen Sie nicht die bereits vorhandenen Möglichkeit\n <b>List.reverse</b>", 
+                      "mode":"scala", 
+                      "code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}"
+                    },
+                    "solution": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"
                   },{
                     "id": "koan3",
                     "tag": "koan-task",
-                    "data": {"description": "Java Koan", "mode":"java","code": "@RunWith(KoanRunner.class)\n  public class MyKoans {\n\t@Koan\n\tpublic void test() {\n\t\tint i= 10;\n\t\tint j = 5;\n\t\tint product = i * j;\n\n\t\tassertThat(product, is(__)\n\t}\n}","solutions": ["50"]}
-                  }
-                ]
-              },{
-                "id": 2,
-                "title": "Java Chapter",
-                "tasks": [
-                  {
-                    "id": "video1",
-                    "tag": "video-task",
-                    "data": {"description": "First video", "url": "https://www.youtube.com/watch?v=dVFr5TETfjY"}
-                  },{
-                    "id": "koan1",
-                    "tag": "koan-task",
-                    "data": {"description": "Java Koan", "mode":"java","code": "@RunWith(KoanRunner.class)\n  public class MyKoans {\n\t@Koan\n\tpublic void test() {\n\t\tint i= 10;\n\t\tint j = 5;\n\t\tint product = i * j;\n\n\t\tassertThat(product, is(__)\n\t}\n}","solutions": ["50"]}
+                    "data": {
+                      "description": "Java Koan", 
+                      "mode":"java",
+                      "code": "@RunWith(KoanRunner.class)\n  public class MyKoans {\n\t@Koan\n\tpublic void test() {\n\t\tint i= 10;\n\t\tint j = 5;\n\t\tint product = i * j;\n\n\t\tassertThat(product, is(__)\n\t}\n}",
+                      "solutions": ["50"]
+                    },
+                    "solution": "50"
                   }
                 ]
               }
@@ -130,38 +140,72 @@ class ApplicationSpec extends Specification {
                   {
                     "id": "video1",
                     "tag": "video-task",
-                    "data": {"description": "In diesem Kapitel sollend Listen in Scala näher erläutert werden\n Listen sind collections und können objekte speichern\n Listen sind prinzipiell immutable also unveränderbar\n Im folgenden Video werden Listen ausfürlich erläutert","url": "U23j6yH21W4"}
+                    "data": {
+                      "description": "In diesem Kapitel sollend Listen in Scala näher erläutert werden\n Listen sind collections und können objekte speichern\n Listen sind prinzipiell immutable also unveränderbar\n Im folgenden Video werden Listen ausfürlich erläutert",
+                      "url": "U23j6yH21W4"
+                    },
+                    "solution": "watched"
                   },{
                     "id": "koan1",
                     "tag": "koan-task",
-                    "data": {"description": "Mit der Funktion <b>contains</b> kann geprüft werden ob eine Liste ein bestimmtes Element enthält.\n Mit der Funktion <b>map</b> können funktionen auf listen angewendet werden, die Ergebnisse werden in einer neuen Liste gespeichert.\n Versuch in dem folgenden <b>Koan</b> die richtigen Werte einzutragen","code": "val l = List(1, 2, 3, 4)\nval l2 = l.map { x => x + 1 }\nval l3 = l.map { x => x * x }\n\nl should be (__)\nl2 should be(__)\nl3 shouldBe __","solutions": ["List(1, 2, 3, 4)","List(2, 3, 4, 5)","List(1, 4, 9, 16)"]} 
+                    "data": {
+                      "description": "Mit der Funktion <b>contains</b> kann geprüft werden ob eine Liste ein bestimmtes Element enthält.\n Mit der Funktion <b>map</b> können funktionen auf listen angewendet werden, die Ergebnisse werden in einer neuen Liste gespeichert.\n Versuch in dem folgenden <b>Koan</b> die richtigen Werte einzutragen",
+                      "code": "val l = List(1, 2, 3, 4)\nval l2 = l.map { x => x + 1 }\nval l3 = l.map { x => x * x }\n\nl should be (__)\nl2 should be(__)\nl3 shouldBe __",
+                      "solutions": ["List(1, 2, 3, 4)","List(2, 3, 4, 5)","List(1, 4, 9, 16)"]
+                    },
+                    "solution": "watched"
                   },{
                     "id": "koan2",
                     "tag": "koan-task",
-                    "data": {"description": "Zu Listen können auch Werte hinzugefügt werden.<br>Dies kann mit <b>++</b> geschehen.","code": "val x = 1\nval y = 300\n//some\n//lonely\n//comment\n//to\n//add\n//lines\nval l = List(1, 3, 5)\nval l2 = l ++ List(6)\n    \nl2 shouldBe __","solutions": ["List(1, 3, 5, 6)"]}
+                    "data": {
+                      "description": "Zu Listen können auch Werte hinzugefügt werden.<br>Dies kann mit <b>++</b> geschehen.",
+                      "code": "val x = 1\nval y = 300\n//some\n//lonely\n//comment\n//to\n//add\n//lines\nval l = List(1, 3, 5)\nval l2 = l ++ List(6)\n    \nl2 shouldBe __",
+                      "solutions": ["List(1, 3, 5, 6)"]
+                    },
+                    "solution": "List(1, 2, 3, 4),List(2, 3, 4, 5),List(1, 4, 9, 16)"
                   },{
                     "id": "code1",
                     "tag": "code-task",
-                    "data": {"description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben.\n Nutzen Sie nicht die bereits vorhandenen Möglichkeit\n <b>List.reverse</b>", "mode":"scala", "code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}"},
-                    "ext": "assert(rvrs(List(1, 2, 3)) == List(3, 2, 1), \"rvrs is not working\")"
+                    "data": {
+                      "description": "schreiben sie eine function reverse die eine umgekehrte liste zurück geben.\n Nutzen Sie nicht die bereits vorhandenen Möglichkeit\n <b>List.reverse</b>", 
+                      "mode":"scala", 
+                      "code": "def rvrs(l: List[Any]): List[Any] = {\n  //solve\n}"
+                    },
+                    "solution": "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"
                   },{
                     "id": "koan3",
                     "tag": "koan-task",
-                    "data": {"description": "Java Koan", "mode":"java","code": "@RunWith(KoanRunner.class)\n  public class MyKoans {\n\t@Koan\n\tpublic void test() {\n\t\tint i= 10;\n\t\tint j = 5;\n\t\tint product = i * j;\n\n\t\tassertThat(product, is(__)\n\t}\n}","solutions": ["50"]}
+                    "data": {
+                      "description": "Java Koan", 
+                      "mode":"java",
+                      "code": "@RunWith(KoanRunner.class)\n  public class MyKoans {\n\t@Koan\n\tpublic void test() {\n\t\tint i= 10;\n\t\tint j = 5;\n\t\tint product = i * j;\n\n\t\tassertThat(product, is(__)\n\t}\n}",
+                      "solutions": ["50"]
+                    },
+                    "solution": "50"
                   }
                 ]
               },{
                 "id": 2,
-                "title": "About Java",
+                "title": "Java Chapter",
                 "tasks": [
                   {
                     "id": "video1",
                     "tag": "video-task",
-                    "data": {"description": "First video", "url": "https://www.youtube.com/watch?v=dVFr5TETfjY"}
+                    "data": {
+                      "description": "First video", 
+                      "url": "https://www.youtube.com/watch?v=dVFr5TETfjY"
+                    },
+                    "solution": "watched"
                   },{
                     "id": "koan1",
                     "tag": "koan-task",
-                    "data": {"description": "Java Koan", "mode":"java","code": "@RunWith(KoanRunner.class)\n  public class MyKoans {\n\t@Koan\n\tpublic void test() {\n\t\tint i= 10;\n\t\tint j = 5;\n\t\tint product = i * j;\n\n\t\tassertThat(product, is(__)\n\t}\n}","solutions": ["50"]}
+                    "data": {
+                      "description": "Java Koan", 
+                      "mode":"java",
+                      "code": "@RunWith(KoanRunner.class)\n  public class MyKoans {\n\t@Koan\n\tpublic void test() {\n\t\tint i= 10;\n\t\tint j = 5;\n\t\tint product = i * j;\n\n\t\tassertThat(product, is(__)\n\t}\n}",
+                      "solutions": ["50"]
+                    },
+                    "solution": "50"
                   }
                 ]
               }
@@ -314,10 +358,16 @@ class ApplicationSpec extends Specification {
           """{
             "courseId": 100001,
             "chapterId": 1,
-            "taskStates": [
+            "taskSolutions": [
               {
+                "taskId": "video1",
+                "taskState": {"status": "watched"}
+              },{
                 "taskId": "koan1",
-                "state": {"checked": true, "mySolutions": ["List(1, 2, 3, 4)","List(2, 3, 4, 5)","List(1, 4, 9, 16)"]}
+                "taskState": {"mySolutions": ["List(1, 2, 3, 4)","List(2, 3, 4, 5)","List(1, 4, 9, 16)"]}
+              },{
+                "taskId": "code1",
+                "taskState": {"code": "test"}
               }
             ]
           }"""

@@ -74,6 +74,7 @@
       get myCode() { return this.state.myCode; },
       set myCode(value) { this.state.myCode = value; },
 
+
       // temp
       get aceEditor() { return this.aceEditor_; },
       set aceEditor(value) { this.aceEditor_ = value; },
@@ -81,6 +82,7 @@
       set output(value) { this.output_ = value; },
       
       attached: function() {
+        var this_ = this;
         this.addDescription();
 
         if (this.checked) this.addCheckFlag();
@@ -107,6 +109,11 @@
         this.aceEditor.session.setMode('ace/mode/' + this.mode);
         this.aceEditor.setOptions({fontSize: '11pt'});
         this.aceEditor.setValue(this.myCode || this.code);
+
+        // keep myCode updated
+        this.aceEditor.on('change', function() {
+          this_.myCode = this_.aceEditor.getValue();
+        });
 
         // setup console
         this.output = output;

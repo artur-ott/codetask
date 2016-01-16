@@ -13,6 +13,7 @@
       // instance state
       created: function() {
         this._super();
+        this.status = 'not watched';
       },
 
       // data
@@ -22,8 +23,8 @@
       set postUrl(value) { this.data.postUrl = value; },
 
       // state
-      get watched() { return this.state.watched; },
-      set watched(value) { this.state.watched = value; },
+      get status() { return this.state.status; },
+      set status(value) { this.state.status = value; },
 
       attached: function() {
         this.addDescription();
@@ -47,7 +48,8 @@
               if (event.data == 0 && !this_.checked) {
                 this_.checked = true;
                 this_.dirty = true;
-                this_.addCheckFlag;
+                this_.addCheckFlag();
+                this_.status = 'watched';
               }
             }
           }

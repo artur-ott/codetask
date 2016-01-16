@@ -50,8 +50,8 @@
       _super: function() {
         this.data = {};
         this.state = {};
-        this.state.checked = false;
-        this.state.dirty = false;
+        this.checked_ = false;
+        this.dirty_ = false;
       },
 
       get state() { return this.state_; },
@@ -64,8 +64,8 @@
       set description(value) { this.data.description = value; },
       
       // state
-      get checked() { return this.state.checked; },
-      set checked(value) { this.state.checked = value; },
+      get checked() { return this.checked_; },
+      set checked(value) { this.checked_ = value; },
       get dirty() { return this.dirty_; },
       set dirty(value) { this.dirty_ = value; },
 
