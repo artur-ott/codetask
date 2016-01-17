@@ -92,7 +92,6 @@ class Application extends Controller with Secured {
         "chapterSolutions" -> Json.toJson(user.chapterSolutions)
       ))
     }).toSeq
-    println(userService.findAll())
     Ok(Json.toJson(list))
   }
 

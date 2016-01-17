@@ -130,14 +130,14 @@
                       <span>*</span>
                       <template is="dom-repeat" items="{{chapter.tasks}}" as="task">
                         <template is="dom-if" if="{{isChecked(user, course.id, chapter.id, task.id)}}">
-                          <div class="box checked">
-                            <div class="mouseover"><div class="chapterTitle">{{chapter.title}}</div></div>
-                          </div>
+                          <a href="/course/{{course.id}}/{{user.id}}?chapter={{chapter.id}}#{{task.id}}" class="box checked">
+                            <div class="mouseover"><div class="chapterTitle">{{chapter.title}}/{{chapter.id}}/{{task.id}}</div></div>
+                          </a>
                         </template>
                         <template is="dom-if" if="{{!isChecked(user, course.id, chapter.id, task.id)}}">
-                          <div class="box">
-                            <div class="mouseover"><div class="chapterTitle">{{chapter.title}} {{chapter.id}}</div></div>
-                          </div>
+                          <a href="/course/{{course.id}}/{{user.id}}?chapter={{chapter.id}}#{{task.id}}" class="box">
+                            <div class="mouseover"><div class="chapterTitle">{{chapter.title}}/{{chapter.id}}/{{task.id}}</div></div>
+                          </a>
                         </template>
                       </template>
                     </template>

@@ -43,6 +43,11 @@
       margin-left: 10px;
       margin-right: 20px;
     }
+    side-note {
+      position: absolute;
+      left: 20px;
+      color: blue;
+    }
   </style>
 
   <script>
@@ -57,6 +62,26 @@
         this.loaded_ = {};
         this.chapter_ = null;
         this.elements_ = [];
+      },
+
+      getUrlParameter: function(param) {
+        var value = undefined;
+        window.location.search.substring(1).split('&').forEach(function(v) {
+          var tuple = v.split('=');
+          if(tuple[0] == param) value = tuple[1];
+        });
+        return value;
+      },
+
+      setUrlParameters: function(params, values) {
+        if (params.length != values.length) return
+        var vars = window.location.search.substring(1).split('?');
+        var end = '';
+        for (var i=0; i < params.length; i++) {
+          end += encodeURI(params[i]) + '=' + encodeURI(values[i])
+          if (i != params.length - 1) end += '&';
+        }
+        window.history.pushState('', window.title,  window.location.pathname + '?' + end + window.location.hash);
       },
 
       courseLoaded: function(e, request) {
@@ -86,13 +111,14 @@
       initialize: function(course, solutions) {
         var this_ = this;
 
+         // get url parameters
+        var chapterParam = this.getUrlParameter('chapter');
         // selected chapter
         currentChapter = course.chapters[0];
-        var hash = window.location.hash.substring(1);
 
-        if (hash != '') {
+        if (chapterParam) {
           var result = course.chapters.find(function(chapter) {
-            return chapter.title.split(' ').join('').toLowerCase() == hash;
+            return chapter.id == chapterParam;
           });
           currentChapter = result || currentChapter;
         }
@@ -122,6 +148,7 @@
               $(this).addClass('active');
 
               this_.loadChapter(course.id, chapter, solution);
+              $("html, body").animate({ scrollTop: 0 }, "slow");
             });
 
           // solved tasks
@@ -134,11 +161,11 @@
           // badge
           var badge = $('<span></span>')
             .addClass('badge')
-            .text(checked + '/' + Object.keys(chapter.tasks).length)
-            .addClass((index == 0 ? 'active' : ''));
+            .text(checked + '/' + Object.keys(chapter.tasks).length);
 
           if (chapter.id == currentChapter.id) {
             li.addClass('active');
+            badge.addClass('active');
           }
 
           li.append(badge).appendTo('#nav-content');
@@ -161,12 +188,7 @@
         this.chapter_ = chapter;
         main.html('');
 
-        // set url anchor
-        var hash = chapter.title.split(' ').join('').toLowerCase();
-        location.hash = encodeURIComponent(hash);
-
-        // create chapter title
-        $('<h1></h1>').text(chapter.title).appendTo(main);
+        this.setUrlParameters(['chapter'], [chapter.id]);
 
         // create elements
         chapter.tasks.forEach(function(task) {
@@ -191,7 +213,14 @@
           }
 
           element.interpreterUrl = '/api/interpreter/scala'; // TODO: better way to provide interpret url
+          main.append($('<div></div>')
+            .text(task.id)
+            .attr('href', task.id)
+            .css('color', 'blue')
+            .css('position', 'absolute')
+            .css('right', '-40px'));
           main.append(element);
+
           elements.push(element);
         });
       }

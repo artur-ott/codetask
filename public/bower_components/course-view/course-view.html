@@ -60,6 +60,26 @@
         this.savedState_ = '';
       },
 
+      getUrlParameter: function(param) {
+        var value = undefined;
+        window.location.search.substring(1).split('&').forEach(function(v) {
+          var tuple = v.split('=');
+          if(tuple[0] == param) value = tuple[1];
+        });
+        return value;
+      },
+
+      setUrlParameters: function(params, values) {
+        if (params.length != values.length) return
+        var vars = window.location.search.substring(1).split('?');
+        var end = '';
+        for (var i=0; i < params.length; i++) {
+          end += encodeURI(params[i]) + '=' + encodeURI(values[i])
+          if (i != params.length - 1) end += '&';
+        }
+        window.history.pushState('', window.title,  window.location.pathname + '?' + end);
+      },
+
       isDirty: function() {
         var es = this.elements_.map(function(e) {return e.dirty;});
         console.log(es);
@@ -89,13 +109,14 @@
         var confirmationMessage = 'Ihre Eingaben haben sich geändert.'
                 + 'Wollen Sie die Seite ohne Speichern verlassen?';
 
+        // get url parameters
+        var chapterParam = this.getUrlParameter('chapter');
         // selected chapter
         currentChapter = course.chapters[0];
-        var hash = window.location.hash.substring(1);
 
-        if (hash != '') {
+        if (chapterParam) {
           var result = course.chapters.find(function(chapter) {
-            return chapter.title.split(' ').join('').toLowerCase() == hash;
+            return chapter.id == chapterParam;
           });
           currentChapter = result || currentChapter;
         }
@@ -119,17 +140,10 @@
             .css('cursor', 'pointer')
             .html(chapter.title)
             .click(function() {
-              var loadNewChapter = function() {
-                // load new chapter
-                this_.loadChapter(course.id, chapter, solution);
-                $("html, body").animate({ scrollTop: 0 }, "slow");
-              }
-
               var dirty = this_.isDirty();
               if (dirty && !window.confirm(confirmationMessage || dirty)) {
                 return;
               }
-              console.log(dirty);
 
               // change active link and load new chapter
               $(this).parent().children().each(function() {
@@ -152,11 +166,11 @@
           // badge
           var badge = $('<span></span>')
             .addClass('badge')
-            .text(checked + '/' + Object.keys(chapter.tasks).length)
-            .addClass((index == 0 ? 'active' : ''));
+            .text(checked + '/' + Object.keys(chapter.tasks).length);
 
           if (chapter.id == currentChapter.id) {
             li.addClass('active');
+            badge.addClass('active');
           }
 
           li.append(badge).appendTo('#nav-content');
@@ -256,9 +270,7 @@
         this.chapter_ = chapter;
         main.html('');
 
-        // set url anchor
-        var hash = chapter.title.split(' ').join('').toLowerCase();
-        location.hash = encodeURIComponent(hash);
+        this.setUrlParameters(['chapter'], [chapter.id]);
 
         // create chapter title
         $('<h1></h1>').text(chapter.title).appendTo(main);
@@ -267,6 +279,7 @@
         chapter.tasks.forEach(function(task) {
           var element = document.createElement(task.tag);
           element.id = task.id;
+          element.href = '#' + task.id;
 
           Object.keys(task.data).forEach(function(key) {
             element[key] = task.data[key];
