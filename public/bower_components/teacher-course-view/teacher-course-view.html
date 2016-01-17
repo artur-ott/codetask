@@ -75,11 +75,9 @@
         var user = request.xhr.response.find(function(user) {
           return user.id == this_.userId;
         });
-        console.dir(request.xhr.response);
-        this.loaded_.solutions = user.chapterStates.filter(function(cState) {
-          return cState.courseId == this_.courseId;
+        this.loaded_.solutions = user.chapterSolutions.filter(function(cSol) {
+          return cSol.courseId == this_.courseId;
         });
-        console.dir(this.loaded_.solutions);
         if (this.loaded_.course)
           this.initialize(this.loaded_.course, this.loaded_.solutions);
         if (e) console.log(e);
@@ -127,10 +125,10 @@
             });
 
           // solved tasks
-          var checked = !(solution && solution.taskStates) 
+          var checked = !(solution && solution.taskSolutions) 
             ? 0 
-            : solution.taskStates.reduce(function(checked, taskState) {
-              return taskState.state.checked ? checked + 1 : checked;
+            : solution.taskSolutions.reduce(function(checked, taskSolution) {
+              return taskSolution.checked ? checked + 1 : checked;
             }, 0);
 
           // badge
@@ -180,13 +178,15 @@
           });
 
           if (solution) {
-            var result = solution.taskStates.find(function(state) {
-              return state.taskId == task.id;
+            var taskSolution = solution.taskSolutions.find(function(sol) {
+              return sol.taskId == task.id;
             });
-            if (result) {
-              Object.keys(result.state).forEach(function(key) {
-                element[key] = result.state[key];
+            if (taskSolution) {
+              Object.keys(taskSolution.taskState).forEach(function(key) {
+                element[key] = JSON.parse(JSON.stringify(
+                  taskSolution.taskState[key]));
               });
+              if (taskSolution.checked) element.checked = true;
             }
           }
 

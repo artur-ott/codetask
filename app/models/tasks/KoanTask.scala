@@ -30,7 +30,9 @@ object KoanTask extends TaskType {
 
 case class KoanState(mySolutions: List[String] = List()) extends TaskState {
   def toJson = JsObject(Map("mySolutions" -> Json.toJson(mySolutions)))
-  def isSolved(solution: String): Boolean = mySolutions.mkString(",") == solution
+  def isSolved(solution: String): Boolean = {
+    mySolutions.mkString(",") == solution
+  }
 }
 
 case class KoanData(description: String, code: String, solutions: List[String]) extends TaskData {

@@ -93,7 +93,7 @@ class ApplicationSpec extends Specification {
                       "code": "val x = 1\nval y = 300\n//some\n//lonely\n//comment\n//to\n//add\n//lines\nval l = List(1, 3, 5)\nval l2 = l ++ List(6)\n    \nl2 shouldBe __",
                       "solutions": ["List(1, 3, 5, 6)"]
                     },
-                    "solution": "List(1, 2, 3, 4),List(2, 3, 4, 5),List(1, 4, 9, 16)"
+                    "solution": "List(1, 3, 5, 6)"
                   },{
                     "id": "code1",
                     "tag": "code-task",
@@ -153,7 +153,7 @@ class ApplicationSpec extends Specification {
                       "code": "val l = List(1, 2, 3, 4)\nval l2 = l.map { x => x + 1 }\nval l3 = l.map { x => x * x }\n\nl should be (__)\nl2 should be(__)\nl3 shouldBe __",
                       "solutions": ["List(1, 2, 3, 4)","List(2, 3, 4, 5)","List(1, 4, 9, 16)"]
                     },
-                    "solution": "watched"
+                    "solution": "List(1, 2, 3, 4),List(2, 3, 4, 5),List(1, 4, 9, 16)"
                   },{
                     "id": "koan2",
                     "tag": "koan-task",
@@ -162,7 +162,7 @@ class ApplicationSpec extends Specification {
                       "code": "val x = 1\nval y = 300\n//some\n//lonely\n//comment\n//to\n//add\n//lines\nval l = List(1, 3, 5)\nval l2 = l ++ List(6)\n    \nl2 shouldBe __",
                       "solutions": ["List(1, 3, 5, 6)"]
                     },
-                    "solution": "List(1, 2, 3, 4),List(2, 3, 4, 5),List(1, 4, 9, 16)"
+                    "solution": "List(1, 3, 5, 6)"
                   },{
                     "id": "code1",
                     "tag": "code-task",

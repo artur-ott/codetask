@@ -221,6 +221,8 @@
           });
         });
 
+        console.dir(chapterSolution);
+
         $.ajax({
           type: 'POST',
           url: '/api/solutions/' + courseId,
@@ -271,14 +273,16 @@
           });
 
           if (solution) {
-            var result = solution.taskSolutions.find(function(state) {
-              return state.taskId == task.id;
+            var taskSolution = solution.taskSolutions.find(function(sol) {
+              return sol.taskId == task.id;
             });
-            if (result) {
-              Object.keys(result.taskState).forEach(function(key) {
+            if (taskSolution) {
+              Object.keys(taskSolution.taskState).forEach(function(key) {
                 // clone state
-                element[key] = JSON.parse(JSON.stringify(result.taskState[key]));
+                element[key] = JSON.parse(JSON.stringify(
+                  taskSolution.taskState[key]));
               });
+              if (taskSolution.checked) element.checked = true;
             }
           }
 

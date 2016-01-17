@@ -19,14 +19,35 @@
       left: 0;
     }
     .box {
-      float: left;
+      margin-left: 2px;
+      display: inline-block;
       width: 20px;
       height: 20px;
       border: solid 1px blue;
-      border-radius: 5px;
+      border-radius: 4px;
     }
     .checked {
       background-color: blue;
+    }
+    .mouseover {
+      position:relative;
+      cursor: pointer;
+    }
+    .chapterTitle {
+      width: 200px;
+      position:absolute;
+      color:white;
+      border-radius:4px;
+      opacity:0;
+      background-color:blue;
+      -webkit-transition: opacity 0.5s;
+      -moz-transition: opacity 0.5s;
+      -ms-transition: opacity 0.5s;
+      -o-transition: opacity 0.5s;
+      transition: opacity 0.5s;
+    }
+    .mouseover:hover .chapterTitle { 
+        opacity:1;
     }
   </style>
   <template>
@@ -69,6 +90,14 @@
                   ID: {{course.id}}
                 </div>
                 <div class="col-md-3">
+                  <!--<template is="dom-repeat" items="{{sortChapterSolutions(user, course)}}" as="obj">
+                      <template is="dom-if" if="{{obj.taskState.checked}}">
+                        <div class="box checked"></div>
+                      </template>
+                      <template is="dom-if" if="{{!obj.taskState.checked}}">
+                        <div class="box"></div>
+                      </template>
+                    </template>-->
                   <div class="progress">
                     <div class="progress-bar" role="progressbar" aria-valuenow="{{progress(course.id, user)}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress(course.id, user)}}%;">
                       {{progress(course.id, user)}}%
@@ -91,12 +120,28 @@
                 <div class="col-md-2 left">
                   ID: {{user.id}}
                 </div>
-                <div class="col-md-3">
-                  <div class="progress">
+                <div class="col-md-5">
+                  <!--<div class="progress">
                     <div class="progress-bar" role="progressbar" aria-valuenow="{{progress(course.id, user)}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress(course.id, user)}}%;">
                       {{progress(course.id, user)}}%
                     </div>
-                  </div>
+                  </div>-->
+                    <template is="dom-repeat" items="{{course.chapters}}" as="chapter">
+                      <span>*</span>
+                      <template is="dom-repeat" items="{{chapter.tasks}}" as="task">
+                        <template is="dom-if" if="{{isChecked(user, course.id, chapter.id, task.id)}}">
+                          <div class="box checked">
+                            <div class="mouseover"><div class="chapterTitle">{{chapter.title}}</div></div>
+                          </div>
+                        </template>
+                        <template is="dom-if" if="{{!isChecked(user, course.id, chapter.id, task.id)}}">
+                          <div class="box">
+                            <div class="mouseover"><div class="chapterTitle">{{chapter.title}} {{chapter.id}}</div></div>
+                          </div>
+                        </template>
+                      </template>
+                    </template>
+                    <span>*</span>
                 </div>
                 <div class="col-md-3 left">
                   <a href="/course/{{course.id}}/{{user.id}}">see solution</a>
@@ -113,8 +158,21 @@
         properties: {
           searchMode: {
             type: String,
-            value: 'Students',
+            value: 'students',
             observe: 'changeSearchMode'
+          }
+        },
+        attached: function() {
+          var this_ = this;
+          $('#search-students')
+            .click(function() { this_.changeSearchMode('students'); });
+          $('#search-courses')
+            .click(function() { this_.changeSearchMode('courses'); });
+
+          var hash = window.location.hash.substring(1);
+          switch(hash) {
+            case 'students':
+            case 'courses' : this_.changeSearchMode(hash); 
           }
         },
         log: function(a) {
@@ -122,21 +180,73 @@
         },
         changeSearchMode: function(string) {
           this.searchMode = string;
+          // set url anchor
+          location.hash = encodeURIComponent(string.toLowerCase());
         },
         isStudents: function(x) {
-          return (x == 'Students');
+          return (x == 'students');
         },
         progress: function(courseId, user) {
           var p = user.progress.find(function(p){return p[0] == courseId});
           return p ? p[1] : 0;
         },
-        attached: function() {
-          var this_ = this;
-          $('#search-students')
-            .click(function() { this_.changeSearchMode('Students'); });
-          $('#search-courses')
-            .click(function() { this_.changeSearchMode('Courses'); });
-          this.changeSearchMode('Students');
+        isChecked: function(user, courseId, chapterId, taskId) {
+          var chapterSolution = user.chapterSolutions.find(function(cs) {
+            return cs.courseId == courseId && cs.chapterId == chapterId;
+          });
+          if (!chapterSolution) return false;
+          var taskSolution = chapterSolution.taskSolutions.find(function(ts) {
+            return ts.taskId == taskId;
+          });
+          if (!taskSolution) return false;
+          return taskSolution.checked;
+        },
+        sortChapterSolutions: function(user, course) {
+          var chapterSolutions =  user.chapterSolutions.filter(function(cs) {
+            return cs.courseId == course.id;
+          });
+
+          var taskSolutionsArrays = chapterSolutions.map(function(cs) {
+            return cs.taskSolutions.map(function(ts) {
+              return {
+                courseId: cs.courseId, 
+                chapterId: cs.chapterId, 
+                taskId: ts.taskId, 
+                taskState: ts
+              };
+            });
+          });
+
+          console.log(taskSolutionsArrays);
+
+          var taskSolutions = [];
+          if (taskSolutionsArrays && taskSolutionsArrays.length > 0) {
+            taskSolutions = taskSolutionsArrays.reduce(function(p, c) {
+              return p.concat(c);
+            });
+          }
+          
+          course.chapters.forEach(function(chapter) {
+            chapter.tasks.forEach(function(task) {
+              var solution = taskSolutions.find(function(ts) {
+                return ts.chapterId == chapter.id && ts.taskId == task.id;
+              });
+              if (!solution) {
+                taskSolutions.push({
+                  courseId: course.id, 
+                  chapterId: chapter.id, 
+                  taskId: task.id, 
+                  taskState: {checked: false}
+                });
+              }
+            });
+          });
+
+          taskSolutions = taskSolutions.sort(function(a, b){
+            return a.chapterId - b.chapterId;
+          })
+          console.dir(taskSolutions);
+          return taskSolutions;
         },
         courseSubFilter: function(user) {
           if (!user) return null;
