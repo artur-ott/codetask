@@ -10,14 +10,14 @@
     <!-- data -->
     <iron-ajax
       auto
-      url="/api/courses"
+      url="/api/courses/all"
       handle-as="json"
       on-response="courseLoaded">
     </iron-ajax>
 
     <iron-ajax
       auto
-      url="/api/users"
+      url="/api/users/students"
       handle-as="json"
       on-response="solutionsLoaded">
     </iron-ajax>

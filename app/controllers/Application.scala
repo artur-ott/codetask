@@ -22,7 +22,7 @@ class Application extends Controller with Secured {
   }
 
   def dashboard() = withUser { user => implicit request =>
-    if (user.authority == "teacher") {
+    if (user.authority == "teacher" || user.authority == "admin") {
       Ok(views.html.teacherDashboard())
     } else {
       var info: List[(Long, String, Int)] = List()
@@ -58,7 +58,9 @@ class Application extends Controller with Secured {
   def showCourse(courseId: Long, userId: Long) = withUser { 
     user => implicit request =>
 
-    if (user.authority != "teacher") BadRequest("no authority")
+    if (user.authority != "teacher" && user.authority != "admin")
+      BadRequest("no authority")
+
     courseService.findOneById(courseId) match {
       case Some(course) => 
         Ok(views.html.teacherCourse(courseId, userId, course.title))
@@ -100,10 +102,7 @@ class Application extends Controller with Secured {
 
   def getCourse(courseId: Long) = Action {
     courseService.findOneById(courseId) match {
-      case Some(course) => Ok(Json.obj(
-        "status" -> "OK", 
-        "course" -> Json.toJson(course)
-      ))
+      case Some(course) => Ok(Json.toJson(course))
       case None => NotFound(Json.obj(
         "status" -> "KO", 
         "message" -> ("Course '" + courseId + "' not found")
@@ -155,7 +154,7 @@ class Application extends Controller with Secured {
     var list = courseService.findAll().map {
       course => Json.toJson(course)
     }.toSeq
-    Ok(Json.obj("status" -> "OK", "courses" -> Json.toJson(list)))
+    Ok(Json.toJson(list))
   }
 
   def createUser() = withBasicAuth(parse.json)(a) {
@@ -188,10 +187,7 @@ class Application extends Controller with Secured {
     implicit request =>
 
     userService.findOneById(userId) match {
-      case Some(course) => Ok(Json.obj(
-        "status" -> "OK", 
-        "course" -> Json.toJson(course)
-      ))
+      case Some(user) => Ok(Json.toJson(user))
       case None => NotFound(Json.obj(
         "status" -> "KO", 
         "message" -> ("User '" + userId + "' not found")
@@ -253,11 +249,14 @@ class Application extends Controller with Secured {
     var list = userService.findAll().map {
       course => Json.toJson(course)
     }
-    Ok(Json.obj("status" -> "OK", "courses" -> Json.toJson(list.toSeq)))
+    Ok(Json.toJson(list.toSeq))
   }
 
-  def getStudents() = withBasicAuth(parse.anyContent)(ta) {
-    implicit request =>
+  def getStudents() = //withBasicAuth(parse.anyContent)(ta) {
+    //implicit request =>
+    withUser(parse.anyContent) { 
+    user => implicit request =>
+
 
     val list = userService.findAll().filter(_.authority == "student").map { 
       user =>
@@ -277,11 +276,11 @@ class Application extends Controller with Secured {
         "chapterSolutions" -> Json.toJson(user.chapterSolutions)
       ))
     }
-    Ok(Json.obj("status" -> "OK", "students" -> Json.toJson(list.toSeq)))
+    Ok(Json.toJson(list.toSeq))
   }
 
 
-  def storeSolutionsJson(courseId: Long) = withUser(parse.json) { 
+  def storeSolution(courseId: Long) = withUser(parse.json) { 
     user => implicit request =>
 
     val chapterSolutionResult = request.body.validate[ChapterSolution]
@@ -325,7 +324,7 @@ class Application extends Controller with Secured {
     )
   }
 
-  def solutionsJson(courseId: Long) = withUser { user => implicit request =>
+  def getSolution(courseId: Long) = withUser { user => implicit request =>
     val solutions = user.chapterSolutions.filter(_.courseId == courseId)
     Ok(Json.toJson(solutions))
   }

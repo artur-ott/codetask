@@ -29,8 +29,8 @@ GET     /api/users/:userId              controllers.Application.getUser(userId: 
 PUT     /api/users/:userId              controllers.Application.updateUser(userId: Long)
 DELETE  /api/users/:userId              controllers.Application.deleteUser(userId: Long)
 
-POST    /api/solutions/:courseId        controllers.Application.storeSolutionsJson(courseId: Long)
-GET     /api/solutions/:courseId        controllers.Application.solutionsJson(courseId: Long)
+POST    /api/solutions/:courseId        controllers.Application.storeSolution(courseId: Long)
+GET     /api/solutions/:courseId        controllers.Application.getSolution(courseId: Long)
 POST    /api/interpreter/scala          controllers.Application.interpretScala
 
 # Map static resources from the /public folder to the /assets URL path
