@@ -13,7 +13,7 @@ class CourseService(env: {val courseRepository: CourseRepository}) {
     env.courseRepository.update(course)
   def delete(course: Course): Option[Course] =
     env.courseRepository.delete(course)
-  def getId(): Long = {
+  def newId(): Long = {
     val courses = findAll()
     var id = 100000
     do { id += 1 } while (courses.find(c => c.id == id) != None)

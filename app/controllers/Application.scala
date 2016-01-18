@@ -8,11 +8,14 @@ import play.api.libs.json._
 import play.api.libs.json.JsValue._
 import scala.collection.JavaConverters._
 import models._
-import Services._
+import models.Services._
 import models.Course._
 import models.User._
 
 class Application extends Controller with Secured {
+  val sta = List("student", "teacher", "admin")
+  val ta = List("teacher", "admin")
+  val a = List("admin")
 
   def index() = Action {
     Redirect(routes.Auth.login)
@@ -59,7 +62,7 @@ class Application extends Controller with Secured {
     courseService.findOneById(courseId) match {
       case Some(course) => 
         Ok(views.html.teacherCourse(courseId, userId, course.title))
-      case None => BadRequest("course does not exist")
+      case None => NotFound("course does not exist")
     }
   }
 
@@ -70,54 +73,10 @@ class Application extends Controller with Secured {
     Redirect(routes.Application.dashboard)
   }
 
-  def usersJson() = withUser { user => implicit request =>
-    if (user.authority != "teacher") BadRequest(Json.obj("status" -> "KO"))
+  def createCourse() = withBasicAuth(parse.json)(ta) { 
+    implicit request =>
 
-    val list = (userService.findAll().filter(_.authority == "student").map { 
-      user =>
-
-      JsObject(Map(
-        "id" -> JsNumber(user.id), 
-        "username" -> JsString(user.username),
-        "subscriptions" -> Json.toJson(user.subscriptions),
-        "progress" -> Json.toJson(user.subscriptions.map { s => 
-          val course = courseService.findOneById(s)
-          val chapterSolutions = user.chapterSolutions.filter(_.courseId == s)
-          val progress = course match {
-            case Some(c) => progressOf(c, chapterSolutions)
-            case None => 0
-          }
-          JsArray(Seq(JsNumber(s), JsNumber(progress)))
-        }),
-        "chapterSolutions" -> Json.toJson(user.chapterSolutions)
-      ))
-    }).toSeq
-    Ok(Json.toJson(list))
-  }
-
-  def coursesJson() = Action {
-    //val list = Services.courseService.findAll.map {
-    //    course => JsObject(Map(
-    //      "id" -> JsNumber(course.id), 
-    //      "title" -> JsString(course.title)
-    //    ))
-    //}.toSeq
-    var list = courseService.findAll().map {
-      course => Json.toJson(course)
-    }.toSeq
-    Ok(Json.toJson(list))
-  }
-
-  def courseJson(courseId: Long) = withUser { user => implicit request =>
-    Services.courseService.findOneById(courseId) match {
-      case Some(course) => Ok(Json.toJson(course))
-      case None => Ok(Json.obj("error" -> "course not found"))
-    }
-  }
-
-  def saveCourseJson() = withUser(parse.json) { user => implicit request =>
-    val courseResult = request.body.validate[Course]
-    courseResult.fold(
+    request.body.validate[Course].fold(
       errors => {
         BadRequest(Json.obj(
           "status" -> "KO", 
@@ -126,11 +85,11 @@ class Application extends Controller with Secured {
       },
       course => {
         courseService.create(course) match {
-          case Some(saved) =>  Ok(Json.obj(
+          case Some(saved) => Created(Json.obj(
             "status" -> "OK", 
-            "message" -> ("Course '" + saved.title + "' saved")
-          ))
-          case None =>  BadRequest(Json.obj(
+            "message" -> ("Course '" + saved.title + "' created")
+          )).withHeaders(LOCATION -> ("/api/courses/" + course.id))
+          case None =>  Conflict(Json.obj(
             "status" -> "KO", 
             "message" -> ("Course '" + course.title + "' already exists")
           ))
@@ -139,11 +98,23 @@ class Application extends Controller with Secured {
     )
   }
 
-  def updateCourseJson(courseId: Long) = withUser(parse.json) { 
-    user => implicit request =>
+  def getCourse(courseId: Long) = Action {
+    courseService.findOneById(courseId) match {
+      case Some(course) => Ok(Json.obj(
+        "status" -> "OK", 
+        "course" -> Json.toJson(course)
+      ))
+      case None => NotFound(Json.obj(
+        "status" -> "KO", 
+        "message" -> ("Course '" + courseId + "' not found")
+      ))
+    }
+  }
 
-    val courseResult = request.body.validate[Course]
-    courseResult.fold(
+  def updateCourse(courseId: Long) = withBasicAuth(parse.json)(ta) { 
+    implicit request =>
+
+    request.body.validate[Course].fold(
       errors => {
         BadRequest(Json.obj(
           "status" -> "KO",
@@ -151,14 +122,13 @@ class Application extends Controller with Secured {
         ))
       },
       course => {
-        // set id in case user send different
         val c = new Course(courseId, course.title, course.chapters)
         courseService.update(c) match {
           case Some(saved) =>  Ok(Json.obj(
             "status" -> "OK", 
             "message" -> ("Course '" + saved.title + "' saved")
           ))
-          case None =>  BadRequest(Json.obj(
+          case None =>  NotFound(Json.obj(
             "status" -> "KO", 
             "message" -> ("Course id: '" + courseId + "' does not exists")
           ))
@@ -166,6 +136,150 @@ class Application extends Controller with Secured {
       }
     )
   }
+
+  def deleteCourse(courseId: Long) = withBasicAuth(parse.anyContent)(ta) { 
+    implicit request =>
+    
+    courseService.findOneById(courseId) match {
+      case Some(course) =>
+        courseService.delete(course)
+        Ok(Json.obj("status" -> "OK", "message" -> "course deleted"))
+      case None => NotFound(Json.obj(
+        "status" -> "KO", 
+        "message" -> ("Course id: '" + courseId + "' does not exists")
+      ))
+    }
+  }
+
+  def getCourses() = Action {
+    var list = courseService.findAll().map {
+      course => Json.toJson(course)
+    }.toSeq
+    Ok(Json.obj("status" -> "OK", "courses" -> Json.toJson(list)))
+  }
+
+  def createUser() = withBasicAuth(parse.json)(a) {
+    implicit request =>
+
+    request.body.validate[User].fold(
+      errors =>  {
+        BadRequest(Json.obj(
+          "status" -> "KO", 
+          "message" -> JsError.toJson(errors)
+        ))
+      },
+      user => {
+        user.password = userService.passwordHash(user.password)
+        userService.create(user) match {
+          case Some(saved) => Created(Json.obj(
+            "status" -> "OK", 
+            "message" -> ("User '" + saved.username + "' created")
+          )).withHeaders(LOCATION -> ("/api/users/" + user.id))
+          case None =>  Conflict(Json.obj(
+            "status" -> "KO", 
+            "message" -> ("User '" + user.username + "' already exists")
+          ))
+        }
+      }
+    )
+  }
+
+  def getUser(userId: Long) = withBasicAuth(parse.anyContent)(ta) { 
+    implicit request =>
+
+    userService.findOneById(userId) match {
+      case Some(course) => Ok(Json.obj(
+        "status" -> "OK", 
+        "course" -> Json.toJson(course)
+      ))
+      case None => NotFound(Json.obj(
+        "status" -> "KO", 
+        "message" -> ("User '" + userId + "' not found")
+      ))
+    }
+  }
+
+  def updateUser(userId: Long) = withBasicAuth(parse.json)(ta) { 
+    implicit request =>
+
+    request.body.validate[User].fold(
+      errors => {
+        BadRequest(Json.obj(
+          "status" -> "KO",
+          "message" -> JsError.toJson(errors)
+        ))
+      },
+      user => {
+        val u = new User(
+          userId, 
+          user.username,
+          user.authority, 
+          userService.passwordHash(user.password),
+          user.chapterSolutions,
+          user.subscriptions
+        )
+
+        userService.update(u) match {
+          case Some(saved) =>  Ok(Json.obj(
+            "status" -> "OK", 
+            "message" -> ("User '" + saved.username + "' saved")
+          ))
+          case None =>  NotFound(Json.obj(
+            "status" -> "KO", 
+            "message" -> ("User id: '" + userId + "' does not exists")
+          ))
+        }
+      }
+    )
+  }
+
+  def deleteUser(userId: Long) = withBasicAuth(parse.anyContent)(a) { 
+    implicit request =>
+    
+    userService.findOneById(userId) match {
+      case Some(user) =>
+        userService.delete(user)
+        Ok(Json.obj("status" -> "OK", "message" -> "user deleted"))
+      case None => NotFound(Json.obj(
+        "status" -> "KO", 
+        "message" -> ("User id: '" + userId + "' does not exists")
+      ))
+    }
+  }
+
+  def getUsers() =  withBasicAuth(parse.anyContent)(a) { 
+    implicit request =>
+
+    var list = userService.findAll().map {
+      course => Json.toJson(course)
+    }
+    Ok(Json.obj("status" -> "OK", "courses" -> Json.toJson(list.toSeq)))
+  }
+
+  def getStudents() = withBasicAuth(parse.anyContent)(ta) {
+    implicit request =>
+
+    val list = userService.findAll().filter(_.authority == "student").map { 
+      user =>
+
+      JsObject(Map(
+        "id" -> JsNumber(user.id), 
+        "username" -> JsString(user.username),
+        "subscriptions" -> Json.toJson(user.subscriptions),
+        "progress" -> Json.toJson(user.subscriptions.map { s => 
+          val chapterSolutions = user.chapterSolutions.filter(_.courseId == s)
+          val progress = courseService.findOneById(s) match {
+            case Some(c) => progressOf(c, chapterSolutions)
+            case None => 0
+          }
+          JsArray(Seq(JsNumber(s), JsNumber(progress)))
+        }),
+        "chapterSolutions" -> Json.toJson(user.chapterSolutions)
+      ))
+    }
+    Ok(Json.obj("status" -> "OK", "students" -> Json.toJson(list.toSeq)))
+  }
+
 
   def storeSolutionsJson(courseId: Long) = withUser(parse.json) { 
     user => implicit request =>
@@ -216,17 +330,6 @@ class Application extends Controller with Secured {
     Ok(Json.toJson(solutions))
   }
   
-  def deleteCourse(courseId: Long) = withUser { user => implicit request =>
-    courseService.findOneById(courseId) match {
-      case Some(course) =>
-        courseService.delete(course)
-        Ok(Json.obj("status" -> "OK", "message" -> "course deleted"))
-      case None => Ok(Json.obj(
-        "status" -> "KO", 
-        "message" -> "could not delete course"
-      ))
-    }
-  }
 
   case class InterpreterRequest(courseId: Long, chapterId: Long, taskId: String, 
     code: String)

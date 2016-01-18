@@ -4,6 +4,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import models.tasks.Tasks._
 import models.tasks._
+import models.Services.userService
 
 // courses: Map[coursename, Map[chaptername, Map[taskname, solution]]]
 case class User(
@@ -20,6 +21,25 @@ case class ChapterSolution(courseId: Long, chapterId: Long, taskSolutions: List[
 case class TaskSolution(taskId: String, taskState: TaskState, var checked: Option[Boolean] = Some(false))
 
 object User {
+  implicit val userReads: Reads[User] = (
+    (__ \ "id").read[Long] orElse Reads.pure(userService.newId()) and
+    (__ \ "username").read[String] and
+    (__ \ "authority").read[String] and
+    (__ \ "password").read[String] and
+    (__ \ "chapterSolutions").read[List[ChapterSolution]] and
+    (__ \ "subscriptions").read[Set[Long]]
+  )(User.apply _)
+
+  implicit val userWrites: Writes[User] = new Writes[User] {
+    def writes(user: User): JsValue = {
+      Json.obj("id"               -> user.id,
+               "username"         -> user.username,
+               "authority"        -> user.authority,
+               "chapterSolutions" -> user.chapterSolutions,
+               "subscriptions"    -> user.subscriptions)
+    }
+  }
+
   implicit val taskSolutionReads: Reads[TaskSolution] = (
     (__ \ "taskId").read[String] and
     (__ \ "taskState").read[TaskState] and
@@ -44,20 +64,25 @@ object User {
     (__ \ "taskSolutions").write[List[TaskSolution]]
   )(unlift(ChapterSolution.unapply))
 
+  // chapterSolutions
   def progressOf(course: Course, chapterSolutions: List[ChapterSolution]): Int = {
-    var checks = 0.0
-    var sum = 0.0
-    val sizes = course.chapters.foreach { chapter => sum += chapter.tasks.size }
+    if (chapterSolutions.size < 1) {
+      0
+    } else {
+      var checks = 0.0
+      var sum = 0.0
+      val sizes = course.chapters.foreach { chapter => sum += chapter.tasks.size }
 
-    chapterSolutions.foreach { chapterSolution => 
-      chapterSolution.taskSolutions.foreach { taskSolution => 
-        taskSolution.checked match {
-          case Some(true) => checks += 1
-          case _ =>
+      chapterSolutions.foreach { chapterSolution => 
+        chapterSolution.taskSolutions.foreach { taskSolution => 
+          taskSolution.checked match {
+            case Some(true) => checks += 1
+            case _ =>
+          }
         }
       }
-    }
 
-    if (sum > 0) ((checks / sum) * 100).toInt else 0
+      if (sum > 0) ((checks / sum) * 100).toInt else 0
+    }
   }
 }

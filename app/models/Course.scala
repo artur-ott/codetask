@@ -25,13 +25,12 @@ object Course {
   )(Chapter.apply _)
 
   implicit val courseReads: Reads[Course] = (
-    (__ \ "id").read[Long] orElse Reads.pure(courseService.getId()) and
+    (__ \ "id").read[Long] orElse Reads.pure(courseService.newId()) and
     (__ \ "title").read[String] and
     (__ \ "chapters").read[List[Chapter]]
   )(Course.apply _)
 
   implicit val taskWrites: Writes[Task] = (
-    //(__ \ "ext").format(new OWrites[String] { def writes(ext: String): JsObject = new JsString("").as[JsObject] }) and
     (__ \ "id").write[String] and
     (__ \ "tag").write[String] and
     (__ \ "data").write[TaskData] and

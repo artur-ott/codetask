@@ -5,6 +5,7 @@ import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
 import models._
+import models.Services.userService
 
 class Auth extends Controller {
 
@@ -29,16 +30,14 @@ class Auth extends Controller {
   )
 
   def exists(username: String): Boolean = {
-    Services.userService.findOneByUsername(username) != None
+    userService.findOneByUsername(username) != None
   }
 
   def check(username: String, password: String): Boolean = {
-    val result = Services.userService.findOneByUsername(username)
-    var valid = false
-    if (result != None) {
-      valid = result.get.password == password
+    userService.findOneByUsername(username) match {
+      case Some(user) => userService.checkPassword(password, user.password)
+      case None => false
     }
-    valid
   }
 
   def login = Action { implicit request =>
@@ -54,9 +53,9 @@ class Auth extends Controller {
         formWithErrors => BadRequest(views.html.register(formWithErrors)),
         user => {
           if (!exists(user._1)) {
-            val id = Services.userService.newId()
+            val id = userService.newId()
             val u = new User(id, user._1, "student", user._2)
-            Services.userService.create(u) 
+            userService.create(u) 
             Redirect(routes.Application.dashboard).withSession(Security.username -> user._1)
           } else {
             Redirect(routes.Auth.register).flashing(

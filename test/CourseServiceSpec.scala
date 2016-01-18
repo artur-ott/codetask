@@ -8,7 +8,7 @@ import models.tasks._
 
 class CourseServiceSpec extends Specification {
   val courseService = new CourseService(Config);
-  val id = courseService.getId()
+  val id = courseService.newId()
   val course1 = new Course(id, "scala", List(
     new Chapter(1, "First Chapter", List(
       new Task("koan1", "koan-task", null, Some("false"))

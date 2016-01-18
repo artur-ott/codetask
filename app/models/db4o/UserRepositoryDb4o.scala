@@ -6,13 +6,6 @@ import Util.objCont2QueryHelper
 import Util.objectServer
 
 class UserRepositoryDb4o extends UserRepository {
-  def newId(): Long = {
-    val users = findAll()
-    var id = 200000
-    do { id += 1 } while (users.find(u => u.id == id) != None)
-    id
-  }
-
   def create(user: User): Option[User] = {
     val client = objectServer.openClient();
     client query {u: User => 
