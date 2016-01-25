@@ -24,6 +24,7 @@ object KoanTask extends TaskType {
   val koanDataReads: Reads[KoanData] = (
     (__ \ "description").read[String] and
     (__ \ "code").read[String] and
+    (__ \ "mode").read[String] and
     (__ \ "solutions").read[List[String]]
   )(KoanData.apply _)
 }
@@ -35,9 +36,10 @@ case class KoanState(mySolutions: List[String] = List()) extends TaskState {
   }
 }
 
-case class KoanData(description: String, code: String, solutions: List[String]) extends TaskData {
+case class KoanData(description: String, code: String, mode: String, solutions: List[String]) extends TaskData {
   def toJson = JsObject(Map(
     "description" -> JsString(description),
     "code" -> JsString(code),
+    "mode" -> JsString(mode),
     "solutions" -> Json.toJson(solutions)))
 }

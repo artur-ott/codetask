@@ -16,12 +16,14 @@ GET     /unsubscribe/:courseId          controllers.Application.unsubscribe(cour
 GET     /course/:courseId/:userId       controllers.Application.showCourse(courseId: Long, userId: Long)
 
 # API
+GET     /api/courses/table              controllers.Application.getCourseTable
 GET     /api/courses/all                controllers.Application.getCourses
 POST    /api/courses                    controllers.Application.createCourse
 GET     /api/courses/:courseId          controllers.Application.getCourse(courseId: Long)
 PUT     /api/courses/:courseId          controllers.Application.updateCourse(courseId: Long)
 DELETE  /api/courses/:courseId          controllers.Application.deleteCourse(courseId: Long)
 
+GET     /api/users/table                controllers.Application.getUserTable
 GET     /api/users/all                  controllers.Application.getUsers
 GET     /api/users/students             controllers.Application.getStudents
 POST    /api/users                      controllers.Application.createUser
@@ -32,6 +34,7 @@ DELETE  /api/users/:userId              controllers.Application.deleteUser(userI
 POST    /api/solutions/:courseId        controllers.Application.storeSolution(courseId: Long)
 GET     /api/solutions/:courseId        controllers.Application.getSolution(courseId: Long)
 POST    /api/interpreter/scala          controllers.Application.interpretScala
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

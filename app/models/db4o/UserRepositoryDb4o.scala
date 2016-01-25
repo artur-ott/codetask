@@ -1,4 +1,4 @@
-package db4o
+package models.db4o
 
 import com.db4o.Db4o
 import models._

@@ -56,7 +56,6 @@
         this.solutions = [];
         this.mode = 'scala';
         this.theme = 'solarized_dark';
-        this.postUrl = '';
         this.mySolutions = [];
       },
 
@@ -69,8 +68,6 @@
       set mode(value) { this.data.mode = value; },
       get theme() { return this.data.theme; },
       set theme(value) { this.data.theme = value; },
-      get postUrl() { return this.data.postUrl; },
-      set postUrl(value) { this.data.postUrl = value; },
 
       // state
       get mySolutions() { return this.state.mySolutions; },
@@ -180,24 +177,6 @@
           childList: true,
           subtree: true,
           characterData: true
-        });
-      },
-      post: function() {
-        var this_ = this;
-
-        $.ajax({
-          type: 'POST',
-          url: this.postUrl,
-          data: JSON.stringify({ state: this.state }),
-          contentType: 'application/json; charset=utf-8',
-          dataType: 'json',
-          success: function(data, status, xhr) {
-            console.log(this_.id + ' saved');
-          },
-          error: function(xhr, status) {
-            console.log('could not save data of ' + 
-              this_.id + ' status: ' + status);
-          }
         });
       }
     });

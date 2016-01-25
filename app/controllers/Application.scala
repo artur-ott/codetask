@@ -78,6 +78,7 @@ class Application extends Controller with Secured {
   def createCourse() = withBasicAuth(parse.json)(ta) { 
     implicit request =>
 
+    println(request.body.toString())
     request.body.validate[Course].fold(
       errors => {
         BadRequest(Json.obj(
@@ -277,6 +278,29 @@ class Application extends Controller with Secured {
       ))
     }
     Ok(Json.toJson(list.toSeq))
+  }
+
+  // shell client
+  def getUserTable() =  withBasicAuth(parse.anyContent)(a) { 
+    implicit request =>
+
+    val users = userService.findAll()
+    val list = users.map{ u => 
+      val fs = "%s%" + (30 - u.username.length) + "s"
+      fs format (u.username, u.id) 
+    }.mkString("\n") 
+    Ok(list)
+  }
+
+  def getCourseTable() =  withBasicAuth(parse.anyContent)(ta) { 
+    implicit request =>
+
+    val courses = courseService.findAll()
+    val list = courses.map{ c => 
+      val fs = "%s%" + (30 - c.title.length) + "s"
+      fs format (c.title, c.id)
+    }.mkString("\n")
+    Ok(list)
   }
 
 

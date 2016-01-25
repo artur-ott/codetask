@@ -4,7 +4,7 @@
 
 <script src="https://www.youtube.com/iframe_api"></script>
 
-<dom-module id="video-task.html">
+<dom-module id="video-task">
   <script>
     Polymer({
       is: 'video-task',
@@ -19,8 +19,6 @@
       // data
       get url() { return this.data.url; },
       set url(value) { this.data.url = value; },
-      get postUrl() { return this.data.postUrl; },
-      set postUrl(value) { this.data.postUrl = value; },
 
       // state
       get status() { return this.state.status; },
@@ -33,11 +31,19 @@
 
         // add youtube player div
         var id = this.id + '-player';
-        $('<div></div>').attr('id', id).appendTo(this);
+        var div = $('<div></div>');
+        div.attr('id', id).appendTo(this);
 
         // get video code
         var url = this.url.split('?v=');
         var this_ = this;
+        
+        // could not load Youtube player
+        if (!YT) {
+          div.text("could not load youtube player");
+          return;
+        }
+
         player = new YT.Player(id, {
           height: '300px',
           width: '100%',
@@ -52,24 +58,6 @@
                 this_.status = 'watched';
               }
             }
-          }
-        });
-      },
-      post: function() {
-        var this_ = this;
-
-        $.ajax({
-          type: 'POST',
-          url: this.postUrl,
-          data: JSON.stringify({ state: this.state }),
-          contentType: 'application/json; charset=utf-8',
-          dataType: 'json',
-          success: function(data, status, xhr) {
-            console.log(this_.id + ' saved');
-          },
-          error: function(xhr, status) {
-            console.log('could not save data of ' +
-              this_.id + ' status: ' + status);
           }
         });
       }

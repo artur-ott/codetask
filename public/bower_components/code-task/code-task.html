@@ -120,6 +120,33 @@
         // setup button
         var this_ = this;
         button.click(function() { this_.run(); });
+      },
+      run: function() {
+        var this_ = this;
+
+        $.ajax({
+          type: 'POST',
+          url: '/interpreter/' + this_.mode,
+          data: JSON.stringify({
+            courseId: 100001,
+            chapterId: 1,
+            taskId: this_.id,
+            code: this.aceEditor.getValue() 
+          }),
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          success: function(data, status, xhr) {
+            if (status == 'success')
+              this_.output.text(data.output);
+            else
+              this_.output.text(data.error);
+          },
+          error: function(xhr, status) {
+            console.log('could not interpret code of ' +
+              this_.id + ' status: ' + status);
+            this_.output.text('error while sending data');
+          }
+        });
       }
     });
   </script>
