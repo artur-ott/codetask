@@ -134,7 +134,7 @@
         });
 
         // remember current Solutions
-        var currentInput = this.mySolutions.toString();
+        var currentInput = this.mySolutions.join("");
 
         var checkUserInput = function() {
           $(parent).find('.koan-solution').each(function(index) {
@@ -143,8 +143,8 @@
 
             if (text == this_.solutions[index]) {
               $(this).addClass('koan-solved');
-              if (this_.solutions.toString() == 
-                this_.mySolutions.toString()) {
+              if (this_.solutions.join("") == 
+                this_.mySolutions.join("")) {
                 this_.checked = true;
                 this_.addCheckFlag();
               }
@@ -155,9 +155,9 @@
             }
 
             // check if dirty
-            if (currentInput != this_.mySolutions.toString()) {
+            if (currentInput != this_.mySolutions.join("")) {
               this_.dirty = true;
-              currentInput = this_.mySolutions.toString();
+              currentInput = this_.mySolutions.join("");
             }
          });
        }

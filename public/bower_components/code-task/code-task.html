@@ -53,8 +53,6 @@
         this.code = '';
         this.mode = 'scala';
         this.theme = 'solarized_dark';
-        this.interpreterUrl = '';
-        this.postUrl = '';
         this.myCode = undefined;
       },
 
@@ -67,8 +65,6 @@
       set theme(value) { this.data.theme = value; },
       get interpreterUrl() { return this.data.interpreterUrl; },
       set interpreterUrl(value) { this.data.interpreterUrl = value; },
-      get postUrl() { return this.data.postUrl; },
-      set postUrl(value) { this.data.postUrl = value; },
 
       // state
       get myCode() { return this.state.myCode; },
