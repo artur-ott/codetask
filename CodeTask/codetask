@@ -11,10 +11,13 @@ import scala.collection.mutable.ListBuffer
 import scala.io.Source._
 import java.util.Base64
 import java.nio.charset.StandardCharsets
+import javax.net.ssl.HttpsURLConnection
 import java.net._
 import java.io._
 
 val serverUrl = "http://localhost:9000"
+//val serverUrl = "http://141.37.31.18:9000"
+//val serverUrl = "https://141.37.31.18:9001"
 
 // helper class json hierarchy
 case class Node(key: String, value: Option[String] = None, values: Option[List[Node]] = None) {
@@ -35,9 +38,11 @@ case class HttpR(urlTarget: String) {
   val url = new URL(urlTarget)
   var content: String = null
   var connection: HttpURLConnection = null
+  //var connection: HttpsURLConnection = null
   try {
     connection = url.openConnection() match {
       case ip: HttpURLConnection => ip
+      //case ip: HttpsURLConnection => ip
       case _ => throw new ClassCastException
     }
   } catch {
@@ -250,7 +255,7 @@ class Parser(s: String) {
       var i = 0
       var begin = false
       do {
-        if (begin || (empty findFirstMatchIn lines(i) isEmpty)) {
+        if (begin || ((empty findFirstMatchIn lines(i)).isEmpty)) {
           filtered += lines(i)
           begin = true
         }
@@ -262,7 +267,7 @@ class Parser(s: String) {
       i = newLines.length - 1
       begin = false
       do {
-        if (begin || (empty findFirstMatchIn newLines(i) isEmpty)) {
+        if (begin || ((empty findFirstMatchIn newLines(i)).isEmpty)) {
           filtered += newLines(i)
           begin = true
         }
@@ -323,7 +328,7 @@ class Parser(s: String) {
       clean findFirstMatchIn code foreach { m2 => code = m2.group(1).toString }
       
       // remove everything between //solve and //endsolve
-      val solve = """[\s\S]*(\/\/solve\s*[\s\S]*\/\/endsolve)""".r
+      val solve = """[\s]*(\/\/solve\s*[\s\S]*?\/\/endsolve)""".r
       val solveMatches = solve findAllMatchIn code
       if (solveMatches.isEmpty) throw MatchException("//solve / //endsolve did not match\n perhaps you are missing one of the two")
       solveMatches.foreach { m2 => code = code.replace(m2.group(1).toString, "//todo") }
@@ -342,7 +347,7 @@ class Parser(s: String) {
       clean findFirstMatchIn code foreach { m2 => code = m2.group(1).toString }
       clean findFirstMatchIn testCode foreach { m2 => testCode = m2.group(1).toString }
 
-      println(code)
+      //println(code)
       //indentation one level down
       if (code.contains("\t") && testCode.contains("\t")) {
         code = code.replace("\n\t\t", "\n")
@@ -439,17 +444,17 @@ def parseCourse(dir: String, title: String): String = {
 def help() = {
   println("""
 help                                                            | show help
-                                                                |
 create course "Course Title" /path/to/scala/tests               | create course
 update course 100001 "Course Title" /path/to/scala/tests        | update course
 delete course 100001                                            | delete course
 create course /path/to/file.json                                | create course from json file
 update course 100001 /path/to/file.json                         | update course from json file
 parse "Course Title" /path/to/scala/tests ./to/file.json        | create json file of course
-                                                                |
 create user                                                     | create user
 update user 200001                                              | update user
 delete user 200001                                              | delete user
+show users                                                      | show users
+show courses                                                    | show courses
   """)
 }
 

@@ -103,7 +103,9 @@
         this.aceEditor.setTheme('ace/theme/' + this.theme);
         this.aceEditor.session.setMode('ace/mode/' + this.mode);
         this.aceEditor.setOptions({fontSize: '11pt'});
-        this.aceEditor.setValue(this.myCode || this.code);
+
+        this.myCode = this.myCode || this.code;
+        this.aceEditor.setValue(this.myCode);
 
         // keep myCode updated
         this.aceEditor.on('change', function() {
