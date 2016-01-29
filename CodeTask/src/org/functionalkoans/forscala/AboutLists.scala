@@ -1,4 +1,4 @@
-package tasks
+package org.functionalkoans.forscala
 
 import codetask.CodeTaskSuite
 import org.scalatest.Matchers
@@ -44,6 +44,25 @@ class AboutLists extends CodeTaskSuite {
   
     //test
     rvrs(List(1, 2, 3)) should be(List(3, 2, 1))
+    //endtest
+  }
+
+  codetask("schreiben sie eine Funktion round, die erkennt ob eine Zahl rund ist, und schreiben sie eine Funktion notrount.") {
+    def round(n: Int): Boolean = {
+      //solve
+      return n % 2 == 0
+      //endsolve
+    }
+    def notround(n: Int): Boolean = {
+      //solve
+      return n % 2 != 0
+      //endsolve
+    }
+    //test
+    round(2) shouldBe true
+    round(3) shouldBe false
+    notround(2) shouldBe false
+    notround(3) shouldBe true
     //endtest
   }  
 }
