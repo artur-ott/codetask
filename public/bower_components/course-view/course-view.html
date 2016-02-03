@@ -23,7 +23,13 @@
     </iron-ajax>
 
     <div class="row">
-      <div id="navigation" class="col-md-3 center"><div id="nav-content" class="col-md-3 center"></div></div>
+      <div id="navigation" class="col-md-3 center">
+        <div id="btn-container" class="col-md-3 center">
+          <button id="save-btn" class="btn btn-success">Speichern</button>
+        </div>
+        <div id="nav-content" class="col-md-3 center">
+        </div>
+      </div>
       <div id="main" class="col-md-8"></div>
     </div>
   </template>
@@ -42,9 +48,19 @@
       position: fixed;
       margin-left: 10px;
       margin-right: 20px;
-      overflow: scroll;
       bottom: 0;
+      overflow: auto;
+      top: 150px;
+    }
+    #btn-container {
+      position: fixed;
+      margin-left: 10px;
+      margin-right: 20px;
+      position: fixed;
       top: 100px;
+    }
+    #save-btn {
+      width: 100%;
     }
   </style>
 
@@ -179,17 +195,13 @@
           li.append(badge).appendTo('#nav-content');
         });
 
-        $('<br><button>Speichern</button>')
-          .addClass('btn')
-          .addClass('btn-default')
-          .click(function() {
-            this_.saveUserInput(course.id, this_.chapter_.id, this_.elements_, 
-              {async: true}, function() {
-                this_.savedState_ = $('#main').html();
-                this_.resetDirty();
-              });
-          })
-          .prependTo('#nav-content');
+        $('#save-btn').click(function() {
+          this_.saveUserInput(course.id, this_.chapter_.id, this_.elements_, 
+            {async: true}, function() {
+              this_.savedState_ = $('#main').html();
+              this_.resetDirty();
+            });
+        });
 
         // load first or url selected chapter
         var solution = solutions.find(function(solution) {
