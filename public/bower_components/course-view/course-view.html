@@ -42,6 +42,9 @@
       position: fixed;
       margin-left: 10px;
       margin-right: 20px;
+      overflow: scroll;
+      bottom: 0;
+      top: 100px;
     }
   </style>
 
@@ -186,7 +189,7 @@
                 this_.resetDirty();
               });
           })
-          .appendTo('#nav-content');
+          .prependTo('#nav-content');
 
         // load first or url selected chapter
         var solution = solutions.find(function(solution) {
