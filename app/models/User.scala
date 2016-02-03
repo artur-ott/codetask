@@ -16,7 +16,7 @@ case class User(
   var subscriptions: Set[Long] = Set()
 )
 
-case class ChapterSolution(courseId: Long, chapterId: Long, taskSolutions: List[TaskSolution])
+case class ChapterSolution(courseId: Long, chapterId: Long, taskSolutions: List[TaskSolution] = List())
 //case class TaskSolution(taskId: String, state: String) // checked: Boolean = false)
 case class TaskSolution(taskId: String, taskState: TaskState, var checked: Option[Boolean] = Some(false))
 
