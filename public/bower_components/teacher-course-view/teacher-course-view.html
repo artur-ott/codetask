@@ -22,8 +22,11 @@
       on-response="solutionsLoaded">
     </iron-ajax>
 
-    <div class="row">
-      <div id="navigation" class="col-md-3 center"><div id="nav-content" class="col-md-3 center"></div></div>
+    <div>
+      <div id="navigation" class="col-md-3 center">
+        <div id="nav-content" class="col-md-3 center">
+        </div>
+      </div>
       <div id="main" class="col-md-8"></div>
     </div>
   </template>
@@ -40,8 +43,9 @@
     }
     #nav-content {
       position: fixed;
-      margin-left: 10px;
-      margin-right: 20px;
+      bottom: 0;
+      overflow: auto;
+      top: 150px;
     }
     side-note {
       position: absolute;
