@@ -36,7 +36,7 @@ object Course {
     (__ \ "data").write[TaskData] and
     (new OWrites[Option[String]] {
       def writes(solution: Option[String]): JsObject = {
-        new Json.obj()
+        Json.obj()
       }
     })
   )(unlift(Task.unapply))
