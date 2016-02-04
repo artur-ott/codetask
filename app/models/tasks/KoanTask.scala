@@ -30,16 +30,24 @@ object KoanTask extends TaskType {
 }
 
 case class KoanState(mySolutions: List[String] = List()) extends TaskState {
-  def toJson = JsObject(Map("mySolutions" -> Json.toJson(mySolutions)))
+  def toJson = {
+    var result = JsObject(Map("mySolutions" -> JsArray(Seq(JsString("")))))
+    try {
+      result = JsObject(Map("mySolutions" -> Json.toJson(mySolutions)))
+    } catch {
+      case e: java.lang.NullPointerException => play.Logger.info("could not parse solutions to Json in KoanTask.scala")
+    }
+
+    result
+  }
   def isSolved(solution: String): Boolean = {
     mySolutions.mkString(",") == solution
   }
 }
 
 case class KoanData(description: String, code: String, mode: String, solutions: List[String]) extends TaskData {
-  def toJson = JsObject(Map(
-    "description" -> JsString(description),
-    "code" -> JsString(code),
-    "mode" -> JsString(mode),
-    "solutions" -> Json.toJson(solutions)))
+  def toJson = Json.obj("description" -> description,
+                        "code"        -> code,
+                        "mode"        -> mode,
+                        "solutions"   -> solutions)
 }

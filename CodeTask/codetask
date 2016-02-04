@@ -4,16 +4,11 @@ exec scala "$0" "$@"
 
 //import scalaj.http._
 import scala.util.matching.Regex
-import scala.util.matching.Regex._
+import scala.util.matching.Regex.Match
 import scala.util.control.Exception
 import scala.collection.immutable.TreeMap
 import scala.collection.mutable.ListBuffer
-import scala.io.Source._
-import java.util.Base64
-import java.nio.charset.StandardCharsets
-import javax.net.ssl.HttpsURLConnection
-import java.net._
-import java.io._
+import scala.io.Source.fromFile
 
 val serverUrl = "http://localhost:9000"
 //val serverUrl = "http://141.37.31.18:9000"
@@ -35,14 +30,14 @@ case class MatchException(smth:String)  extends Exception(smth)
 
 // helper class
 case class HttpR(urlTarget: String) {
-  val url = new URL(urlTarget)
+  val url = new java.net.URL(urlTarget)
   var content: String = null
-  var connection: HttpURLConnection = null
-  //var connection: HttpsURLConnection = null
+  var connection: java.net.HttpURLConnection = null
+  //var connection: javax.net.ssl.HttpsURLConnection = null
   try {
     connection = url.openConnection() match {
-      case ip: HttpURLConnection => ip
-      //case ip: HttpsURLConnection => ip
+      case ip: java.net.HttpURLConnection => ip
+      //case ip: javax.net.ssl.HttpsURLConnection => ip
       case _ => throw new ClassCastException
     }
   } catch {
@@ -73,15 +68,15 @@ case class HttpR(urlTarget: String) {
           //val os = connection.getOutputStream()
           //os.writeBytes(content)
           //os.flush()
-          val osw = new OutputStreamWriter(connection.getOutputStream())
-          val out = new BufferedWriter(osw)
+          val osw = new java.io.OutputStreamWriter(connection.getOutputStream())
+          val out = new java.io.BufferedWriter(osw)
           out.write(c)
           out.close()
         }
       }
 
       val ips = connection.getInputStream()
-      val br = new BufferedReader(new InputStreamReader(ips))
+      val br = new java.io.BufferedReader(new java.io.InputStreamReader(ips))
       val response = new StringBuilder()
       var result = new String()
       var line = new String()
@@ -117,15 +112,18 @@ class Parser(s: String) {
   var codetaskCount = 0
   var taskMap = TreeMap[Int, List[Node]]()
 
-  def escapeHTML = (s: String) => s.replace("\n", "\\n").replace("\"", "\\\"").replace("\t", "\\t")
+  def escapeHTML = (s: String) => s
+    .replace("\\", "\\\\")
+    .replace("\n", "\\n")
+    .replace("\"", "\\\"")
+    .replace("\t", "\\t")
   def inString = (s: String) => "\"" + s + "\""
   
   val video = """video\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.+)\")(\s*,?\s*)(\"\"\"(.+)\"\"\"|\"(.+)\")\s*\)""".r
   val koan = """koan\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.+)\")(\s*\)\s*\{)""".r
   val codetask = """codetask\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.*)\")(\s*\)\s*\{)""".r
-  //val assert = """((should\sequal\s*)|(should\s*===\s*)|(should\s*be\s*)|(shouldEqual\s*)|(shouldBe\s*))((\((.*)\))|((.*)))""".r
-  //val assert = """((should\sequal\s*)|(should\s*===\s*)|(should\s*be\s*)|(shouldEqual\s*)|(shouldBe\s*))((\((.*)\))|((.*)))""".r
-  // regex, solution, replacement
+
+  // regex, solution group nummer, replacement function
   val assertList = List[(Regex, Int, Match => String)](
     ("(should\\s+((equal)|(==)|(===)|(be)|(eq))\\s*)(\\((.*)\\))".r, 9, {m => m.group(1).toString + "(__)"}),
     ("(should\\s+((equal)|(==)|(===)|(be)|(eq))\\s+)(.*)".r,         8, {m => m.group(1).toString + "__"}),
@@ -406,7 +404,7 @@ class Parser(s: String) {
 }
 
 
-def encodeBase64(s: String) = Base64.getEncoder.encodeToString(s.getBytes(StandardCharsets.UTF_8))
+def encodeBase64(s: String) = java.util.Base64.getEncoder.encodeToString(s.getBytes(java.nio.charset.StandardCharsets.UTF_8))
 
 def parseCourse(dir: String, title: String): String = {
   var files = Array[java.io.File]()
@@ -441,7 +439,7 @@ def parseCourse(dir: String, title: String): String = {
   course
 }
 
-def help() = {
+lazy val help = () => {
   println("""
 help                                                            | show help
 create course "Course Title" /path/to/scala/tests               | create course
@@ -467,7 +465,7 @@ def getAuthorization(): (String, String) = {
   (username, password)
 }
 
-def createCourseFromDir(title: String, dir: String) = {
+lazy val createCourseFromDir = (title: String, dir: String) => {
   val course = parseCourse(dir, title)
 
   // ask for password and username
@@ -481,7 +479,7 @@ def createCourseFromDir(title: String, dir: String) = {
     .send()
 }
 
-def createCourseFromFile(filename: String) = {
+lazy val createCourseFromFile = (filename: String) => {
   try {
     val file = new java.io.File(filename)
     val course = fromFile(file).toString
@@ -500,7 +498,17 @@ def createCourseFromFile(filename: String) = {
   }
 }
 
-def updateCourseFromDir(id: String, title:String, dir: String) = {
+//lazy val createCourseFromFile = (filename: String, courseName: String) => {
+//  try {
+//    val file = new java.io.File(filename)
+//    val course = fromFile(file).toString
+//    
+//  } catch {
+//    case e: Exception => println("could not find file " + filename)
+//  }
+//}
+
+lazy val updateCourseFromDir = (id: String, title:String, dir: String) => {
   val course = parseCourse(dir, title)
 
   // ask for password and username
@@ -514,7 +522,7 @@ def updateCourseFromDir(id: String, title:String, dir: String) = {
     .send()
 }
 
-def updateCourseFromFile(id: String, filename: String) {
+lazy val updateCourseFromFile = (id: String, filename: String) => {
   try {
     val file = new java.io.File(filename)
     val course = fromFile(file).toString
@@ -533,7 +541,7 @@ def updateCourseFromFile(id: String, filename: String) {
   }
 }
 
-def deleteCourse(id: String) {
+lazy val deleteCourse = (id: String) => {
   val auth = getAuthorization()
 
   HttpR(serverUrl + "/api/courses/" + id)
@@ -542,7 +550,7 @@ def deleteCourse(id: String) {
     .send()
 }
 
-def createUser() {
+lazy val createUser = () => {
   val csl = System.console()
 
   print("created username: ")
@@ -554,34 +562,32 @@ def createUser() {
 
   if (!valid) {
     println("unknown authority level")
-    return
+  } else {
+    print("created password: ")
+    val password = new String(csl.readPassword())
+    print("repeat password: ")
+    val password2 = new String(csl.readPassword())
+
+    if (password != password2) {
+      println("passwords did not match")
+    } else {
+      println("authorization")
+      val auth = getAuthorization()
+
+      val user: String = "{\"username\": \"" + username + "\", \"authority\": \"" +
+        authority + "\", \"password\": \"" + password + "\", \"chapterSolutions\": [], \"subscriptions\": []}"
+
+      HttpR(serverUrl + "/api/users")
+        .data(user)
+        .method("POST")
+        .property("Authorization", "Basic " + encodeBase64(auth._1 + ":" + auth._2))
+        .property("content-type", "application/json")
+        .send()
+    }
   }
-
-  print("created password: ")
-  val password = new String(csl.readPassword())
-  print("repeat password: ")
-  val password2 = new String(csl.readPassword())
-
-  if (password != password2) {
-    println("passwords did not match")
-    return
-  }
-  
-  println("authorization")
-  val auth = getAuthorization()
-
-  val user: String = "{\"username\": \"" + username + "\", \"authority\": \"" +
-    authority + "\", \"password\": \"" + password + "\", \"chapterSolutions\": [], \"subscriptions\": []}"
-
-  HttpR(serverUrl + "/api/users")
-    .data(user)
-    .method("POST")
-    .property("Authorization", "Basic " + encodeBase64(auth._1 + ":" + auth._2))
-    .property("content-type", "application/json")
-    .send()
 }
 
-def updateUser(id: String) {
+lazy val updateUser = (id: String) => {
   val csl = System.console()
 
   print("created username: ")
@@ -593,34 +599,32 @@ def updateUser(id: String) {
 
   if (!valid) {
     println("unknown authority level")
-    return
+  } else {
+    print("created password: ")
+    val password = new String(csl.readPassword())
+    print("repeat password: ")
+    val password2 = new String(csl.readPassword())
+
+    if (password != password2) {
+      println("passwords did not match")
+    } else {
+      println("authorization")
+      val auth = getAuthorization()
+
+      val user: String = "{\"username\": \"" + username + "\", \"authority\": \"" +
+        authority + "\", \"password\": \"" + password + "\", \"chapterSolutions\": [], \"subscriptions\": []}"
+
+      HttpR(serverUrl + "/api/users/" + id)
+        .data(user)
+        .method("PUT")
+        .property("Authorization", "Basic " + encodeBase64(auth._1 + ":" + auth._2))
+        .property("content-type", "application/json")
+        .send()
+    }
   }
-
-  print("created password: ")
-  val password = new String(csl.readPassword())
-  print("repeat password: ")
-  val password2 = new String(csl.readPassword())
-
-  if (password != password2) {
-    println("passwords did not match")
-    return
-  }
-  
-  println("authorization")
-  val auth = getAuthorization()
-
-  val user: String = "{\"username\": \"" + username + "\", \"authority\": \"" +
-    authority + "\", \"password\": \"" + password + "\", \"chapterSolutions\": [], \"subscriptions\": []}"
-
-  HttpR(serverUrl + "/api/users/" + id)
-    .data(user)
-    .method("PUT")
-    .property("Authorization", "Basic " + encodeBase64(auth._1 + ":" + auth._2))
-    .property("content-type", "application/json")
-    .send()
 }
 
-def deleteUser(id: String) {
+lazy val deleteUser = (id: String) => {
   val auth = getAuthorization()
 
   HttpR(serverUrl + "/api/users/" + id)
@@ -629,7 +633,7 @@ def deleteUser(id: String) {
     .send()
 }
 
-def showUsers() {
+lazy val showUsers = () => {
   val auth = getAuthorization()
 
   val r = HttpR(serverUrl + "/api/users/table")
@@ -642,7 +646,7 @@ def showUsers() {
   println(r)
 }
 
-def showCourses() {
+lazy val showCourses = () => {
   val auth = getAuthorization()
 
   val r = HttpR(serverUrl + "/api/courses/table")
@@ -683,6 +687,13 @@ if (args.size > 0) {
         case "courses" => showCourses()
         case x => println("unknown command" + x)
       }
+      case "parse" => 
+        if (args.size > 3) {
+          val course = parseCourse(args(2), args(1))
+          val writer = new java.io.PrintWriter(new java.io.File(args(3)))
+          writer.write(course)
+          writer.close()
+        }
       case x => println("unknown command " + x)
     }
   } catch {

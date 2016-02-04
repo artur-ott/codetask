@@ -29,7 +29,7 @@ object CodeTask extends TaskType {
 }
 
 case class CodeState(myCode: String = "") extends TaskState {
-  def toJson = JsObject(Map("myCode" -> JsString(myCode)))
+  def toJson = Json.obj("myCode" -> myCode)
   def isSolved(solution: String): Boolean = {
     var solved = false
     try {
@@ -45,8 +45,7 @@ case class CodeState(myCode: String = "") extends TaskState {
 }
 
 case class CodeData(description: String, mode: String, code: String) extends TaskData {
-  def toJson = JsObject(Map(
-    "description" -> JsString(description),
-    "mode" -> JsString(mode),
-    "code" -> JsString(code)))
+  def toJson = Json.obj("description" -> description,
+                        "mode"        -> mode,
+                        "code"        -> code)
 }

@@ -1,5 +1,7 @@
 package models
 
+import scala.language.reflectiveCalls
+
 class CourseService(env: {val courseRepository: CourseRepository}) {
   def findOneByTitle(name: String): Option[Course] =
     env.courseRepository.findOneByTitle(name)

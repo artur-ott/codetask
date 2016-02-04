@@ -22,7 +22,6 @@ case class TaskSolution(taskId: String, taskState: TaskState, var checked: Optio
 
 object User {
 
-
   implicit val taskSolutionReads: Reads[TaskSolution] = (
     (__ \ "taskId").read[String] and
     (__ \ "taskState").read[TaskState] and
@@ -68,23 +67,32 @@ object User {
 
   // chapterSolutions
   def progressOf(course: Course, chapterSolutions: List[ChapterSolution]): Int = {
-    if (chapterSolutions.size < 1) {
-      0
-    } else {
-      var checks = 0.0
-      var sum = 0.0
-      val sizes = course.chapters.foreach { chapter => sum += chapter.tasks.size }
+    var result = 0
 
-      chapterSolutions.foreach { chapterSolution => 
-        chapterSolution.taskSolutions.foreach { taskSolution => 
-          taskSolution.checked match {
-            case Some(true) => checks += 1
-            case _ =>
-          }
+    try {
+      if (chapterSolutions.size > 0) {
+        var checks = 0.0
+        var sum = 0.0
+
+        val sizes = course.chapters.foreach { chapter => sum += chapter.tasks.size }
+
+        if (course == null) play.Logger.info("course null")
+        chapterSolutions.foreach { chapterSolution => 
+            chapterSolution.taskSolutions.foreach { taskSolution => 
+                taskSolution.checked match {
+                  case Some(true) => checks += 1
+                  case _ =>
+                }
+            }
         }
-      }
 
-      if (sum > 0) ((checks / sum) * 100).toInt else 0
+        if (sum > 0) result = ((checks / sum) * 100).toInt 
+      }
+    } catch {
+      case e: java.lang.NullPointerException => 
+        play.Logger.info("could not calculate progress for course " + course.id)
     }
+
+    result
   }
 }

@@ -27,12 +27,11 @@ object VideoTask extends TaskType {
 }
 
 case class VideoState(status: String = "not watched") extends TaskState {
-  def toJson = JsObject(Map("status" -> JsString(status)))
+  def toJson = Json.obj("status" -> status)
   def isSolved(solution: String): Boolean = status == solution
 }
 
 case class VideoData(description: String, url: String) extends TaskData {
-  def toJson = JsObject(Map(
-    "description" -> JsString(description),
-    "url" -> JsString(url)))
+  def toJson = Json.obj("description" -> description,
+                        "url"         -> url)
 }

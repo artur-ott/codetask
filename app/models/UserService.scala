@@ -1,6 +1,7 @@
 package models
 
 import org.mindrot.jbcrypt.BCrypt
+import scala.language.reflectiveCalls
 
 class UserService(env: {val userRepository: UserRepository}) { 
   def create(user: User): Option[User] = env.userRepository.create(user) 

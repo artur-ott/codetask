@@ -27,7 +27,7 @@ object Tasks {
 
 object TaskStateReads extends Reads[TaskState] {
   def reads(js: JsValue): JsResult[TaskState] = {
-    var taskState: Option[TaskState] = null
+    var taskState: Option[TaskState] = None
     var i = 0
     do {
       taskState = Tasks.types(i).validateState(js)
@@ -43,7 +43,7 @@ object TaskStateReads extends Reads[TaskState] {
 
 object TaskDataReads extends Reads[TaskData] {
   def reads(js: JsValue): JsResult[TaskData] = {
-    var taskData: Option[TaskData] = null
+    var taskData: Option[TaskData] = None
     var i = 0;
     do {
       taskData = Tasks.types(i).validateData(js)
@@ -58,9 +58,23 @@ object TaskDataReads extends Reads[TaskData] {
 }
 
 object TaskStateWrites extends Writes[TaskState] {
-  def writes(taskState: TaskState) = taskState.toJson
+  def writes(taskState: TaskState) = {
+    if (taskState == null) {
+      play.Logger.info("taskState null in TaskStateWrites")
+      Json.obj()
+    } else {
+      taskState.toJson
+    }
+  }
 }
 
 object TaskDataWrites extends Writes[TaskData] {
-  def writes(taskData: TaskData) = taskData.toJson
+  def writes(taskData: TaskData) = {
+    if (taskData == null) {
+      play.Logger.info("taskData null in TaskDataWrites")
+      Json.obj()
+    } else {
+      taskData.toJson
+    }
+  }
 }

@@ -57,6 +57,10 @@
       },
 
       // data
+      get courseId() { return this.data.courseId; },
+      set courseId(value) { this.data.courseId = value; },
+      get chapterId() { return this.data.chapterId; },
+      set chapterId(value) { this.data.chapterId = value; },
       get code() { return this.data.code; },
       set code(value) { this.data.code = value; },
       get mode() { return this.data.mode; },
@@ -109,6 +113,10 @@
 
         // keep myCode updated
         this.aceEditor.on('change', function() {
+          if (this_.checked) {
+            this_.checked = false;
+            this_.removeCheckFlag();
+          }
           this_.myCode = this_.aceEditor.getValue();
         });
 
@@ -121,25 +129,32 @@
       },
       run: function() {
         var this_ = this;
-
         $.ajax({
           type: 'POST',
-          url: '/interpreter/' + this_.mode,
+          url: '/api/interpreter/' + this_.mode,
           data: JSON.stringify({
-            courseId: 100001,
-            chapterId: 1,
+            courseId: this_.courseId,
+            chapterId: this_.chapterId,
             taskId: this_.id,
             code: this.aceEditor.getValue() 
           }),
           contentType: 'application/json; charset=utf-8',
           dataType: 'json',
           success: function(data, status, xhr) {
-            if (status == 'success')
-              this_.output.text(data.output);
-            else
+            if (status == 'success') {
+              if (data.success) {
+                this_.addCheckFlag();
+                this_.checked = true;
+                this_.output.text('SUCCESS');
+              } else {
+                this_.output.text(data.output);
+              }
+            } else {
               this_.output.text(data.error);
+            }
           },
           error: function(xhr, status) {
+            console.dir(arguments);
             console.log('could not interpret code of ' +
               this_.id + ' status: ' + status);
             this_.output.text('error while sending data');

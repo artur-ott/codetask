@@ -18,6 +18,10 @@
       position: relative;
       left: 0;
     }
+    .status {
+      overflow-x: auto;
+      white-space: nowrap;
+    }
     .box {
       margin-left: 2px;
       display: inline-block;
@@ -112,15 +116,20 @@
       </template>
     </template>
     <template is="dom-if" if="{{!isStudents(searchMode)}}">
+               <div class="container status">
       <template is="dom-repeat" items="{{courses}}" as="course" filter="{{courseFilter(searchString)}}">
         <div><b>{{course.title}}</b>, ID: <b>{{course.id}}</b></div>
         <template is="dom-repeat" items="{{users}}" as="user" filter="{{userSubFilter(course)}}">
-               <div class="container">
-                <div class="col-md-2">{{user.username}}</div>
+                <div class="col-md-1 left">
+                  <a href="/course/{{course.id}}/{{user.id}}">see solution: </a>
+                </div>
+                <div class="col-md-1 left">
+                  {{user.username}}
+                </div>
                 <div class="col-md-2 left">
                   ID: {{user.id}}
                 </div>
-                <div class="col-md-5">
+                <div class="ol-md-5">
                   <!--<div class="progress">
                     <div class="progress-bar" role="progressbar" aria-valuenow="{{progress(course.id, user)}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress(course.id, user)}}%;">
                       {{progress(course.id, user)}}%
@@ -143,12 +152,9 @@
                     </template>
                     <span>*</span>
                 </div>
-                <div class="col-md-3 left">
-                  <a href="/course/{{course.id}}/{{user.id}}">see solution</a>
-                </div>
-              </div>
         </template>
       </template>
+              </div>
     </template>
   </template>
 

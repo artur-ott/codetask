@@ -316,6 +316,8 @@ class Application extends Controller with Secured {
         ))
       },
       sol => {
+        var failed: Option[String] = None
+
         // proof if tasks are solved
         sol.taskSolutions.foreach { ts =>
           courseService.findOneById(sol.courseId) match {
@@ -327,23 +329,25 @@ class Application extends Controller with Secured {
                       task.solution match {
                         case Some(string) =>
                           ts.checked = Some(ts.taskState.isSolved(string))
-                        case None => println("error solution")
+                        case None => failed = Some("error solution")
                       }
-                    case None => println("error no task")
+                    case None => failed = Some("error no task")
                   }
-                case None => println("error no chapter")
+                case None => failed = Some("error no chapter")
               }
-            case None => println("error no course")
+            case None => failed = Some("error no course")
           }
         }
 
-        //println("chapterSolution now: " + user.chapterSolutions)
-        user.chapterSolutions = sol :: user.chapterSolutions.filter {
-          x => x.courseId != sol.courseId || x.chapterId != sol.chapterId
+        if (failed == None) {
+          user.chapterSolutions = sol :: user.chapterSolutions.filter {
+            x => x.courseId != sol.courseId || x.chapterId != sol.chapterId
+          }
+          userService.update(user)
+          Ok(Json.obj("status" -> "OK", "message" -> "User updated"))
+        } else {
+          BadRequest(Json.obj("status" -> "KO", "message" -> failed.get))
         }
-        //println("\nchapterSolution new: " + user.chapterSolutions)
-        userService.update(user)
-        Ok(Json.obj("status" -> "OK", "message" -> ("User updated")))
       }
     )
   }
@@ -384,10 +388,12 @@ class Application extends Controller with Secured {
                       val code = ir.code + "\n" + task.solution.get
                       val result = Interpreter.run("scala", code)
 
-                      Ok(Json.obj("status" -> "OK", "output" -> result.output))
+                      Ok(Json.obj(
+                        "status" -> "OK", 
+                        "output" -> result.output,
+                        "success" -> JsBoolean(result.success)))
                     } catch {
                       case e: Exception => 
-                        println(e)
                         BadRequest(Json.obj(
                           "status"  -> "KO", 
                           "message" -> "could not interprete code"))
