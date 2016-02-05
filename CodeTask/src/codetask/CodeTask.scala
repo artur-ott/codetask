@@ -1,12 +1,11 @@
 package codetask
 
-import tasks._
 import org.scalatest._
 import scala.util.matching.Regex
 import scala.util.control.Exception
 import scala.collection.immutable.TreeMap
 import scala.io.Source._
-import scalaj.http.Http
+import scalaj.http
 
 case class MatchException(smth:String)  extends Exception(smth)
 
@@ -43,8 +42,14 @@ object CodeTask {
   }
 }
 
-object Parser {
-    implicit def string2Parser(s: String) = new Parser(s)
+case class Node(key: String, value: Option[String] = None, values: Option[List[Node]] = None) {
+  override def toString = value match {
+    case Some(v) => "\"%s\":%s".format(key, v)
+    case None => values match {
+      case Some(vs) => "\"%s\":{%s}".format(key, vs.map(_.toString).mkString(","))
+      case None => throw new Exception("missing value / values for" + key)
+    }
+  }
 }
 
 class Parser(s: String) {
@@ -52,6 +57,8 @@ class Parser(s: String) {
   var koans = 0;
   var codetasks = 0;
   //var map = Map[(String, Int), Map[String, String]]()
+  //var taskMap = TreeMap[Int, JsObject]()
+  var taskMap = TreeMap[Int, List[Node]]()
   var map = TreeMap[Int, (String, Map[String, String])]()
   
   val video = """video\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.+)\")(\s*,?\s*)(\"\"\"(.+)\"\"\"|\"(.+)\")\s*\)""".r
@@ -63,6 +70,7 @@ class Parser(s: String) {
   val clean = """^\s*(\S[\s\S]*\S)\s*""".r
   
   def escapeHTML = (s: String) => s.replace("\n", "\\n").replace("\"", "\\\"").replace("\t", "\\t")
+  def brackets = (s: String) => "\"" + s + "\""
   
   def parseVideos {
     val matches = video findAllMatchIn s
@@ -76,7 +84,29 @@ class Parser(s: String) {
       
       videos += 1
       val description = if (m.group(3) != null) m.group(3) else m.group(2).stripMargin('|')
-      map = map + (index -> ("video" + videos, Map("tag" -> "video-task", "description" -> escapeHTML(description), "url" -> escapeHTML(m.group(7)))))
+      
+      /*taskMap = taskMap + (index -> JsObject(Seq(
+        "id"       -> JsString("video" + videos),
+        "tag"      -> JsString("video-task"),
+        "data"     -> JsObject(Seq(
+          "description" -> JsString(escapeHTML(description)),
+          "url"         -> JsString(escapeHTML(m.group(7)))
+        )),
+        "solution" -> JsString("watched")
+      )))*/
+      val url = m.group(7)
+      
+      taskMap = taskMap + (index -> List(
+        Node("id",       Some(brackets("video" + videos))),
+        Node("tag",      Some(brackets("video-task"))),
+        Node("data",     None, Some(List(
+          Node("description", Some(brackets(escapeHTML(description)))),
+          Node("url",         Some(brackets(escapeHTML(url))))
+        ))),
+        Node("solution", Some(brackets("watched")))
+      ))
+                                             
+      map = map + (index -> ("video" + videos, Map("tag" -> "video-task", "description" -> escapeHTML(description), "url" -> escapeHTML(url))))
     }
   }
   
@@ -128,8 +158,34 @@ class Parser(s: String) {
           code = code.replace(m2.toString, m2.group(g).toString() + replace)
         } 
       }
-      val sol = "[%s]".format(solutions.map(x => "\"" + escapeHTML(x) + "\"").mkString(","))
-      map = map + (index -> ("koan" + koans, Map("tag" -> "koan-task", "description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "solutions" -> sol)))
+      val solutionWithoutBrackets = solutions.map(x => escapeHTML(x)).mkString(",")
+      val solutionWithBrackets = "[%s]".format(solutions.map(x => "\"" + escapeHTML(x) + "\"").mkString(","))
+      
+      /*taskMap = taskMap + (index -> JsObject(Seq(
+        "id"       -> JsString("koan" + koans),
+        "tag"      -> JsString("koan-task"),
+        "data"     -> JsObject(Seq(
+          "description" -> JsString(escapeHTML(description)),
+          "code"        -> JsString(escapeHTML(code)),
+          "mode"        -> JsString("scala"),
+          "solutions"   -> JsArray(solutions.map(x => JsString(escapeHTML(x))).toSeq)
+        )),
+        "solution" -> JsString(solutions.map(x => escapeHTML(x)).mkString(","))
+      )))*/
+      
+      taskMap = taskMap + (index -> List(
+        Node("id",       Some(brackets("koan" + koans))),
+        Node("tag",      Some(brackets("koan-task"))),
+        Node("data",     None, Some(List(
+          Node("description", Some(brackets(escapeHTML(description)))),
+          Node("code",        Some(brackets(escapeHTML(code.toString)))),
+          Node("mode",        Some(brackets("scala"))),
+          Node("solutions",   Some(solutionWithBrackets))
+        ))),
+        Node("solution", Some(brackets(solutionWithoutBrackets)))
+      ))
+     
+      map = map + (index -> ("koan" + koans, Map("tag" -> "koan-task", "description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "solutions" -> solutionWithBrackets)))
       
       // add one so the next match is processed
       index += 1
@@ -181,6 +237,7 @@ class Parser(s: String) {
       // remove whitespace
       clean findFirstMatchIn code foreach { m2 => code = m2.group(1).toString }
       clean findFirstMatchIn testCode foreach { m2 => testCode = m2.group(1).toString }
+      
       // indentation one level down
       if (code.contains("\t") && testCode.contains("\t")) {
         code = code.replace("\n\t\t", "\n")
@@ -189,6 +246,28 @@ class Parser(s: String) {
         code = code.replace("\n    ", "\n")
         testCode = testCode.replace("\n    ", "\n") 
       }
+      
+      /*taskMap = taskMap + (index -> JsObject(Seq(
+        "id"       -> JsString("code" + codetasks),
+        "tag"      -> JsString("code-task"),
+        "data"     -> JsObject(Seq(
+          "description" -> JsString(escapeHTML(description)),
+          "code"        -> JsString(escapeHTML(code)),
+          "mode"        -> JsString("scala")
+        )),
+        "solution" -> JsString(escapeHTML(testCode))
+      )))*/
+      
+      taskMap = taskMap + (index -> List(
+        Node("id",       Some(brackets("code" + codetasks))),
+        Node("tag",      Some(brackets("koan-task"))),
+        Node("data",     None, Some(List(
+          Node("description", Some(brackets(escapeHTML(description)))),
+          Node("code",        Some(brackets(escapeHTML(code.toString)))),
+          Node("mode",        Some(brackets(escapeHTML("scala"))))
+        ))),
+        Node("solution", Some(brackets(escapeHTML(testCode))))
+      ))
       
       map = map + (index -> ("code" + codetasks, Map("tag" -> "code-task", "description" -> escapeHTML(description), "code" -> escapeHTML(code.toString), "ext" -> escapeHTML(testCode))))
       
@@ -201,6 +280,7 @@ class Parser(s: String) {
   def parseCurlyBraces(str: String, index: Int): (Int, Int) = {
     var open = 1
     var num = 0
+    
     // count braces
     str.takeRight(str.size - index - 1).foreach({c =>
       if (c == '{' && open > 0) open += 1;
@@ -223,64 +303,11 @@ class Parser(s: String) {
     map
   }
   
-  /*def parseChapter(title: String, id: Long = -1):String = {
-    parse
-    // tabsize
-    val t = "  "
-    var json = "{\n%s\"chapter\": {\n%s%s\"title\": \"%s\",\n%s%s\"tasks\": {\n".format(t, t, t, title, t, t)
-    if (id > -1) json = "{\n%s\"chapter\": {\n\"id\": %d,\n%s%s\"title\": \"%s\",\n%s%s\"tasks\": {\n".format(id, t, t, t, title, t, t)
-    // convert map to json string
-    map foreach { task =>
-      json = json + "%s%s%s\"%s\": {".format(t, t, t, task._2._1)
-      task._2._2 foreach { value =>
-        if (value._1 != "solutions")
-          json = json + "\"%s\": \"%s\",".format(value._1, value._2)
-        else
-          json = json + "\"%s\": %s,".format(value._1, value._2)
-      }
-      // strip last ,
-      if (json.last == ',') json = json.slice(0, json.size - 1)
-      json = json + "},\n"
-    }
-    // strip last ,\n
-    if (json.slice(json.size - 2, json.size) == ",\n") json = json.slice(0, json.size - 2)
-    json + "\n%s%s}\n%s}\n}".format(t, t, t)
-  }*/
-  
   def parseChapter(title: String, id: Long = 1):String = {
     parse
-    // tabsize
-    val t = "  "
-    var json = "{\n%s\"id\": %d,\n%s\"title\": \"%s\",\n%s\"tasks\": [\n%s%s".format(t, id, t, title, t, t, t)
-    // convert map to json string
-    map foreach { task =>
-      json += "{\n%s%s%s\"id\": \"%s\",\n".format(t, t, t, task._2._1)
-      
-      task._2._2.find(_._1 == "tag") match {
-        case Some(x) => json += t + t + t + "\"tag\": " + "\"" + x._2 + "\",\n"
-        case _ =>
-      }
-      
-      json += "%s%s%s\"data\": {".format(t, t, t)
-      
-      task._2._2 foreach { value =>
-        if (value._1 != "ext" && value._1 != "tag" && value._1 != "solutions") json += "\"%s\": \"%s\",".format(value._1, value._2)
-        else if (value._1 == "solutions") json += "\"%s\": %s,".format(value._1, value._2)
-      }
-      // strip last ,
-      if (json.last == ',') json = json.slice(0, json.size - 1)
-      json += "}"
-      
-      task._2._2.find(_._1 == "ext") match {
-        case Some(x) => json += ",\n" + t + t + t + "\"ext\": " + "\"" + x._2 + "\""
-        case _ =>
-      }
-      
-      json += "\n%s%s},".format(t, t)
-    }
-    // strip last ,\n
-    if (json.last == ',') json = json.slice(0, json.size - 1)
-    if (json.slice(json.size - 2, json.size) == ",\n") json = json.slice(0, json.size - 2)
-    json + "\n%s]\n}".format(t)
+    var tasks = taskMap.map{ x => "{%s}".format(x._2.map(_.toString()).mkString(","))}
+    var taskArray = "[%s]".format(tasks.mkString(","))
+    var chapter = "{\"id\": %d, \"title\": \"%s\", \"tasks\": %s}".format(id, title, taskArray);
+    chapter
   }
 }

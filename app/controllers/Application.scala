@@ -78,7 +78,6 @@ class Application extends Controller with Secured {
   def createCourse() = withBasicAuth(parse.json)(ta) { 
     implicit request =>
 
-    println(request.body.toString())
     request.body.validate[Course].fold(
       errors => {
         BadRequest(Json.obj(

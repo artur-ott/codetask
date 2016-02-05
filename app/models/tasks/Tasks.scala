@@ -59,22 +59,28 @@ object TaskDataReads extends Reads[TaskData] {
 
 object TaskStateWrites extends Writes[TaskState] {
   def writes(taskState: TaskState) = {
-    if (taskState == null) {
-      play.Logger.info("taskState null in TaskStateWrites")
-      Json.obj()
-    } else {
-      taskState.toJson
+    var result:JsValue = Json.obj()
+
+    try {
+      result = taskState.toJson
+    } catch {
+      case e: java.lang.NullPointerException => play.Logger.info("taskState null in TaskStateWrites")
     }
+
+    result
   }
 }
 
 object TaskDataWrites extends Writes[TaskData] {
   def writes(taskData: TaskData) = {
-    if (taskData == null) {
-      play.Logger.info("taskData null in TaskDataWrites")
-      Json.obj()
-    } else {
-      taskData.toJson
+    var result:JsValue = Json.obj()
+
+    try {
+      result = taskData.toJson
+    } catch {
+      case e: java.lang.NullPointerException => play.Logger.info("taskData null in TaskStateWrites")
     }
+
+    result
   }
 }

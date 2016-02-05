@@ -17,6 +17,8 @@ libraryDependencies ++= Seq(
   "org.mindrot" % "jbcrypt" % "0.3m"
 )
 
+scalacOptions ++= Seq("-unchecked", "-deprecation","-feature")
+
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 resolvers += "db4o-repo" at "http://maven.restlet.org/"
 

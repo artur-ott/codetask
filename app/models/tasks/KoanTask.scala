@@ -46,6 +46,7 @@ case class KoanState(mySolutions: List[String] = List()) extends TaskState {
 }
 
 case class KoanData(description: String, code: String, mode: String, solutions: List[String]) extends TaskData {
+  // nullpointer exception in 53 ?
   def toJson = Json.obj("description" -> description,
                         "code"        -> code,
                         "mode"        -> mode,
