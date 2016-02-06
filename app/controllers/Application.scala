@@ -17,6 +17,44 @@ class Application extends Controller with Secured {
   val ta = List("teacher", "admin")
   val a = List("admin")
 
+  def bugTest(): Boolean = {
+    var result = false
+
+    try {
+    userService.findAll().foreach { user => 
+      if (user == null) play.Logger.info("course null")
+      else if (user.chapterSolutions == null) play.Logger.info("user " + user.id + "chapters null")
+      user.chapterSolutions.foreach { chapterSolution =>
+        if (chapterSolution == null) play.Logger.info("user " + user.id + " chapter null")
+        else if (chapterSolution.taskSolutions == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " taskSolutions null")
+        chapterSolution.taskSolutions.foreach { taskSolution => 
+          if (taskSolution == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " taskSolution null")
+          else if (taskSolution.taskState == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " task " + taskSolution.taskId + " taskSolution.taskState null")
+          else if (taskSolution.checked == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " task " + taskSolution.taskId + " taskSolution.checked null")
+        }
+      }
+    }
+
+    courseService.findAll().foreach { course => 
+      if (course == null) play.Logger.info("course null")
+      else if (course.chapters == null) play.Logger.info("course " + course.id + "chapters null")
+      course.chapters.foreach { chapter =>
+        if (chapter == null) play.Logger.info("course " + course.id + " chapter null")
+        else if (chapter.tasks == null) play.Logger.info("course " + course.id + " chapter " + chapter.id + " tasks null")
+        chapter.tasks.foreach { task => 
+          if (task == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task null")
+          else if (task.data == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.data null")
+          else if (task.solution == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.solution null")
+        }
+      }
+    }
+    } catch {
+      case e: java.lang.NullPointerException => result = true; play.Logger.info("error")
+    }
+
+    result
+  }
+
   def index() = Action {
     Redirect(routes.Auth.login)
   }
@@ -58,13 +96,14 @@ class Application extends Controller with Secured {
   def showCourse(courseId: Long, userId: Long) = withUser { 
     user => implicit request =>
 
-    if (user.authority != "teacher" && user.authority != "admin")
+    if (user.authority != "teacher" && user.authority != "admin") {
       BadRequest("no authority")
-
-    courseService.findOneById(courseId) match {
-      case Some(course) => 
-        Ok(views.html.teacherCourse(courseId, userId, course.title))
-      case None => NotFound("course does not exist")
+    } else {
+      courseService.findOneById(courseId) match {
+        case Some(course) => 
+          Ok(views.html.teacherCourse(courseId, userId, course.title))
+        case None => NotFound("course does not exist")
+      }
     }
   }
 
@@ -101,12 +140,16 @@ class Application extends Controller with Secured {
   }
 
   def getCourse(courseId: Long) = Action {
-    courseService.findOneById(courseId) match {
-      case Some(course) => Ok(Json.toJson(course))
-      case None => NotFound(Json.obj(
-        "status" -> "KO", 
-        "message" -> ("Course '" + courseId + "' not found")
-      ))
+    if (bugTest()) {
+      BadRequest(Json.obj("status" -> "KO"))
+    } else {
+      courseService.findOneById(courseId) match {
+        case Some(course) => Ok(Json.toJson(course))
+        case None => NotFound(Json.obj(
+          "status" -> "KO", 
+          "message" -> ("Course '" + courseId + "' not found")
+        ))
+      }
     }
   }
 
@@ -151,10 +194,16 @@ class Application extends Controller with Secured {
   }
 
   def getCourses() = Action {
+    if (bugTest()) {
+      BadRequest(Json.obj("status" -> "KO"))
+    } else {
+
     var list = courseService.findAll().map {
       course => Json.toJson(course)
     }.toSeq
     Ok(Json.toJson(list))
+
+    }
   }
 
   def createUser() = withBasicAuth(parse.json)(a) {
@@ -247,7 +296,7 @@ class Application extends Controller with Secured {
     implicit request =>
 
     var list = userService.findAll().map {
-      course => Json.toJson(course)
+      user => Json.toJson(user)
     }
     Ok(Json.toJson(list.toSeq))
   }
@@ -257,26 +306,34 @@ class Application extends Controller with Secured {
     withUser(parse.anyContent) { 
     user => implicit request =>
 
+    if (bugTest()) {
+      BadRequest(Json.obj("status" -> "KO"))
+    } else {
 
-    val list = userService.findAll().filter(_.authority == "student").map { 
-      user =>
+    if (user.authority != "teacher" && user.authority != "admin") {
+      BadRequest("no authority")
+    } else {
+      val list = userService.findAll().filter(_.authority == "student").map { 
+        user =>
 
-      JsObject(Map(
-        "id" -> JsNumber(user.id), 
-        "username" -> JsString(user.username),
-        "subscriptions" -> Json.toJson(user.subscriptions),
-        "progress" -> Json.toJson(user.subscriptions.map { s => 
-          val chapterSolutions = user.chapterSolutions.filter(_.courseId == s)
-          val progress = courseService.findOneById(s) match {
-            case Some(c) => progressOf(c, chapterSolutions)
-            case None => 0
-          }
-          JsArray(Seq(JsNumber(s), JsNumber(progress)))
-        }),
-        "chapterSolutions" -> Json.toJson(user.chapterSolutions)
-      ))
+        JsObject(Map(
+          "id" -> JsNumber(user.id), 
+          "username" -> JsString(user.username),
+          "subscriptions" -> Json.toJson(user.subscriptions),
+          "progress" -> Json.toJson(user.subscriptions.map { s => 
+            val chapterSolutions = user.chapterSolutions.filter(_.courseId == s)
+            val progress = courseService.findOneById(s) match {
+              case Some(c) => progressOf(c, chapterSolutions)
+              case None => 0
+            }
+            JsArray(Seq(JsNumber(s), JsNumber(progress)))
+          }),
+          "chapterSolutions" -> Json.toJson(user.chapterSolutions)
+        ))
+      }
+      Ok(Json.toJson(list.toSeq))
     }
-    Ok(Json.toJson(list.toSeq))
+    }
   }
 
   // shell client

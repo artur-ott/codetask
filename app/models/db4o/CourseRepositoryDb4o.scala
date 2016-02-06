@@ -47,10 +47,8 @@ class CourseRepositoryDb4o() extends CourseRepository {
       c.title == course.title && c.id == course.id} match {
       
       case x :: xs => 
-        //x.title = course.title
-        //x.chapters = course.chapters
-        //client.store(x)
-        client.delete(x)
+        x.title = course.title
+        x.chapters = course.chapters
         client.store(course)        
         client.commit()
         client.close(); 

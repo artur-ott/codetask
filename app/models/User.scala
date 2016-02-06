@@ -3,7 +3,7 @@ package models
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import models.tasks.Tasks._
-import models.tasks._
+import models.tasks.TaskState
 import models.Services.userService
 
 // courses: Map[coursename, Map[chaptername, Map[taskname, solution]]]
@@ -69,28 +69,22 @@ object User {
   def progressOf(course: Course, chapterSolutions: List[ChapterSolution]): Int = {
     var result = 0
 
-    try {
-      if (chapterSolutions.size > 0) {
-        var checks = 0.0
-        var sum = 0.0
+    if (chapterSolutions.size > 0) {
+      var checks = 0.0
+      var sum = 0.0
 
-        val sizes = course.chapters.foreach { chapter => sum += chapter.tasks.size }
+      val sizes = course.chapters.foreach { chapter => sum += chapter.tasks.size }
 
-        if (course == null) play.Logger.info("course null")
-        chapterSolutions.foreach { chapterSolution => 
-            chapterSolution.taskSolutions.foreach { taskSolution => 
-                taskSolution.checked match {
-                  case Some(true) => checks += 1
-                  case _ =>
-                }
-            }
-        }
-
-        if (sum > 0) result = ((checks / sum) * 100).toInt 
+      chapterSolutions.foreach { chapterSolution => 
+          chapterSolution.taskSolutions.foreach { taskSolution => 
+              taskSolution.checked match {
+                case Some(true) => checks += 1
+                case _ =>
+              }
+          }
       }
-    } catch {
-      case e: java.lang.NullPointerException => 
-        play.Logger.info("could not calculate progress for course " + course.id)
+
+      if (sum > 0) result = ((checks / sum) * 100).toInt 
     }
 
     result

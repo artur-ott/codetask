@@ -34,6 +34,8 @@ object TaskStateReads extends Reads[TaskState] {
       i += 1
     } while(taskState == None && i < Tasks.types.size)
 
+    if (taskState == null) play.Logger.info("is null")
+
     taskState match {
       case Some(state) => JsSuccess(state)
       case None => JsError("Task type not found")
@@ -50,6 +52,8 @@ object TaskDataReads extends Reads[TaskData] {
       i += 1
     } while(taskData == None && i < Tasks.types.size)
 
+    if (taskData == null) play.Logger.info("is null")
+
     taskData match {
       case Some(data) => JsSuccess(data)
       case None => JsError("Task type not found")
@@ -58,29 +62,9 @@ object TaskDataReads extends Reads[TaskData] {
 }
 
 object TaskStateWrites extends Writes[TaskState] {
-  def writes(taskState: TaskState) = {
-    var result:JsValue = Json.obj()
-
-    try {
-      result = taskState.toJson
-    } catch {
-      case e: java.lang.NullPointerException => play.Logger.info("taskState null in TaskStateWrites")
-    }
-
-    result
-  }
+  def writes(taskState: TaskState) = taskState.toJson
 }
 
 object TaskDataWrites extends Writes[TaskData] {
-  def writes(taskData: TaskData) = {
-    var result:JsValue = Json.obj()
-
-    try {
-      result = taskData.toJson
-    } catch {
-      case e: java.lang.NullPointerException => play.Logger.info("taskData null in TaskStateWrites")
-    }
-
-    result
-  }
+  def writes(taskData: TaskData) = taskData.toJson
 }

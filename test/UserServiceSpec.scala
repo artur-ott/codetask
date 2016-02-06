@@ -4,17 +4,21 @@ import play.api.test._
 import play.api.test.Helpers._
 import play.api.libs.json._
 import models._
+import tasks._
 
 class UserServiceSpec extends Specification {
   val userService = new UserService(Config);
+  val loop = 500
 
   val id = userService.newId()
   val user1 = new User(id, "email", "student", "pw1234", List(
     new ChapterSolution(100001, 2, List(
-      new TaskSolution("koan-task1", null, Some(true))
+      new TaskSolution("koan-task1", KoanState(List("eins", "zwei", "drei")), Some(true)),
+      new TaskSolution("code-task1", CodeState("my code"), Some(true)),
+      new TaskSolution("code-task1", VideoState("watched"), Some(true))
     )),
     new ChapterSolution(100002, 2, List(
-      new TaskSolution("koan-task1", null, Some(true))
+      new TaskSolution("koan-task1", KoanState(List("eins", "zwei", "drei")), Some(true))
     ))
   ))
 
@@ -34,8 +38,16 @@ class UserServiceSpec extends Specification {
   }
   "UserService#findOneByUsername" should {
     "find user after creation" in {
-      val user = userService.findOneByUsername(user1.username)
-      user.get.id must equalTo(user1.id)
+      for (_ <- 1 to loop) {
+        val user = userService.findOneByUsername(user1.username)
+        user.isDefined shouldEqual true
+        user.get.id must equalTo(user1.id)
+        val x = user.get.chapterSolutions(0)
+        x.taskSolutions(1).taskState shouldEqual(CodeState("my code"))
+        x.taskSolutions(0).taskState shouldEqual(KoanState(List("eins", "zwei", "drei")))
+        x.taskSolutions(2).taskState shouldEqual(VideoState("watched"))
+      }
+      true shouldEqual true
     }
   }
   "UserService#findOneById" should {
@@ -46,7 +58,8 @@ class UserServiceSpec extends Specification {
   }
   "UserService#findAll" should {
     "give all Users" in {
-      userService.findAll().size shouldEqual(1)
+      // created User and initial admin User
+      userService.findAll().size shouldEqual(2)
     }
   }
   "UserService#update" should {

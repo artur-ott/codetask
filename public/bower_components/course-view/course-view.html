@@ -253,6 +253,8 @@
         filtered.push(chapterSolution);
         this.loaded_.solutions = filtered;
 
+        console.log(JSON.stringify(chapterSolution))
+
         $.ajax({
           type: 'POST',
           url: '/api/solutions/' + courseId,

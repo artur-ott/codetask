@@ -26,8 +26,11 @@ class UserRepositoryDb4o extends UserRepository {
       u.username == user.username && u.id == user.id} match {
         
       case x :: xs => 
-        client.delete(x)
-        client.store(user)
+        x.authority = user.authority
+        x.password = user.password
+        x.chapterSolutions = user.chapterSolutions
+        x.subscriptions = user.subscriptions
+        client.store(x)
         client.commit()
         client.close(); 
         Some(x)

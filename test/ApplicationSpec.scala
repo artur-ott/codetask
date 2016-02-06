@@ -7,6 +7,7 @@ import play.api.test.Helpers._
 import play.api.libs.json._
 import models._
 import models.Services.userService
+import org.apache.commons.codec.binary.Base64
 
 /**
  * Add your spec here.
@@ -15,6 +16,9 @@ import models.Services.userService
  */
 @RunWith(classOf[JUnitRunner])
 class ApplicationSpec extends Specification {
+  def encodeBase64(s: String) = new String(Base64.encodeBase64(s.getBytes))
+  val auth = "Basic " + encodeBase64("admin@a.pp:$1amn_$2pwrt")
+
   val id1 = userService.newId()
   val user1 = new User(id1, "admin@test.de", "teacher", userService.passwordHash("test"), List())
   userService.create(user1)
@@ -22,6 +26,8 @@ class ApplicationSpec extends Specification {
   val id2 = userService.newId()
   val user2 = new User(id2, "test@test.de", "student", userService.passwordHash("test"), List())
   userService.create(user2)
+
+  val loop = 6000
 
   "Application" should {
 
@@ -60,52 +66,29 @@ class ApplicationSpec extends Specification {
         status(result.get) must equalTo(BAD_REQUEST)
     }
 
-//    "subscribe user to course" in new WithApplication {
-//      val request = FakeRequest(GET, "/subscribe/100001")
-//        .withSession("username" -> "test@test.de", "password" -> "test")
-//
-//      val result = route(request)
-//      status(result.get) must equalTo(SEE_OTHER)
-//      redirectLocation(result.get) must beSome.which(_ == "/dashboard")
-//    }
-
-
-    "retreive courses json" in new WithApplication {
-        val request = FakeRequest(GET, "/api/courses")
-          .withSession("username" -> "test@test.de", "password" -> "test")
+    "create Course" in new WithApplication {
+      val json: JsValue = Json.parse("""{"id": 100001, "title": "Neuer Kurs 5","chapters": [{"id": 1, "title": "About Mutable Sets", "tasks": [{"id":"koan1","tag":"koan-task","data":{"description":"Mutable sets can be created easily","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet.size should be(__)\nmySet += \"Oregon\"\nmySet contains \"Oregon\" should be(__)","mode":"scala","solutions":["4","true"]},"solution":"4,true"},{"id":"koan2","tag":"koan-task","data":{"description":"Mutable sets can have elements removed","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet -= \"Ohio\"\nmySet contains \"Ohio\" should be(__)","mode":"scala","solutions":["false"]},"solution":"false"},{"id":"koan3","tag":"koan-task","data":{"description":"Mutable sets can have tuples of elements removed","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet -= (\"Iowa\", \"Ohio\")\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["false","2"]},"solution":"false,2"},{"id":"koan4","tag":"koan-task","data":{"description":"Mutable sets can have tuples of elements added","code":"val mySet = mutable.Set(\"Michigan\", \"Wisconsin\")\nmySet += (\"Iowa\", \"Ohio\")\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["true","4"]},"solution":"true,4"},{"id":"koan5","tag":"koan-task","data":{"description":"Mutable sets can have Lists of elements added","code":"val mySet = mutable.Set(\"Michigan\", \"Wisconsin\")\nmySet ++= List(\"Iowa\", \"Ohio\")\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["true","4"]},"solution":"true,4"},{"id":"koan6","tag":"koan-task","data":{"description":"Mutable sets can have Lists of elements removed","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet --= List(\"Iowa\", \"Ohio\")\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["false","2"]},"solution":"false,2"},{"id":"koan7","tag":"koan-task","data":{"description":"Mutable sets can be cleared","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet.clear() // Convention is to use parens if possible when method called changes state\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["false","0"]},"solution":"false,0"}]}]}""")
+      val request = FakeRequest(POST, "/api/courses")
+          .withJsonBody(json)
+          .withHeaders(("Authorization", auth))
         val result = route(request)
 
-        status(result.get) must equalTo(OK)
-        contentAsString(result.get) must contain("{\"id\":100001,\"title\":\"Scala For Beginners\"")
+      status(result.get) must equalTo(CREATED)
+      header("Location", result.get).get must contain("/api/courses/100001")
     }
 
-    "retreive course json" in new WithApplication {
-        val request = FakeRequest(GET, "/api/courses/100001")
-          .withSession("username" -> "test@test.de", "password" -> "test")
-        val result = route(request)
+    "subscribe user to course" in new WithApplication {
+      val request = FakeRequest(GET, "/subscribe/100001")
+        .withSession("username" -> "test@test.de", "password" -> "test")
 
-        status(result.get) must equalTo(OK)
-        contentAsString(result.get) must contain("\"title\":\"Scala For Beginners\"")
+      val result = route(request)
+      status(result.get) must equalTo(SEE_OTHER)
+      redirectLocation(result.get) must beSome.which(_ == "/dashboard")
     }
 
     "store state of chapter" in new WithApplication {
         val json: JsValue = Json.parse(
-          """{
-            "courseId": 100001,
-            "chapterId": 1,
-            "taskSolutions": [
-              {
-                "taskId": "video1",
-                "taskState": {"status": "watched"}
-              },{
-                "taskId": "koan1",
-                "taskState": {"mySolutions": ["List(1, 2, 3, 4)","List(2, 3, 4, 5)","List(1, 4, 9, 16)"]}
-              },{
-                "taskId": "code1",
-                "taskState": {"code": "test"}
-              }
-            ]
-          }"""
+          """{"courseId":100001,"chapterId":1,"taskSolutions":[{"taskId":"koan1","taskState":{"mySolutions":["4","true"]}},{"taskId":"koan2","taskState":{"mySolutions":["false"]}},{"taskId":"koan3","taskState":{"mySolutions":["false","2"]}},{"taskId":"koan4","taskState":{"mySolutions":[]}},{"taskId":"koan5","taskState":{"mySolutions":[]}},{"taskId":"koan6","taskState":{"mySolutions":[]}},{"taskId":"koan7","taskState":{"mySolutions":[]}}]}"""
         )
 
         val request = FakeRequest(POST, "/api/solutions/100001")
@@ -116,6 +99,51 @@ class ApplicationSpec extends Specification {
 
         contentAsString(result.get) must contain("\"status\":\"OK\"")
         status(result.get) must equalTo(OK)
+    }
+
+    "get Course" in new WithApplication {
+      val request = FakeRequest(GET, "/api/courses/100001")
+        val result = route(request)
+
+      var failed = 0
+      for(_ <- 1 to loop) {
+        val r = route(request)
+        if (status(r.get) != OK) failed = failed + 1
+      }
+
+      status(result.get) must equalTo(OK)
+      failed shouldEqual(0)
+    }
+
+    "get all Students" in new WithApplication {
+      val request = FakeRequest(GET, "/api/users/students")
+         .withSession("username" -> "admin@test.de", "password" -> "test")
+      val result = route(request)
+
+      var failed = 0
+      for(_ <- 1 to loop) {
+        val r = route(request)
+        if (status(r.get) != OK) failed = failed + 1
+      }
+
+      status(result.get) must equalTo(OK)
+      failed shouldEqual(0)
+    }
+
+    "retreive courses" in new WithApplication {
+        val request = FakeRequest(GET, "/api/courses/all")
+          .withSession("username" -> "test@test.de", "password" -> "test")
+        val result = route(request)
+
+        var failed = 0
+        for(_ <- 1 to loop) {
+          val r = route(request)
+          if (status(r.get) != OK) failed = failed + 1
+        }
+
+        status(result.get) must equalTo(OK)
+        failed shouldEqual(0)
+        contentAsString(result.get) must contain("{\"id\":100001,\"title\":\"Neuer Kurs 5\"")
     }
 
     "fail to store malformated state of chapter" in new WithApplication {
@@ -146,7 +174,7 @@ class ApplicationSpec extends Specification {
         val result = route(request)
 
         status(result.get) must equalTo(OK)
-        contentAsString(result.get) must contain("\"mySolutions\":[\"List(1, 2, 3, 4)\"")
+        contentAsString(result.get) must contain("\"mySolutions\":[\"4\",\"true\"]")
     }
 
 //    "unsubscribe user from course" in new WithApplication {
@@ -166,185 +194,5 @@ class ApplicationSpec extends Specification {
 //        status(result.get) must equalTo(OK)
 //        contentAsString(result.get) must contain("{\"status\":\"OK\"")
 //    }
-
-    "interpret scala code" in new WithApplication {
-      val json: JsValue = Json.parse(
-          """{
-            "courseId": 100001,
-            "chapterId": 1,
-            "taskId": "code1",
-            "code": "def rvrs(l: List[Any]): List[Any] = {\n  l.reverse\n}"
-          }"""
-        )
-
-        val request = FakeRequest(POST, "/api/interpreter/scala")
-          .withJsonBody(json)
-          .withSession("username" -> "test@test.de", "password" -> "test")
-        val result = route(request)
-
-        contentAsString(result.get) must contain("\"status\":\"OK\"")
-        contentAsString(result.get) must contain("\"message\":\"Code executed successfull.\"")
-        status(result.get) must equalTo(OK)
-    }
-
-    "fail with error" in new WithApplication {
-      val json: JsValue = Json.parse(
-          """{
-            "courseId": 100001,
-            "chapterId": 1,
-            "taskId": "code1",
-            "code": "def rvrs(l: List[Any]): List[Any] = {\n  l\n}"
-          }"""
-        )
-
-        val request = FakeRequest(POST, "/api/interpreter/scala")
-          .withJsonBody(json)
-          .withSession("username" -> "test@test.de", "password" -> "test")
-        val result = route(request)
-
-        contentAsString(result.get) must contain("\"status\":\"KO\"")
-        //contentAsString(result.get) must contain("\"message\":\"\"")
-        status(result.get) must equalTo(BAD_REQUEST)
-    }
-
-    "fail with infinite loop" in new WithApplication {
-      val json: JsValue = Json.parse(
-          """{
-            "courseId": 100001,
-            "chapterId": 1,
-            "taskId": "code1",
-            "code": "def rvrs(l: List[Any]): List[Any] = {\n  while(true) {}\nl\n}"
-          }"""
-        )
-
-        val request = FakeRequest(POST, "/api/interpreter/scala")
-          .withJsonBody(json)
-          .withSession("username" -> "test@test.de", "password" -> "test")
-        val result = route(request)
-
-        contentAsString(result.get) must contain("\"status\":\"KO\"")
-        contentAsString(result.get) must contain("\"message\":\"No completion check your code for infinite loops.\"")
-        status(result.get) must equalTo(BAD_REQUEST)
-    }
-
-    "fail with infinite recursion" in new WithApplication {
-      val json: JsValue = Json.parse(
-          """{
-            "courseId": 100001,
-            "chapterId": 1,
-            "taskId": "code1",
-            "code": "def rvrs(l: List[Any]): List[Any] = {\n rvrs(l)\n l\n}"
-          }"""
-        )
-
-        val request = FakeRequest(POST, "/api/interpreter/scala")
-          .withJsonBody(json)
-          .withSession("username" -> "test@test.de", "password" -> "test")
-        val result = route(request)
-
-        contentAsString(result.get) must contain("\"status\":\"KO\"")
-        contentAsString(result.get) must contain("java.lang.StackOverflowError")
-        status(result.get) must equalTo(BAD_REQUEST)
-    }
-
-    "fail with System.exit()" in new WithApplication {
-      val json: JsValue = Json.parse(
-          """{
-            "courseId": 100001,
-            "chapterId": 1,
-            "taskId": "code1",
-            "code": "def rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}\nSystem.exit(1)"
-          }"""
-        )
-
-        val request = FakeRequest(POST, "/api/interpreter/scala")
-          .withJsonBody(json)
-          .withSession("username" -> "test@test.de", "password" -> "test")
-        val result = route(request)
-
-        contentAsString(result.get) must contain("\"status\":\"KO\"")
-        contentAsString(result.get) must contain("\"message\":\"Your code uses prohibited code in line: 4\"")
-        status(result.get) must equalTo(BAD_REQUEST)
-    }
-
-    "fail with invalid import scala._" in new WithApplication {
-      val json: JsValue = Json.parse(
-          """{
-            "courseId": 100001,
-            "chapterId": 1,
-            "taskId": "code1",
-            "code": "import scala._\ndef rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}"
-          }"""
-        )
-
-        val request = FakeRequest(POST, "/api/interpreter/scala")
-          .withJsonBody(json)
-          .withSession("username" -> "test@test.de", "password" -> "test")
-        val result = route(request)
-
-        contentAsString(result.get) must contain("\"status\":\"KO\"")
-        contentAsString(result.get) must contain("\"message\":\"Your code uses prohibited code in line: 1\"")
-        status(result.get) must equalTo(BAD_REQUEST)
-    }
-
-    "fail with invalid import tools._" in new WithApplication {
-      val json: JsValue = Json.parse(
-          """{
-            "courseId": 100001,
-            "chapterId": 1,
-            "taskId": "code1",
-            "code": "import tools._\ndef rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}"
-          }"""
-        )
-
-        val request = FakeRequest(POST, "/api/interpreter/scala")
-          .withJsonBody(json)
-          .withSession("username" -> "test@test.de", "password" -> "test")
-        val result = route(request)
-
-        contentAsString(result.get) must contain("\"status\":\"KO\"")
-        contentAsString(result.get) must contain("\"message\":\"Your code uses prohibited code in line: 1\"")
-        status(result.get) must equalTo(BAD_REQUEST)
-    }
-
-    "fail with invalid use of library tools" in new WithApplication {
-      val json: JsValue = Json.parse(
-          """{
-            "courseId": 100001,
-            "chapterId": 1,
-            "taskId": "code1",
-            "code": "def rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}\nval x = new tools.nsc.interpreter.IMain()"
-          }"""
-        )
-
-        val request = FakeRequest(POST, "/api/interpreter/scala")
-          .withJsonBody(json)
-          .withSession("username" -> "test@test.de", "password" -> "test")
-        val result = route(request)
-
-        contentAsString(result.get) must contain("\"status\":\"KO\"")
-        contentAsString(result.get) must contain("\"message\":\"Your code uses prohibited code in line: 4\"")
-        status(result.get) must equalTo(BAD_REQUEST)
-    }
-
-     "fail with ascii encoded use of library tools" in new WithApplication {
-      val json: JsValue = Json.parse(
-          """{
-            "courseId": 100001,
-            "chapterId": 1,
-            "taskId": "code1",
-            "code": "def rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}\nval x = new \164ools.nsc.interpreter.IMain()"
-          }"""
-        )
-
-        val request = FakeRequest(POST, "/api/interpreter/scala")
-          .withJsonBody(json)
-          .withSession("username" -> "test@test.de", "password" -> "test")
-        val result = route(request)
-
-        contentAsString(result.get) must contain("\"status\":\"KO\"")
-        contentAsString(result.get) must contain("\"message\":\"Your code uses prohibited code in line: 4\"")
-        status(result.get) must equalTo(BAD_REQUEST)
-    }
   }
 }
