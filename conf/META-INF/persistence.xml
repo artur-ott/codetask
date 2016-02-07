@@ -6,6 +6,11 @@
     <persistence-unit name="defaultPersistenceUnit" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <class>models.hibernate.UserHibernate</class>
+        <class>models.hibernate.ChapterSolutionHibernate</class>
+        <class>models.hibernate.TaskSolutionHibernate</class>
+        <class>models.hibernate.CourseHibernate</class>
+        <class>models.hibernate.ChapterHibernate</class>
+        <class>models.hibernate.TaskHibernate</class>
         <properties>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/codetaskdb" />
