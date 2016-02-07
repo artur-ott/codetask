@@ -84,7 +84,11 @@ class TaskHibernate extends Serializable {
 
   var id: String =_
   var tag: String = _
+
+  @Column(columnDefinition = "MEDIUMTEXT")
   var taskData: String = _
+
+  @Column(columnDefinition = "MEDIUMTEXT")
   var solution: Option[String] = _
 
   @ManyToOne(cascade = Array(CascadeType.ALL))

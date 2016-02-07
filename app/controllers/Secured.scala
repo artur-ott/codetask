@@ -54,6 +54,7 @@ trait Secured {
         }
       }.map(_ => f(request))
     }.getOrElse {
+      play.Logger.info("unauthorized request")
       Unauthorized.withHeaders("WWW-Authenticate" -> "Basic realm=\"Secured\"")
     }
   }

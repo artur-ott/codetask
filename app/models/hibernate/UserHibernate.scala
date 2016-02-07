@@ -101,7 +101,10 @@ class TaskSolutionHibernate extends Serializable {
   @GeneratedValue(generator="generator")
   var id: Long =_
   var taskId: String = _
+
+  @Column(columnDefinition = "MEDIUMTEXT")
   var taskState: String = _
+
   var checked: Option[Boolean] = _
 
   @ManyToOne(cascade = Array(CascadeType.ALL))
