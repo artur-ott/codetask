@@ -16,6 +16,8 @@ class CourseServiceSpec extends Specification {
     ))
   ))
 
+  var courseId:Long = 0
+
   "CourseService#findOneByTitle" should {
     "fail with unknown course name" in {
       val course = courseService.findOneByTitle("no name")
@@ -24,7 +26,8 @@ class CourseServiceSpec extends Specification {
   }
   "CourseService#create" should {
     "succeed when course doesn't exist" in {
-      courseService.create(course1) should be equalTo(Some(course1))
+      val course = courseService.create(course1)
+      course should be equalTo(Some(course1))
     }
     "fail when course does exist" in {
       courseService.create(course1) should be(None)
@@ -49,7 +52,7 @@ class CourseServiceSpec extends Specification {
   }
   "CourseService#update" should {
     "work with existing course" in {
-      val course2 = new Course(1, "scala", List(
+      val course2 = new Course(course1.id, "scala", List(
         new Chapter(1, "First Chapter", List(
           new Task("koan1", "koan-task", VideoData("video", "url"), Some("false"))
         )),

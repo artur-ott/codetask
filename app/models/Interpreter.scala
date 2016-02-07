@@ -1,5 +1,6 @@
 package models
 
+
 import org.scalatest.Matchers._
 import tools.nsc.interpreter.IMain
 import tools.nsc.interpreter.Results
@@ -10,78 +11,75 @@ import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 import java.util.concurrent.TimeoutException
 import java.io.File
-import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
+import java.net.URL;
+import java.net.URLClassLoader
+import java.lang.SecurityManager
+import java.security.Permission
+import java.lang.SecurityException
 
 case class InterpreterResult(
-  val invalid: Boolean = false,
   var error: Boolean = false,
   var incomplete: Boolean = false,
   var success: Boolean = false,
   var output: String = ""
 )
 
-//class WhiteListClassLoader(cl: java.lang.ClassLoader) extends java.lang.ClassLoader {
-//  val whiteList = List("Math")
-//
-//  //override def loadClass(name: String): Class[_] = {
-//  //  println(name)
-//  //  //val b = cl.loadClassData(name);
-//  //  //return defineClass(name, b, 0, b.length);
-//  //  cl.loadClass(name)
-//  //}
-//
-//  override def findClass(name:String): Class[_] = {
-//    println(name)
-//    cl.findClass(name)
-//  }
-//
-//  //override def 
-//
-//
-// // override def clearAssertionStatus() = cl.clearAssertionStatus()
-// // //override def getParent() = cl.getParent()
-// // override def getResource(name:String) = cl.getResource(name)
-// // override def getResourceAsStream(name:String) = cl.getResourceAsStream(name)
-// // override def getResources(name:String) = cl.getResources(name)
-// // override def setClassAssertionStatus(className: String, enabled: Boolean) = cl.setClassAssertionStatus(className, enabled)
-// // override def setDefaultAssertionStatus(enabled: Boolean) = cl.setDefaultAssertionStatus(enabled)
-// // override def setPackageAssertionStatus(packageName: String, enabled: Boolean) = cl.setPackageAssertionStatus(packageName, enabled)
-//  def loadClassData(name: String): Array[Byte] = {
-//    println(name)
-//    return super.loadClassData(name)
-//  }
-//}
+// borrowed: https://github.com/wsargent/sandboxexperiment/blob/master/security/src/main/scala/com/tersesystems/sandboxexperiment/security/SandboxClassLoader.scala
+class SecureClassLoader(parent: ClassLoader) extends URLClassLoader(SecureClassLoader.urls, parent) {
 
-/*
-class WhiteListClassLoader extends scala.tools.nsc.util.ScalaClassLoader.URLClassLoader {
-  def findClass(name: String): Array[Byte] = {
-    val b = loadClassData(name);
-    return defineClass(name, b, 0, b.length);
-  }
+  import SecureClassLoader._
 
-  def loadClassData(name: String): Array[Byte] = {
-
-  }
-
-  def getPermissions(codeSource: CodeSource) {
-    val permissions = new java.security.PermissionsCollection()
-
-    val addRead = () => 
-      permissions.add(new java.io.FilePermission(codeSource.url, "read"))
-
-    println(codeSource.url)
-    codeSource.url match {
-      case "lib/scala-library.jar" => addRead()
-      case "lib/scalatest.jar" => addRead()
-      case _ => // no permissions
+  override def loadClass(name: String, resolve: Boolean): Class[_] = {
+    if (!isAllowed(name)) {
+      throw new IllegalArgumentException("This functionality is disabled")
     }
+    super.loadClass(name, resolve)
   }
-}*/
+
+  override def findClass(name: String): Class[_] = {
+    super.findClass(name)
+  }
+}
+
+object SecureClassLoader {
+  val urls = Array(new URL("file://lib/scala-library.jar"), 
+                   new URL("file://lib/scalatest.jar"))
+
+  val miscClasses =
+    """java.util.logging.Logger
+      |java.sql.DriverManager
+      |javax.sql.rowset.serial.SerialJavaObject
+    """.stripMargin.split("\n").toSet
+
+  // a bit extreme, but see http://www.security-explorations.com/materials/se-2014-02-report.pdf
+  val javaClasses =
+    """java.lang.Class
+      |java.lang.ClassLoader
+      |java.lang.Package
+      |java.lang.invoke.MethodHandleProxies
+      |java.lang.reflect.Proxy
+      |java.lang.reflect.Constructor
+      |java.lang.reflect.Method
+      |java.lang.SecurityManager
+    """.stripMargin.split("\n").toSet
+
+  val forbiddenPackages =
+    """scala.io
+      |scala.tools
+      |java.io
+      |java.net
+      |java.sql
+    """.stripMargin.split("\n").toSet
+
+  val forbiddenClasses: Set[String] = javaClasses ++ miscClasses
+
+  def isAllowed(name: String): Boolean = {
+    !forbiddenClasses.contains(name) && forbiddenPackages.find(p => name.contains(p)).isEmpty
+  }
+}
 
 object Interpreter {
   val stdImportScala = "import org.scalatest.Matchers._\n"
-  val blacklistScala = List("scala", "annotation", "beans", "compat", "io", 
-    "ref", "reflect", "runtime", "sys", "text", "System", "java")
 
   def run(language: String, code: String) : InterpreterResult = {
     language match {
@@ -95,37 +93,43 @@ object Interpreter {
     settings.usejavacp.value = false
 
     // borrowed: http://stackoverflow.com/questions/16511233/scala-tools-nsc-imain-within-play-2-1
-    //settings.bootclasspath.value += scala.tools.util.PathResolver.Environment.javaBootClassPath + File.pathSeparator + "lib/scala-library.jar"
     settings.classpath.value += scala.tools.util.PathResolver.Environment.javaBootClassPath + File.pathSeparator + "lib/scala-library.jar"
-    //println(settings.classpath.value)
     settings.classpath.value += File.pathSeparator + "lib/scalatest.jar"
-    //println(settings.classpath.value)
 
-    //val classLoader = new java.net.URLClassLoader("lib/scala-library.jar", null)
-    val url = (jar: String) => (new java.io.File(jar)).toURI.toURL
-    val x = settings.getClass.getClassLoader
-    //val whiteListClassLoader = new WhiteListClassLoader(settings.getClass.getClassLoader())/*new WhiteListClassLoader(Seq(
-      //url("lib/scala-library.jar"),
-      //url("lib/scalatest.jar")), null)*/
-    
     val im = new IMain(settings) {
-      override protected def parentClassLoader = settings.getClass.getClassLoader()
-      //override protected def parentClassLoader = whiteListClassLoader
+      // SecureClassLoader needs to be created in parentClassLoader
+      override protected def parentClassLoader = 
+        new SecureClassLoader(settings.getClass.getClassLoader())
     }
-    // /borrowed
 
     val ir = new InterpreterResult
     val out = new java.io.ByteArrayOutputStream
+    // borrowed http://stackoverflow.com/questions/5401281/preventing-system-exit-from-api
+    val sm = new SecurityManager() {
+      override def checkPermission(permission: Permission) = {
+        if (permission.getName().contains("exitVM")) {
+          throw new SecurityException()
+        }
+      }
+    }
 
     lazy val f = Future {
       scala.Console.withOut(out) {
         // add stdImport
         val newCode = stdImportScala + code
+
+        // set security manager
+        System.setSecurityManager(sm)
+
         im.interpret(newCode) match {
           case Results.Error => ir.error = true;
           case Results.Incomplete => ir.incomplete = true;
           case Results.Success => ir.success = true;
         }
+
+        // reset security manager
+        System.setSecurityManager(null)
+
         //im.close()
       }
     }
