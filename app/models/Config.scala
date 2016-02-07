@@ -6,5 +6,5 @@ import models.hibernate._
 
 object Config {
   lazy val userRepository = new UserRepositoryHibernate
-  lazy val courseRepository = new CourseRepositoryDummy
+  lazy val courseRepository = new CourseRepositoryHibernate
 }

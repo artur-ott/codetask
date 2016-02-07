@@ -53,8 +53,7 @@ class Auth extends Controller {
         formWithErrors => BadRequest(views.html.register(formWithErrors)),
         user => {
           if (!exists(user._1)) {
-            val id = userService.newId()
-            val u = new User(id, user._1, "student", userService.passwordHash(user._2))
+            val u = new User(User.NEW, user._1, "student", userService.passwordHash(user._2))
             userService.create(u) 
             Redirect(routes.Application.dashboard).withSession(Security.username -> user._1)
           } else {

@@ -7,11 +7,12 @@ import models._
 import models.tasks._
 
 class CourseServiceSpec extends Specification {
+  val loop = 500
+
   val courseService = new CourseService(Config);
-  val id = courseService.newId()
-  val course1 = new Course(id, "scala", List(
+  val course1 = new Course(Course.NEW, "scala", List(
     new Chapter(1, "First Chapter", List(
-      new Task("koan1", "koan-task", null, Some("false"))
+      new Task("koan1", "koan-task", VideoData("video", "url"), Some("false"))
     ))
   ))
 
@@ -48,16 +49,25 @@ class CourseServiceSpec extends Specification {
   }
   "CourseService#update" should {
     "work with existing course" in {
-      val course2 = new Course(id, "scala", List(
+      val course2 = new Course(1, "scala", List(
         new Chapter(1, "First Chapter", List(
-          new Task("koan1", "koan-task", null, Some("false"))
+          new Task("koan1", "koan-task", VideoData("video", "url"), Some("false"))
         )),
         new Chapter(1, "First Chapter", List(
-          new Task("koan1", "koan-task", null, Some("false"))
+          new Task("koan1", "koan-task", VideoData("video", "url2"), Some("false"))
         ))
       ))
-
       courseService.update(course2)
+
+      for (_ <- 1 to loop) {
+        val course = courseService.findOneByTitle("scala")
+        course.isDefined shouldEqual true
+        course.get.id must equalTo(1)
+        val x = course.get.chapters(0)
+        x.tasks(0).taskData shouldEqual(VideoData("video", "url"))
+        val y = course.get.chapters(1)
+        y.tasks(0).taskData shouldEqual(VideoData("video", "url2"))
+      }
       val course = courseService.findOneByTitle("scala").get
       course.chapters.size must be equalTo(2)
       course.chapters(0).tasks(0).toString contains("false") must beTrue

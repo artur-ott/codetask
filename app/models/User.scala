@@ -8,7 +8,7 @@ import models.Services.userService
 
 // courses: Map[coursename, Map[chaptername, Map[taskname, solution]]]
 case class User(
-  id: Long,
+  var id: Long,
   username: String,
   var authority: String,
   var password: String,
@@ -17,10 +17,10 @@ case class User(
 )
 
 case class ChapterSolution(courseId: Long, chapterId: Long, taskSolutions: List[TaskSolution] = List())
-//case class TaskSolution(taskId: String, state: String) // checked: Boolean = false)
 case class TaskSolution(taskId: String, taskState: TaskState, var checked: Option[Boolean] = Some(false))
 
 object User {
+  def NEW: Long = -1
 
   implicit val taskSolutionReads: Reads[TaskSolution] = (
     (__ \ "taskId").read[String] and
@@ -35,7 +35,7 @@ object User {
   )(ChapterSolution.apply _)
 
   implicit val userReads: Reads[User] = (
-    (__ \ "id").read[Long] orElse Reads.pure(userService.newId()) and
+    (__ \ "id").read[Long] orElse Reads.pure(NEW) and
     (__ \ "username").read[String] and
     (__ \ "authority").read[String] and
     (__ \ "password").read[String] and

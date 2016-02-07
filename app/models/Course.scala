@@ -6,11 +6,13 @@ import Services._
 import models.tasks._
 import models.tasks.Tasks._
 
-case class Course(id: Long, var title: String, var chapters: List[Chapter])
+case class Course(var id: Long, var title: String, var chapters: List[Chapter])
 case class Chapter(id: Long, title: String, tasks: List[Task])
-case class Task(id: String, tag: String, data: TaskData, solution: Option[String] = None)
+case class Task(id: String, tag: String, taskData: TaskData, solution: Option[String] = None)
 
 object Course {
+  def NEW: Long = -1
+
   implicit val taskReads: Reads[Task] = (
     (__ \ "id").read[String] and
     (__ \ "tag").read[String] and
@@ -25,7 +27,7 @@ object Course {
   )(Chapter.apply _)
 
   implicit val courseReads: Reads[Course] = (
-    (__ \ "id").read[Long] orElse Reads.pure(courseService.newId()) and
+    (__ \ "id").read[Long] orElse Reads.pure(NEW) and
     (__ \ "title").read[String] and
     (__ \ "chapters").read[List[Chapter]]
   )(Course.apply _)

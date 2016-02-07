@@ -11,12 +11,6 @@ class UserService(env: {val userRepository: UserRepository}) {
   def findOneById(id: Long): Option[User] =  env.userRepository.findOneById(id)
   def findOneByUsername(username: String): Option[User] = 
     env.userRepository.findOneByUsername(username)
-  def newId(): Long = {
-    val users = findAll()
-    var id = 200000
-    do { id += 1 } while (users.find(u => u.id == id) != None)
-    id
-  }
   def passwordHash(password: String): String = 
     BCrypt.hashpw(password, BCrypt.gensalt())
   def checkPassword(password: String, passwordHash: String): Boolean =

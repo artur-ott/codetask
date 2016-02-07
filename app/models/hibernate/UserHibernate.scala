@@ -9,21 +9,23 @@ import models.tasks.Tasks._
 import play.api.libs.json._
 
 // necessery for composit key
-class UserName extends Serializable {
-  var id: Long = _
-  var username: String = _
-}
+//class UserName extends Serializable {
+//  var id: Long = _
+//  var username: String = _
+//}
 
 @Entity
 @Table(name = "UserHibernate")
 //@NamedQueries(Array(
 //  new NamedQuery(name="User.findOneById", query="from UserHibernate where id=:id")
 //))
-@IdClass(classOf[UserName])
+//@IdClass(classOf[UserName])
 class UserHibernate extends Serializable {
-  @Id 
+  @Id
+  @GenericGenerator(name="generator", strategy="increment")
+  @GeneratedValue(generator="generator")
   var id: Long = _
-  @Id 
+  //@Id 
   var username: String = _
   var authority: String = _
   var password: String = _
@@ -36,7 +38,7 @@ class UserHibernate extends Serializable {
   var subscriptions: java.util.List[Long] = _
 
   def fill(user: User): UserHibernate = {
-    id = user.id 
+    //id = user.id 
     username = user.username
     authority = user.authority 
     password = user.password 

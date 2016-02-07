@@ -19,12 +19,10 @@ class ApplicationSpec extends Specification {
   def encodeBase64(s: String) = new String(Base64.encodeBase64(s.getBytes))
   val auth = "Basic " + encodeBase64("admin@a.pp:$1amn_$2pwrt")
 
-  val id1 = userService.newId()
-  val user1 = new User(id1, "admin@test.de", "teacher", userService.passwordHash("test"), List())
+  val user1 = new User(User.NEW, "admin@test.de", "teacher", userService.passwordHash("test"), List())
   userService.create(user1)
 
-  val id2 = userService.newId()
-  val user2 = new User(id2, "test@test.de", "student", userService.passwordHash("test"), List())
+  val user2 = new User(User.NEW, "test@test.de", "student", userService.passwordHash("test"), List())
   userService.create(user2)
 
   val loop = 6000
@@ -67,18 +65,18 @@ class ApplicationSpec extends Specification {
     }
 
     "create Course" in new WithApplication {
-      val json: JsValue = Json.parse("""{"id": 100001, "title": "Neuer Kurs 5","chapters": [{"id": 1, "title": "About Mutable Sets", "tasks": [{"id":"koan1","tag":"koan-task","data":{"description":"Mutable sets can be created easily","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet.size should be(__)\nmySet += \"Oregon\"\nmySet contains \"Oregon\" should be(__)","mode":"scala","solutions":["4","true"]},"solution":"4,true"},{"id":"koan2","tag":"koan-task","data":{"description":"Mutable sets can have elements removed","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet -= \"Ohio\"\nmySet contains \"Ohio\" should be(__)","mode":"scala","solutions":["false"]},"solution":"false"},{"id":"koan3","tag":"koan-task","data":{"description":"Mutable sets can have tuples of elements removed","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet -= (\"Iowa\", \"Ohio\")\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["false","2"]},"solution":"false,2"},{"id":"koan4","tag":"koan-task","data":{"description":"Mutable sets can have tuples of elements added","code":"val mySet = mutable.Set(\"Michigan\", \"Wisconsin\")\nmySet += (\"Iowa\", \"Ohio\")\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["true","4"]},"solution":"true,4"},{"id":"koan5","tag":"koan-task","data":{"description":"Mutable sets can have Lists of elements added","code":"val mySet = mutable.Set(\"Michigan\", \"Wisconsin\")\nmySet ++= List(\"Iowa\", \"Ohio\")\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["true","4"]},"solution":"true,4"},{"id":"koan6","tag":"koan-task","data":{"description":"Mutable sets can have Lists of elements removed","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet --= List(\"Iowa\", \"Ohio\")\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["false","2"]},"solution":"false,2"},{"id":"koan7","tag":"koan-task","data":{"description":"Mutable sets can be cleared","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet.clear() // Convention is to use parens if possible when method called changes state\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["false","0"]},"solution":"false,0"}]}]}""")
+      val json: JsValue = Json.parse("""{"id": 0, "title": "Neuer Kurs 5","chapters": [{"id": 1, "title": "About Mutable Sets", "tasks": [{"id":"koan1","tag":"koan-task","data":{"description":"Mutable sets can be created easily","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet.size should be(__)\nmySet += \"Oregon\"\nmySet contains \"Oregon\" should be(__)","mode":"scala","solutions":["4","true"]},"solution":"4,true"},{"id":"koan2","tag":"koan-task","data":{"description":"Mutable sets can have elements removed","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet -= \"Ohio\"\nmySet contains \"Ohio\" should be(__)","mode":"scala","solutions":["false"]},"solution":"false"},{"id":"koan3","tag":"koan-task","data":{"description":"Mutable sets can have tuples of elements removed","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet -= (\"Iowa\", \"Ohio\")\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["false","2"]},"solution":"false,2"},{"id":"koan4","tag":"koan-task","data":{"description":"Mutable sets can have tuples of elements added","code":"val mySet = mutable.Set(\"Michigan\", \"Wisconsin\")\nmySet += (\"Iowa\", \"Ohio\")\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["true","4"]},"solution":"true,4"},{"id":"koan5","tag":"koan-task","data":{"description":"Mutable sets can have Lists of elements added","code":"val mySet = mutable.Set(\"Michigan\", \"Wisconsin\")\nmySet ++= List(\"Iowa\", \"Ohio\")\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["true","4"]},"solution":"true,4"},{"id":"koan6","tag":"koan-task","data":{"description":"Mutable sets can have Lists of elements removed","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet --= List(\"Iowa\", \"Ohio\")\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["false","2"]},"solution":"false,2"},{"id":"koan7","tag":"koan-task","data":{"description":"Mutable sets can be cleared","code":"val mySet = mutable.Set(\"Michigan\", \"Ohio\", \"Wisconsin\", \"Iowa\")\nmySet.clear() // Convention is to use parens if possible when method called changes state\nmySet contains \"Ohio\" should be(__)\nmySet.size should be(__)","mode":"scala","solutions":["false","0"]},"solution":"false,0"}]}]}""")
       val request = FakeRequest(POST, "/api/courses")
           .withJsonBody(json)
           .withHeaders(("Authorization", auth))
         val result = route(request)
 
       status(result.get) must equalTo(CREATED)
-      header("Location", result.get).get must contain("/api/courses/100001")
+      header("Location", result.get).get must contain("/api/courses/0")
     }
 
     "subscribe user to course" in new WithApplication {
-      val request = FakeRequest(GET, "/subscribe/100001")
+      val request = FakeRequest(GET, "/subscribe/0")
         .withSession("username" -> "test@test.de", "password" -> "test")
 
       val result = route(request)
@@ -88,10 +86,10 @@ class ApplicationSpec extends Specification {
 
     "store state of chapter" in new WithApplication {
         val json: JsValue = Json.parse(
-          """{"courseId":100001,"chapterId":1,"taskSolutions":[{"taskId":"koan1","taskState":{"mySolutions":["4","true"]}},{"taskId":"koan2","taskState":{"mySolutions":["false"]}},{"taskId":"koan3","taskState":{"mySolutions":["false","2"]}},{"taskId":"koan4","taskState":{"mySolutions":[]}},{"taskId":"koan5","taskState":{"mySolutions":[]}},{"taskId":"koan6","taskState":{"mySolutions":[]}},{"taskId":"koan7","taskState":{"mySolutions":[]}}]}"""
+          """{"courseId":0,"chapterId":1,"taskSolutions":[{"taskId":"koan1","taskState":{"mySolutions":["4","true"]}},{"taskId":"koan2","taskState":{"mySolutions":["false"]}},{"taskId":"koan3","taskState":{"mySolutions":["false","2"]}},{"taskId":"koan4","taskState":{"mySolutions":[]}},{"taskId":"koan5","taskState":{"mySolutions":[]}},{"taskId":"koan6","taskState":{"mySolutions":[]}},{"taskId":"koan7","taskState":{"mySolutions":[]}}]}"""
         )
 
-        val request = FakeRequest(POST, "/api/solutions/100001")
+        val request = FakeRequest(POST, "/api/solutions/0")
           .withJsonBody(json)
           .withSession("username" -> "test@test.de", "password" -> "test")
         val result = route(request)
@@ -102,7 +100,7 @@ class ApplicationSpec extends Specification {
     }
 
     "get Course" in new WithApplication {
-      val request = FakeRequest(GET, "/api/courses/100001")
+      val request = FakeRequest(GET, "/api/courses/0")
         val result = route(request)
 
       var failed = 0
@@ -143,13 +141,13 @@ class ApplicationSpec extends Specification {
 
         status(result.get) must equalTo(OK)
         failed shouldEqual(0)
-        contentAsString(result.get) must contain("{\"id\":100001,\"title\":\"Neuer Kurs 5\"")
+        contentAsString(result.get) must contain("{\"id\":0,\"title\":\"Neuer Kurs 5\"")
     }
 
     "fail to store malformated state of chapter" in new WithApplication {
         val json: JsValue = Json.parse(
           """{
-            "courseId": 100001,
+            "courseId": 0,
             "chapterId": 1,
             "taskStates": [
               {
@@ -159,7 +157,7 @@ class ApplicationSpec extends Specification {
           }"""
         )
 
-        val request = FakeRequest(POST, "/api/solutions/100001")
+        val request = FakeRequest(POST, "/api/solutions/0")
           .withJsonBody(json)
           .withSession("username" -> "test@test.de", "password" -> "test")
         val result = route(request)
@@ -169,7 +167,7 @@ class ApplicationSpec extends Specification {
     }
 
     "retreive chapter states" in new WithApplication {
-        val request = FakeRequest(GET, "/api/solutions/100001")
+        val request = FakeRequest(GET, "/api/solutions/0")
           .withSession("username" -> "test@test.de", "password" -> "test")
         val result = route(request)
 
@@ -178,7 +176,7 @@ class ApplicationSpec extends Specification {
     }
 
 //    "unsubscribe user from course" in new WithApplication {
-//      val request = FakeRequest(GET, "/unsubscribe/100001")
+//      val request = FakeRequest(GET, "/unsubscribe/0")
 //        .withSession("username" -> "test@test.de", "password" -> "test")
 //
 //      val result = route(request)
@@ -187,7 +185,7 @@ class ApplicationSpec extends Specification {
 //    }
 //
 //    "delete course" in new WithApplication {
-//        val request = FakeRequest(DELETE, "/api/courses/100001")
+//        val request = FakeRequest(DELETE, "/api/courses/0")
 //          .withSession("username" -> "admin@test.de", "password" -> "test")
 //        val result = route(request)
 //

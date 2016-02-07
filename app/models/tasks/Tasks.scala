@@ -7,12 +7,12 @@ trait TaskType {
   def validateState(js: JsValue): Option[TaskState] 
 }
 
-trait TaskState extends Serializable {
+trait TaskState {
   def toJson: JsValue
   def isSolved(solution: String): Boolean
 }
 
-trait TaskData extends Serializable {
+trait TaskData {
   def toJson: JsValue
 }
 

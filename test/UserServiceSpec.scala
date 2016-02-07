@@ -13,8 +13,7 @@ class UserServiceSpec extends Specification {
   val userService = new UserService(Config);
   val loop = 500
 
-  val id = userService.newId()
-  val user1 = new User(id, "email", "student", userService.passwordHash("pw1234"), List(
+  val user1 = new User(User.NEW, "email", "student", userService.passwordHash("pw1234"), List(
     new ChapterSolution(100001, 2, List(
       new TaskSolution("koan-task1", KoanState(List("eins", "zwei", "drei")), Some(true)),
       new TaskSolution("code-task1", CodeState("my code"), Some(true)),
@@ -44,7 +43,7 @@ class UserServiceSpec extends Specification {
       for (_ <- 1 to loop) {
         val user = userService.findOneByUsername(user1.username)
         user.isDefined shouldEqual true
-        user.get.id must equalTo(user1.id)
+        user.get.id must equalTo(2)
         val x = user.get.chapterSolutions(0)
         x.taskSolutions(1).taskState shouldEqual(CodeState("my code"))
         x.taskSolutions(0).taskState shouldEqual(KoanState(List("eins", "zwei", "drei")))
@@ -66,7 +65,7 @@ class UserServiceSpec extends Specification {
   }
   "UserService#update" should {
     "work with existing user" in {
-      val tsk = new TaskSolution("koan-task1", null, Some(false))
+      val tsk = new TaskSolution("koan-task1", VideoState("watched"), Some(false))
       var chpt = new ChapterSolution(100001, 1, List(tsk))
 
       // replace -> 100001, 1
@@ -89,7 +88,7 @@ class UserServiceSpec extends Specification {
       taskState.get.checked shouldEqual(Some(false))
     }
     "fail without existing user" in {
-      val result = userService.update(new User(0, "user", "teacher", "pw", List()))
+      val result = userService.update(new User(1000, "user", "teacher", "pw", List()))
       result.isDefined must beFalse
     }
   }

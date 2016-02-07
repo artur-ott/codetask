@@ -4,7 +4,6 @@ import models._
 import javax.persistence.Persistence
 import javax.persistence.EntityManagerFactory
 import org.hibernate._
-//import org.hibernate.EntityManagerFactory
 import org.hibernate.ejb.HibernateEntityManagerFactory
 import scala.collection.JavaConversions._
 import play.db.jpa.JPA 
@@ -35,12 +34,13 @@ class UserRepositoryHibernate extends UserRepository {
     try {
         tx = sess.beginTransaction()
         val query = "from UserHibernate u where u.username = " + 
-        "'" + user.username + "' and u.id = " + user.id
+        "'" + user.username + "'"
         val list = sess.createQuery(query).list()
 
         if (list.size == 0) {
           val userH = ( new UserHibernate ).fill(user)
           sess.persist(userH)
+          user.id = userH.id
           result = Some(user)
         }
         tx.commit()
@@ -48,7 +48,7 @@ class UserRepositoryHibernate extends UserRepository {
     catch {
         case e: Exception => 
           if (tx!=null) tx.rollback() 
-          play.Logger.info(e.getStackTrace().toString())
+          play.Logger.info(stackTraceString(e))
     }
     finally {
         sess.close()
@@ -78,7 +78,6 @@ class UserRepositoryHibernate extends UserRepository {
     catch {
         case e: Exception => 
           if (tx!=null) tx.rollback()
-
           play.Logger.info(stackTraceString(e))
     }
     finally {
@@ -109,7 +108,7 @@ class UserRepositoryHibernate extends UserRepository {
     catch {
         case e: Exception => 
           if (tx!=null) tx.rollback() 
-          play.Logger.info(e.getMessage)
+          play.Logger.info(stackTraceString(e))
     }
     finally {
         sess.close()
@@ -153,8 +152,7 @@ class UserRepositoryHibernate extends UserRepository {
         val query = "from UserHibernate u where u.id = " + id
         val list = sess.createQuery(query).list()
         list.isEmpty match {
-          case false => 
-            result = Some(toUserList(list).head)
+          case false => result = Some(toUserList(list).head)
           case true => 
         }
         tx.commit()
@@ -162,7 +160,7 @@ class UserRepositoryHibernate extends UserRepository {
     catch {
         case e: Exception => 
           if (tx!=null) tx.rollback()
-          play.Logger.info(e.getMessage)
+          play.Logger.info(stackTraceString(e))
     }
     finally {
         sess.close()

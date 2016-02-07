@@ -22,7 +22,7 @@ class BugTestSpec extends Specification {
           else if (chapter.tasks == null) list = list ++ List("course " + course.id + " chapter " + chapter.id + " tasks null")
           chapter.tasks.foreach { task => 
             if (task == null) list = list ++ List("course " + course.id + "chapter " + chapter.id + " task null")
-            else if (task.data == null) list = list ++ List("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.data null")
+            else if (task.taskData == null) list = list ++ List("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.taskData null")
             else if (task.solution == null) list = list ++ List("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.solution null")
           }
         }

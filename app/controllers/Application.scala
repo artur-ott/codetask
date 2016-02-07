@@ -43,7 +43,7 @@ class Application extends Controller with Secured {
         else if (chapter.tasks == null) play.Logger.info("course " + course.id + " chapter " + chapter.id + " tasks null")
         chapter.tasks.foreach { task => 
           if (task == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task null")
-          else if (task.data == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.data null")
+          else if (task.taskData == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.taskData null")
           else if (task.solution == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.solution null")
         }
       }
@@ -129,7 +129,7 @@ class Application extends Controller with Secured {
           case Some(saved) => Created(Json.obj(
             "status" -> "OK", 
             "message" -> ("Course '" + saved.title + "' created")
-          )).withHeaders(LOCATION -> ("/api/courses/" + course.id))
+          )).withHeaders(LOCATION -> ("/api/courses/" + saved.id))
           case None =>  Conflict(Json.obj(
             "status" -> "KO", 
             "message" -> ("Course '" + course.title + "' already exists")
