@@ -8,9 +8,12 @@ scalaVersion := "2.11.6"
 
 libraryDependencies ++= Seq(
   jdbc,
+  javaJpa,
   cache,
   ws,
   specs2 % Test,
+  "mysql" % "mysql-connector-java" % "5.1.27",
+  "org.hibernate" % "hibernate-entitymanager" % "4.3.9.Final",
   "org.scala-lang" % "scala-compiler" % "2.11.6",
   "org.scalatest" % "scalatest_2.10" % "2.0" % "test",
   "com.db4o" % "com.db4o" % "7.7.67",

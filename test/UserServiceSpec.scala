@@ -1,5 +1,8 @@
 import org.specs2.mutable._
 
+import org.specs2.runner._
+import org.junit.runner._
+
 import play.api.test._
 import play.api.test.Helpers._
 import play.api.libs.json._
@@ -11,7 +14,7 @@ class UserServiceSpec extends Specification {
   val loop = 500
 
   val id = userService.newId()
-  val user1 = new User(id, "email", "student", "pw1234", List(
+  val user1 = new User(id, "email", "student", userService.passwordHash("pw1234"), List(
     new ChapterSolution(100001, 2, List(
       new TaskSolution("koan-task1", KoanState(List("eins", "zwei", "drei")), Some(true)),
       new TaskSolution("code-task1", CodeState("my code"), Some(true)),
@@ -58,8 +61,7 @@ class UserServiceSpec extends Specification {
   }
   "UserService#findAll" should {
     "give all Users" in {
-      // created User and initial admin User
-      userService.findAll().size shouldEqual(2)
+      userService.findAll().size shouldEqual(1)
     }
   }
   "UserService#update" should {

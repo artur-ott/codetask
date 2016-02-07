@@ -8,11 +8,11 @@ object Global extends GlobalSettings {
       User(userService.newId(), "admin@a.pp", "admin", userService.passwordHash("$1amn_$2pwrt"))
     )
 
-    administrators.foreach { user =>
-      userService.create(user) match {
-        case Some(newUser) => Logger.info("user " + newUser.id + " created")
-        case None => //Logger.info("could not create user " + user.id)
-      }
-    }
+    //administrators.foreach { user =>
+    //  userService.create(user) match {
+    //    case Some(newUser) => Logger.info("user " + newUser.id + " created")
+    //    case None => //Logger.info("could not create user " + user.id)
+    //  }
+    //}
   }
 }
