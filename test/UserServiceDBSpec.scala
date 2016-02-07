@@ -61,50 +61,50 @@ class UserServiceDBSpec extends Specification {
       user.get.username must equalTo(user1.username)
     }
   }
-//  "UserService#findAll" should {
-//    "give all Users" in new WithApplication {
-//      // created User and initial admin User
-//      userService.findAll().size shouldEqual(2)
-//    }
-//  }
-//  "UserService#update" should {
-//    "work with existing user" in new WithApplication {
-//      val tsk = new TaskSolution("koan-task1", null, Some(false))
-//      var chpt = new ChapterSolution(100001, 1, List(tsk))
-//
-//      // replace -> 100001, 1
-//      val chapterSolutions = chpt :: user1.chapterSolutions.filter {
-//        x => x.courseId == chpt.courseId && x.chapterId == chpt.chapterId
-//      }
-//
-//      val userNew = new User(user1.id, user1.username, "teacher",
-//        user1.password, chapterSolutions)
-//      userService.update(userNew)
-//
-//      val user = userService.findOneByUsername(userNew.username)
-//      user.isDefined must beTrue
-//      user.get.authority equals "teacher" must beTrue
-//      
-//      val chapterSolution = user.get.chapterSolutions.find(x => x.courseId == 100001 && x.chapterId == 1)
-//      chapterSolution.isDefined must beTrue
-//      val taskState = chapterSolution.get.taskSolutions.find(x => x.taskId == "koan-task1")
-//      taskState.isDefined must beTrue
-//      taskState.get.checked shouldEqual(Some(false))
-//    }
-//    "fail without existing user" in new WithApplication {
-//      val result = userService.update(new User(0, "user", "teacher", "pw", List()))
-//      result.isDefined must beFalse
-//    }
-//  }
-  //"UserService#delete" should {
-  //  "succeed with existing user" in new WithApplication {
-  //    var user = userService.findOneByUsername("email")
-  //    userService.delete(user.get)
-  //    userService.findOneByUsername("email") should be(None)
-  //  }
-  //  "fail with missing user" in new WithApplication {
-  //    var result = userService.delete(user1)
-  //    result should be(None)
-  //  }
-  //}
+  "UserService#findAll" should {
+    "give all Users" in new WithApplication {
+      // created User and initial admin User
+      userService.findAll().size shouldEqual(2)
+    }
+  }
+  "UserService#update" should {
+    "work with existing user" in new WithApplication {
+      val tsk = new TaskSolution("koan-task1", VideoState("hey"), Some(false))
+      var chpt = new ChapterSolution(100001, 1, List(tsk))
+
+      // replace -> 100001, 1
+      val chapterSolutions = chpt :: user1.chapterSolutions.filter {
+        x => x.courseId == chpt.courseId && x.chapterId == chpt.chapterId
+      }
+
+      val userNew = new User(user1.id, user1.username, "teacher",
+        user1.password, chapterSolutions)
+      userService.update(userNew)
+
+      val user = userService.findOneByUsername(userNew.username)
+      user.isDefined must beTrue
+      user.get.authority equals "teacher" must beTrue
+      
+      val chapterSolution = user.get.chapterSolutions.find(x => x.courseId == 100001 && x.chapterId == 1)
+      chapterSolution.isDefined must beTrue
+      val taskState = chapterSolution.get.taskSolutions.find(x => x.taskId == "koan-task1")
+      taskState.isDefined must beTrue
+      taskState.get.checked shouldEqual(Some(false))
+    }
+    "fail without existing user" in new WithApplication {
+      val result = userService.update(new User(0, "user", "teacher", "pw", List()))
+      result.isDefined must beFalse
+    }
+  }
+  "UserService#delete" should {
+    "succeed with existing user" in new WithApplication {
+      var user = userService.findOneByUsername("email")
+      userService.delete(user.get)
+      userService.findOneByUsername("email") should be(None)
+    }
+    "fail with missing user" in new WithApplication {
+      var result = userService.delete(user1)
+      result should be(None)
+    }
+  }
 }

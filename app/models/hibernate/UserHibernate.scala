@@ -40,7 +40,13 @@ class UserHibernate extends Serializable {
     username = user.username
     authority = user.authority 
     password = user.password 
-    chapterSolutions = user.chapterSolutions.map{x => (new ChapterSolutionHibernate).fill(x, this)}.asJava
+
+    val css = user.chapterSolutions.map{x => (new ChapterSolutionHibernate).fill(x, this)}.asJava
+    chapterSolutions match {
+      case null => chapterSolutions = css
+      case _ => chapterSolutions.clear(); chapterSolutions.addAll(css)
+    }
+
     subscriptions = user.subscriptions.toList.asJava
     this
   }
@@ -71,7 +77,12 @@ class ChapterSolutionHibernate extends Serializable {
     userH = uh
     courseId = cs.courseId
     chapterId = cs.chapterId
-    taskSolutions = cs.taskSolutions.map{x => (new TaskSolutionHibernate).fill(x, this)}.toList.asJava
+
+    val sts = cs.taskSolutions.map{x => (new TaskSolutionHibernate).fill(x, this)}.toList.asJava
+    taskSolutions match {
+      case null => taskSolutions = sts
+      case _ => taskSolutions.clear(); taskSolutions.addAll(sts)
+    }
     this
   }
 
@@ -91,7 +102,7 @@ class TaskSolutionHibernate extends Serializable {
   var taskState: String = _
   var checked: Option[Boolean] = _
 
-  @ManyToOne
+  @ManyToOne(cascade = Array(CascadeType.ALL))
   var chapterSolutionH: ChapterSolutionHibernate = _
 
   def fill(ts: TaskSolution, csh: ChapterSolutionHibernate): TaskSolutionHibernate = {

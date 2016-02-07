@@ -22,6 +22,12 @@ class UserRepositoryHibernate extends UserRepository {
     userHList.map{u => u.toUser}
   }
 
+  def stackTraceString(e: Exception): String = {
+    val sw = new java.io.StringWriter()
+    e.printStackTrace(new java.io.PrintWriter(sw))
+    sw.toString()
+  }
+
   def create(user: User): Option[User] = {
     var result: Option[User] = None
     val sess = factory.openSession()
@@ -43,7 +49,7 @@ class UserRepositoryHibernate extends UserRepository {
     catch {
         case e: Exception => 
           if (tx!=null) tx.rollback() 
-          play.Logger.info(e.getMessage)
+          play.Logger.info(e.getStackTrace().toString())
     }
     finally {
         sess.close()
@@ -57,22 +63,24 @@ class UserRepositoryHibernate extends UserRepository {
     var tx: Transaction = null
     try {
         tx = sess.beginTransaction()
-        val userH = ( new UserHibernate ).fill(user)
-        val users = findAll()
-        if (users.find{u => u.id == user.id || 
-          u.username == user.username}.isDefined) {
+        val query = "from UserHibernate u where u.username = " + 
+        "'" + user.username + "' and u.id = " + user.id
+        val list = sess.createQuery(query).list()
 
-          sess.update(userH)
+        if (list.size > 0) {
+          val userH = list.asInstanceOf[java.util.List[UserHibernate]].get(0)
+          sess.update(userH.fill(user))
+          sess.flush()
           result = Some(user)
-        } else {
-          result = None
         }
+        
         tx.commit()
     }
     catch {
         case e: Exception => 
-          if (tx!=null) tx.rollback() 
-          play.Logger.info(e.getMessage)
+          if (tx!=null) tx.rollback()
+
+          play.Logger.info(stackTraceString(e))
     }
     finally {
         sess.close()
@@ -86,14 +94,17 @@ class UserRepositoryHibernate extends UserRepository {
     var tx: Transaction = null
     try {
         tx = sess.beginTransaction()
-        val users = findAll()
-        users.find{u => u.id == user.id || u.username == user.username} match {
-          case Some(user) =>
-            val query = "delete from UserHibernate where id = " + user.id
-            sess.createQuery(query).executeUpdate()
-            result = Some(user)
-          case None =>
+       
+        val query = "from UserHibernate u where u.username = " + 
+        "'" + user.username + "' and u.id = " + user.id
+        val list = sess.createQuery(query).list()
+
+        if (list.size > 0) {
+          val userH = list.asInstanceOf[java.util.List[UserHibernate]].get(0)
+          sess.delete(userH)
+          result = Some(user)
         }
+
         tx.commit()
     }
     catch {
@@ -126,7 +137,7 @@ class UserRepositoryHibernate extends UserRepository {
     catch {
         case e: Exception => 
           if (tx!=null) tx.rollback()
-          play.Logger.info(e.getMessage)
+          play.Logger.info(stackTraceString(e))
     }
     finally {
         sess.close()
@@ -173,7 +184,7 @@ class UserRepositoryHibernate extends UserRepository {
     catch {
         case e: Exception => 
           if (tx!=null) tx.rollback() 
-          play.Logger.info(e.getMessage)
+          play.Logger.info(stackTraceString(e))
     }
     finally {
         sess.close()
