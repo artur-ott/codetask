@@ -34,13 +34,12 @@ class UserRepositoryHibernate extends UserRepository {
     var tx: Transaction = null
     try {
         tx = sess.beginTransaction()
-        val userH = ( new UserHibernate ).fill(user)
-        val users = findAll()
-        if (users.find{u => u.id == user.id || 
-          u.username == user.username}.isDefined) {
+        val query = "from UserHibernate u where u.username = " + 
+        "'" + user.username + "' and u.id = " + user.id
+        val list = sess.createQuery(query).list()
 
-          result = None
-        } else {
+        if (list.size == 0) {
+          val userH = ( new UserHibernate ).fill(user)
           sess.persist(userH)
           result = Some(user)
         }
@@ -73,7 +72,7 @@ class UserRepositoryHibernate extends UserRepository {
           sess.flush()
           result = Some(user)
         }
-        
+
         tx.commit()
     }
     catch {
