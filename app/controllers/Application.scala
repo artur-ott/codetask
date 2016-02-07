@@ -18,41 +18,43 @@ class Application extends Controller with Secured {
   val a = List("admin")
 
   def bugTest(): Boolean = {
-    var result = false
-
-    try {
-    userService.findAll().foreach { user => 
-      if (user == null) play.Logger.info("course null")
-      else if (user.chapterSolutions == null) play.Logger.info("user " + user.id + "chapters null")
-      user.chapterSolutions.foreach { chapterSolution =>
-        if (chapterSolution == null) play.Logger.info("user " + user.id + " chapter null")
-        else if (chapterSolution.taskSolutions == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " taskSolutions null")
-        chapterSolution.taskSolutions.foreach { taskSolution => 
-          if (taskSolution == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " taskSolution null")
-          else if (taskSolution.taskState == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " task " + taskSolution.taskId + " taskSolution.taskState null")
-          else if (taskSolution.checked == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " task " + taskSolution.taskId + " taskSolution.checked null")
-        }
-      }
-    }
-
-    courseService.findAll().foreach { course => 
-      if (course == null) play.Logger.info("course null")
-      else if (course.chapters == null) play.Logger.info("course " + course.id + "chapters null")
-      course.chapters.foreach { chapter =>
-        if (chapter == null) play.Logger.info("course " + course.id + " chapter null")
-        else if (chapter.tasks == null) play.Logger.info("course " + course.id + " chapter " + chapter.id + " tasks null")
-        chapter.tasks.foreach { task => 
-          if (task == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task null")
-          else if (task.taskData == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.taskData null")
-          else if (task.solution == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.solution null")
-        }
-      }
-    }
-    } catch {
-      case e: java.lang.NullPointerException => result = true; play.Logger.info("error")
-    }
-
-    result
+// DEBUG
+//    var result = false
+//
+//    try {
+//    userService.findAll().foreach { user => 
+//      if (user == null) play.Logger.info("course null")
+//      else if (user.chapterSolutions == null) play.Logger.info("user " + user.id + "chapters null")
+//      user.chapterSolutions.foreach { chapterSolution =>
+//        if (chapterSolution == null) play.Logger.info("user " + user.id + " chapter null")
+//        else if (chapterSolution.taskSolutions == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " taskSolutions null")
+//        chapterSolution.taskSolutions.foreach { taskSolution => 
+//          if (taskSolution == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " taskSolution null")
+//          else if (taskSolution.taskState == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " task " + taskSolution.taskId + " taskSolution.taskState null")
+//          else if (taskSolution.checked == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " task " + taskSolution.taskId + " taskSolution.checked null")
+//        }
+//      }
+//    }
+//
+//    courseService.findAll().foreach { course => 
+//      if (course == null) play.Logger.info("course null")
+//      else if (course.chapters == null) play.Logger.info("course " + course.id + "chapters null")
+//      course.chapters.foreach { chapter =>
+//        if (chapter == null) play.Logger.info("course " + course.id + " chapter null")
+//        else if (chapter.tasks == null) play.Logger.info("course " + course.id + " chapter " + chapter.id + " tasks null")
+//        chapter.tasks.foreach { task => 
+//          if (task == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task null")
+//          else if (task.taskData == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.taskData null")
+//          else if (task.solution == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.solution null")
+//        }
+//      }
+//    }
+//    } catch {
+//      case e: java.lang.NullPointerException => result = true; play.Logger.info("error")
+//    }
+//
+//    result
+    false
   }
 
   def index() = Action {
