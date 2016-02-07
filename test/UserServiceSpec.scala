@@ -43,7 +43,7 @@ class UserServiceSpec extends Specification {
       for (_ <- 1 to loop) {
         val user = userService.findOneByUsername(user1.username)
         user.isDefined shouldEqual true
-        user.get.id must equalTo(2)
+        user.get.username must equalTo(user1.username)
         val x = user.get.chapterSolutions(0)
         x.taskSolutions(1).taskState shouldEqual(CodeState("my code"))
         x.taskSolutions(0).taskState shouldEqual(KoanState(List("eins", "zwei", "drei")))
@@ -60,13 +60,13 @@ class UserServiceSpec extends Specification {
   }
   "UserService#findAll" should {
     "give all Users" in {
-      userService.findAll().size shouldEqual(1)
+      userService.findAll().size > 0 shouldEqual(true)
     }
   }
   "UserService#update" should {
     "work with existing user" in {
       val tsk = new TaskSolution("koan-task1", VideoState("watched"), Some(false))
-      var chpt = new ChapterSolution(100001, 1, List(tsk))
+      var chpt = new ChapterSolution(1, 1, List(tsk))
 
       // replace -> 100001, 1
       val chapterSolutions = chpt :: user1.chapterSolutions.filter {
@@ -81,7 +81,7 @@ class UserServiceSpec extends Specification {
       user.isDefined must beTrue
       user.get.authority equals "teacher" must beTrue
       
-      val chapterSolution = user.get.chapterSolutions.find(x => x.courseId == 100001 && x.chapterId == 1)
+      val chapterSolution = user.get.chapterSolutions.find(x => x.courseId == 1 && x.chapterId == 1)
       chapterSolution.isDefined must beTrue
       val taskState = chapterSolution.get.taskSolutions.find(x => x.taskId == "koan-task1")
       taskState.isDefined must beTrue

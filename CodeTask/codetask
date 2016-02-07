@@ -10,8 +10,8 @@ import scala.collection.immutable.TreeMap
 import scala.collection.mutable.ListBuffer
 import scala.io.Source.fromFile
 
-val serverUrl = "http://localhost:9000"
-//val serverUrl = "http://141.37.31.18:9000"
+//val serverUrl = "http://localhost:9000"
+val serverUrl = "http://141.37.31.18:9000"
 //val serverUrl = "https://141.37.31.18:9001"
 
 // helper class json hierarchy
