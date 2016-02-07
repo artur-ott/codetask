@@ -12,6 +12,7 @@
         <class>models.hibernate.ChapterHibernate</class>
         <class>models.hibernate.TaskHibernate</class>
         <properties>
+            <property name="hibernate.archive.autodetection" value="class, hbm"/>
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/codetaskdb" />
             <property name="javax.persistence.jdbc.user" value="root" />
