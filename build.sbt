@@ -17,7 +17,8 @@ libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-compiler" % "2.11.6",
   "org.scalatest" % "scalatest_2.10" % "2.0" % "test",
   "com.db4o" % "com.db4o" % "7.7.67",
-  "org.mindrot" % "jbcrypt" % "0.3m"
+  "org.mindrot" % "jbcrypt" % "0.3m",
+  "org.spire-math" % "spire_2.11" % "0.11.0"
 )
 
 scalacOptions ++= Seq("-unchecked", "-deprecation","-feature")
