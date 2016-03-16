@@ -43,7 +43,8 @@ class SecureClassLoader(parent: ClassLoader) extends URLClassLoader(SecureClassL
 
 object SecureClassLoader {
   val urls = Array(new URL("file://lib/scala-library.jar"), 
-                   new URL("file://lib/scalatest.jar"))
+                   new URL("file://lib/scalatest.jar"),
+                   new URL("file://lib/spire_2.11-0.11.0.jar"))
 
   val miscClasses =
     """java.util.logging.Logger
@@ -95,6 +96,7 @@ object Interpreter {
     // borrowed: http://stackoverflow.com/questions/16511233/scala-tools-nsc-imain-within-play-2-1
     settings.classpath.value += scala.tools.util.PathResolver.Environment.javaBootClassPath + File.pathSeparator + "lib/scala-library.jar"
     settings.classpath.value += File.pathSeparator + "lib/scalatest.jar"
+    settings.classpath.value += File.pathSeparator + "lib/spire_2.11-0.11.0.jar"
 
     val im = new IMain(settings) {
       // SecureClassLoader needs to be created in parentClassLoader
