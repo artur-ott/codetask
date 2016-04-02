@@ -1,0 +1,24 @@
+@extra = {
+  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/teachermenu.css")">
+}
+
+@main("Menu", extra) {
+  @navigation(List(("Home", "")))
+
+  <div class="container">
+    <div class="menu-list hcenter">
+        <a href="/dashboard">
+          <span class="glyphicon glyphicon-signal"></span>
+          <p>Overview</p>
+        </a>
+        <a href="/courses">
+          <span class="glyphicon glyphicon-list-alt"></span>
+          <p>Courses</p>
+        </a>
+        <a href="/users">
+          <span class="glyphicon glyphicon-user"></span>
+          <p>Users</p>
+        </a>
+    </div>
+  </div>
+}

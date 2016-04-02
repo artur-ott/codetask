@@ -42,7 +42,7 @@
               <!-- repeat courses -->
               <template is="dom-repeat" items="{{courses}}" as="course" filter="{{computeFilter(searchString)}}">
                 <span>{{course.title}}</span>
-                <a href="/subscribe/{{course.id}}" type="button" class="btn btn-primary right" aria-label="Plus">
+                <a href="/operation/subscribe/{{course.id}}" type="button" class="btn btn-primary right" aria-label="Plus">
                   <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                 </a>
                 <hr>

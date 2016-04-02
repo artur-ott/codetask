@@ -109,7 +109,7 @@
                   </div>
                 </div>
                 <div class="col-md-3 left">
-                  <a href="/course/{{course.id}}/{{user.id}}">see solution</a>
+                  <a href="/solutions/{{course.id}}/{{user.id}}">see solution</a>
                 </div>
               </div>
         </template>
@@ -121,7 +121,7 @@
         <div><b>{{course.title}}</b>, ID: <b>{{course.id}}</b></div>
         <template is="dom-repeat" items="{{users}}" as="user" filter="{{userSubFilter(course)}}">
                 <div class="col-md-1 left">
-                  <a href="/course/{{course.id}}/{{user.id}}">see solution: </a>
+                  <a href="/solutions/{{course.id}}/{{user.id}}">see solution: </a>
                 </div>
                 <div class="col-md-4 left">
                   {{user.username}}
@@ -139,12 +139,12 @@
                       <span>*</span>
                       <template is="dom-repeat" items="{{chapter.tasks}}" as="task">
                         <template is="dom-if" if="{{isChecked(user, course.id, chapter.id, task.id)}}">
-                          <a href="/course/{{course.id}}/{{user.id}}?chapter={{chapter.id}}#{{task.id}}" class="box checked">
+                          <a href="/solutions/{{course.id}}/{{user.id}}?chapter={{chapter.id}}#{{task.id}}" class="box checked">
                             <div class="mouseover"><div class="chapterTitle">{{chapter.title}}/{{chapter.id}}/{{task.id}}</div></div>
                           </a>
                         </template>
                         <template is="dom-if" if="{{!isChecked(user, course.id, chapter.id, task.id)}}">
-                          <a href="/course/{{course.id}}/{{user.id}}?chapter={{chapter.id}}#{{task.id}}" class="box">
+                          <a href="/solutions/{{course.id}}/{{user.id}}?chapter={{chapter.id}}#{{task.id}}" class="box">
                             <div class="mouseover"><div class="chapterTitle">{{chapter.title}}/{{chapter.id}}/{{task.id}}</div></div>
                           </a>
                         </template>

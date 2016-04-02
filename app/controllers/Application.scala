@@ -1,64 +1,27 @@
 package controllers
 
-import play.api._
 import play.api.mvc._
-import play.api.libs.functional.syntax._
-import play.api.Play.current
-import play.api.libs.json._
-import play.api.libs.json.JsValue._
-import scala.collection.JavaConverters._
-import models._
+import play.api.data.Form
+import play.api.data.Forms._
+import models.CourseInfo
 import models.Services._
-import models.Course._
 import models.User._
+import models.CourseParser
 
 class Application extends Controller with Secured {
-  val sta = List("student", "teacher", "admin")
-  val ta = List("teacher", "admin")
-  val a = List("admin")
 
-  def bugTest(): Boolean = {
-// DEBUG
-//    var result = false
-//
-//    try {
-//    userService.findAll().foreach { user => 
-//      if (user == null) play.Logger.info("course null")
-//      else if (user.chapterSolutions == null) play.Logger.info("user " + user.id + "chapters null")
-//      user.chapterSolutions.foreach { chapterSolution =>
-//        if (chapterSolution == null) play.Logger.info("user " + user.id + " chapter null")
-//        else if (chapterSolution.taskSolutions == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " taskSolutions null")
-//        chapterSolution.taskSolutions.foreach { taskSolution => 
-//          if (taskSolution == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " taskSolution null")
-//          else if (taskSolution.taskState == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " task " + taskSolution.taskId + " taskSolution.taskState null")
-//          else if (taskSolution.checked == null) play.Logger.info("user " + user.id + "chapter " + chapterSolution.chapterId + " course " + chapterSolution.courseId + " task " + taskSolution.taskId + " taskSolution.checked null")
-//        }
-//      }
-//    }
-//
-//    courseService.findAll().foreach { course => 
-//      if (course == null) play.Logger.info("course null")
-//      else if (course.chapters == null) play.Logger.info("course " + course.id + "chapters null")
-//      course.chapters.foreach { chapter =>
-//        if (chapter == null) play.Logger.info("course " + course.id + " chapter null")
-//        else if (chapter.tasks == null) play.Logger.info("course " + course.id + " chapter " + chapter.id + " tasks null")
-//        chapter.tasks.foreach { task => 
-//          if (task == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task null")
-//          else if (task.taskData == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.taskData null")
-//          else if (task.solution == null) play.Logger.info("course " + course.id + "chapter " + chapter.id + " task " + task.id + " task.solution null")
-//        }
-//      }
-//    }
-//    } catch {
-//      case e: java.lang.NullPointerException => result = true; play.Logger.info("error")
-//    }
-//
-//    result
-    false
-  }
+  // Links
 
   def index() = Action {
     Redirect(routes.Auth.login)
+  }
+
+  def menu() = withUser { user => implicit request =>
+    if (user.authority == "teacher" || user.authority == "admin") {
+      Ok(views.html.teacherMenu())
+    } else {
+      Redirect(routes.Application.dashboard)
+    }
   }
 
   def dashboard() = withUser { user => implicit request =>
@@ -76,6 +39,15 @@ class Application extends Controller with Secured {
       Ok(views.html.dashboard(info))
     }
   }
+  
+  def courses = withUser { user => implicit request => 
+    if (user.authority == "teacher" || user.authority == "admin") {
+      val list = courseService.findAll().map { c => (c.id, c.title) }
+      Ok(views.html.teacherCourses(list))
+    } else {
+      Unauthorized("not authorized")
+    }
+  }
 
   def course(courseId: Long) = withUser { user => implicit request =>
     val course = courseService.findOneById(courseId)
@@ -85,29 +57,32 @@ class Application extends Controller with Secured {
       Redirect(routes.Application.dashboard)
   }
 
-  def subscribe(courseId: Long) = withUser { user => implicit request =>
-    courseService.findOneById(courseId) match {
-      case Some(course) => 
-        user.subscriptions = user.subscriptions + courseId
-        userService.update(user)
-      case None => 
-    }
-    Redirect(routes.Application.dashboard)
-  }
-
-  def showCourse(courseId: Long, userId: Long) = withUser { 
+  def solution(courseId: Long, userId: Long) = withUser {
     user => implicit request =>
 
     if (user.authority != "teacher" && user.authority != "admin") {
       BadRequest("no authority")
     } else {
       courseService.findOneById(courseId) match {
-        case Some(course) => 
+        case Some(course) =>
           Ok(views.html.teacherCourse(courseId, userId, course.title))
         case None => NotFound("course does not exist")
       }
     }
   }
+
+  // Operations
+  
+  def subscribe(courseId: Long) = withUser { user => implicit request =>
+    courseService.findOneById(courseId) match {
+      case Some(course) =>
+        user.subscriptions = user.subscriptions + courseId
+        userService.update(user)
+      case None =>
+    }
+    Redirect(routes.Application.dashboard)
+  }
+
 
   def unsubscribe(courseId: Long) = withUser { user => implicit request =>
     user.subscriptions = user.subscriptions.filter(_ != courseId)
@@ -116,359 +91,60 @@ class Application extends Controller with Secured {
     Redirect(routes.Application.dashboard)
   }
 
-  def createCourse() = withBasicAuth(parse.json)(ta) { 
-    implicit request =>
-
-    request.body.validate[Course].fold(
-      errors => {
-        BadRequest(Json.obj(
-          "status" -> "KO", 
-          "message" -> JsError.toJson(errors)
-        ))
-      },
-      course => {
-        courseService.create(course) match {
-          case Some(saved) => Created(Json.obj(
-            "status" -> "OK", 
-            "message" -> ("Course '" + saved.title + "' created")
-          )).withHeaders(LOCATION -> ("/api/courses/" + saved.id))
-          case None =>  Conflict(Json.obj(
-            "status" -> "KO", 
-            "message" -> ("Course '" + course.title + "' already exists")
-          ))
-        }
-      }
-    )
-  }
-
-  def getCourse(courseId: Long) = Action {
-    if (bugTest()) {
-      BadRequest(Json.obj("status" -> "KO"))
-    } else {
-      courseService.findOneById(courseId) match {
-        case Some(course) => Ok(Json.toJson(course))
-        case None => NotFound(Json.obj(
-          "status" -> "KO", 
-          "message" -> ("Course '" + courseId + "' not found")
-        ))
-      }
-    }
-  }
-
-  def updateCourse(courseId: Long) = withBasicAuth(parse.json)(ta) { 
-    implicit request =>
-
-    request.body.validate[Course].fold(
-      errors => {
-        BadRequest(Json.obj(
-          "status" -> "KO",
-          "message" -> JsError.toJson(errors)
-        ))
-      },
-      course => {
-        val c = new Course(courseId, course.title, course.chapters)
-        courseService.update(c) match {
-          case Some(saved) =>  Ok(Json.obj(
-            "status" -> "OK", 
-            "message" -> ("Course '" + saved.title + "' saved")
-          ))
-          case None =>  NotFound(Json.obj(
-            "status" -> "KO", 
-            "message" -> ("Course id: '" + courseId + "' does not exists")
-          ))
-        }
-      }
-    )
-  }
-
-  def deleteCourse(courseId: Long) = withBasicAuth(parse.anyContent)(ta) { 
-    implicit request =>
-    
-    courseService.findOneById(courseId) match {
-      case Some(course) =>
-        courseService.delete(course)
-        Ok(Json.obj("status" -> "OK", "message" -> "course deleted"))
-      case None => NotFound(Json.obj(
-        "status" -> "KO", 
-        "message" -> ("Course id: '" + courseId + "' does not exists")
-      ))
-    }
-  }
-
-  def getCourses() = Action {
-    if (bugTest()) {
-      BadRequest(Json.obj("status" -> "KO"))
-    } else {
-
-    var list = courseService.findAll().map {
-      course => Json.toJson(course)
-    }.toSeq
-    Ok(Json.toJson(list))
-
-    }
-  }
-
-  def createUser() = withBasicAuth(parse.json)(a) {
-    implicit request =>
-
-    request.body.validate[User].fold(
-      errors =>  {
-        BadRequest(Json.obj(
-          "status" -> "KO", 
-          "message" -> JsError.toJson(errors)
-        ))
-      },
-      user => {
-        user.password = userService.passwordHash(user.password)
-        userService.create(user) match {
-          case Some(saved) => Created(Json.obj(
-            "status" -> "OK", 
-            "message" -> ("User '" + saved.username + "' created")
-          )).withHeaders(LOCATION -> ("/api/users/" + user.id))
-          case None =>  Conflict(Json.obj(
-            "status" -> "KO", 
-            "message" -> ("User '" + user.username + "' already exists")
-          ))
-        }
-      }
-    )
-  }
-
-  def getUser(userId: Long) = withBasicAuth(parse.anyContent)(ta) { 
-    implicit request =>
-
-    userService.findOneById(userId) match {
-      case Some(user) => Ok(Json.toJson(user))
-      case None => NotFound(Json.obj(
-        "status" -> "KO", 
-        "message" -> ("User '" + userId + "' not found")
-      ))
-    }
-  }
-
-  def updateUser(userId: Long) = withBasicAuth(parse.json)(ta) { 
-    implicit request =>
-
-    request.body.validate[User].fold(
-      errors => {
-        BadRequest(Json.obj(
-          "status" -> "KO",
-          "message" -> JsError.toJson(errors)
-        ))
-      },
-      user => {
-        val u = new User(
-          userId, 
-          user.username,
-          user.authority, 
-          userService.passwordHash(user.password),
-          user.chapterSolutions,
-          user.subscriptions
-        )
-
-        userService.update(u) match {
-          case Some(saved) =>  Ok(Json.obj(
-            "status" -> "OK", 
-            "message" -> ("User '" + saved.username + "' saved")
-          ))
-          case None =>  NotFound(Json.obj(
-            "status" -> "KO", 
-            "message" -> ("User id: '" + userId + "' does not exists")
-          ))
-        }
-      }
-    )
-  }
-
-  def deleteUser(userId: Long) = withBasicAuth(parse.anyContent)(a) { 
-    implicit request =>
-    
-    userService.findOneById(userId) match {
-      case Some(user) =>
-        userService.delete(user)
-        Ok(Json.obj("status" -> "OK", "message" -> "user deleted"))
-      case None => NotFound(Json.obj(
-        "status" -> "KO", 
-        "message" -> ("User id: '" + userId + "' does not exists")
-      ))
-    }
-  }
-
-  def getUsers() =  withBasicAuth(parse.anyContent)(a) { 
-    implicit request =>
-
-    var list = userService.findAll().map {
-      user => Json.toJson(user)
-    }
-    Ok(Json.toJson(list.toSeq))
-  }
-
-  def getStudents() = //withBasicAuth(parse.anyContent)(ta) {
-    //implicit request =>
-    withUser(parse.anyContent) { 
-    user => implicit request =>
-
-    if (bugTest()) {
-      BadRequest(Json.obj("status" -> "KO"))
-    } else {
-
+  def deleteCourse(courseId: Long) = withUser { user => implicit request =>
     if (user.authority != "teacher" && user.authority != "admin") {
       BadRequest("no authority")
     } else {
-      val list = userService.findAll().filter(_.authority == "student").map { 
-        user =>
-
-        JsObject(Map(
-          "id" -> JsNumber(user.id), 
-          "username" -> JsString(user.username),
-          "subscriptions" -> Json.toJson(user.subscriptions),
-          "progress" -> Json.toJson(user.subscriptions.map { s => 
-            val chapterSolutions = user.chapterSolutions.filter(_.courseId == s)
-            val progress = courseService.findOneById(s) match {
-              case Some(c) => progressOf(c, chapterSolutions)
-              case None => 0
-            }
-            JsArray(Seq(JsNumber(s), JsNumber(progress)))
-          }),
-          "chapterSolutions" -> Json.toJson(user.chapterSolutions)
-        ))
+      courseService.findOneById(courseId) match {
+        case Some(course) =>
+          courseService.delete(course)
+          Redirect(routes.Application.courses)
+        case None => NotFound("course does not exists")
       }
-      Ok(Json.toJson(list.toSeq))
-    }
     }
   }
 
-  // shell client
-  def getUserTable() =  withBasicAuth(parse.anyContent)(a) { 
-    implicit request =>
+  // Forms
 
-    val users = userService.findAll()
-    val list = users.map{ u => 
-      val fs = "%s%" + (30 - u.username.length) + "s"
-      fs format (u.username, u.id) 
-    }.mkString("\n") 
-    Ok(list)
-  }
+  val addCourseGithubForm = Form(
+      tuple(
+        "Course Title" -> nonEmptyText,
+        "Github User" -> nonEmptyText,
+        "Github Repo" -> nonEmptyText,
+        "Repo Path" -> nonEmptyText
+      )
+  )
 
-  def getCourseTable() =  withBasicAuth(parse.anyContent)(ta) { 
-    implicit request =>
-
-    val courses = courseService.findAll()
-    val list = courses.map{ c => 
-      val fs = "%s%" + (30 - c.title.length) + "s"
-      fs format (c.title, c.id)
-    }.mkString("\n")
-    Ok(list)
-  }
-
-
-  def storeSolution(courseId: Long) = withUser(parse.json) { 
-    user => implicit request =>
-
-    val chapterSolutionResult = request.body.validate[ChapterSolution]
-    chapterSolutionResult.fold(
-      errors =>  {
-        BadRequest(Json.obj(
-          "status" -> "KO", 
-          "message" -> JsError.toJson(errors)
-        ))
-      },
-      sol => {
-        var failed: Option[String] = None
-
-        // proof if tasks are solved
-        sol.taskSolutions.foreach { ts =>
-          courseService.findOneById(sol.courseId) match {
-            case Some(course) => 
-              course.chapters.find(_.id == sol.chapterId) match {
-                case Some(chapter) => 
-                  chapter.tasks.find(_.id == ts.taskId) match {
-                    case Some(task) => 
-                      task.solution match {
-                        case Some(string) =>
-                          ts.checked = Some(ts.taskState.isSolved(string))
-                        case None => failed = Some("error solution")
-                      }
-                    case None => failed = Some("error no task")
-                  }
-                case None => failed = Some("error no chapter")
-              }
-            case None => failed = Some("error no course")
-          }
-        }
-
-        if (failed == None) {
-          user.chapterSolutions = sol :: user.chapterSolutions.filter {
-            x => x.courseId != sol.courseId || x.chapterId != sol.chapterId
-          }
-          userService.update(user)
-          Ok(Json.obj("status" -> "OK", "message" -> "User updated"))
-        } else {
-          BadRequest(Json.obj("status" -> "KO", "message" -> failed.get))
-        }
-      }
-    )
-  }
-
-  def getSolution(courseId: Long) = withUser { user => implicit request =>
-    val solutions = user.chapterSolutions.filter(_.courseId == courseId)
-    Ok(Json.toJson(solutions))
+  def githubCourseForm() = Action { implicit request =>
+    Ok(views.html.githubCourseForm(addCourseGithubForm))
   }
   
-
-  case class InterpreterRequest(courseId: Long, chapterId: Long, taskId: String, 
-    code: String)
-  
-  implicit val interpreterRequestReads: Reads[InterpreterRequest] = (
-    (__ \ "courseId").read[Long] and
-    (__ \ "chapterId").read[Long] and
-    (__ \ "taskId").read[String] and
-    (__ \ "code").read[String]
-  )(InterpreterRequest.apply _)
-
-  def interpretScala() = withUser(parse.json) { user => implicit request =>
-    val irResult = request.body.validate[InterpreterRequest]
-    irResult.fold(
-      errors =>  {
-        BadRequest(Json.obj(
-          "status" -> "KO", 
-          "message" -> JsError.toJson(errors)
-        ))
-      },
-      ir => {
-        courseService.findOneById(ir.courseId) match {
-          case Some(course) => 
-            course.chapters.find(_.id == ir.chapterId) match {
-              case Some(chapter) => 
-                chapter.tasks.find(_.id == ir.taskId) match {
-                  case Some(task) =>
-                    try {
-                      val code = ir.code + "\n" + task.solution.get
-                      val result = Interpreter.run("scala", code)
-
-                      Ok(Json.obj(
-                        "status" -> "OK", 
-                        "output" -> result.output,
-                        "success" -> JsBoolean(result.success)))
-                    } catch {
-                      case e: Exception => 
-                        BadRequest(Json.obj(
-                          "status"  -> "KO", 
-                          "message" -> "could not interprete code"))
-                    }
-                  case None => BadRequest(Json.obj(
-                    "status"  -> "KO", 
-                    "message" -> ("task " + ir.taskId + " does not exist.")))
-                }
-              case None => BadRequest(Json.obj(
-                "status"  -> "KO", 
-                "message" -> ("chapter " + ir.chapterId + " does not exist.")))
+  def postGithubCourseForm() = withUser { user => implicit request =>
+    if (user.authority == "teacher" || user.authority == "admin") {
+      addCourseGithubForm.bindFromRequest.fold(
+        formWithErrors => BadRequest(views.html.githubCourseForm(formWithErrors)),
+        form => {
+          try {
+            val info = CourseInfo(-1, form._2, form._3, form._4)
+            val course = CourseParser.parseFromGithub(info, form._1)
+            courseService.create(course) match {
+              case Some(c) => Redirect(routes.Application.githubCourseForm).flashing(
+                "success" -> "Course added"
+              )
+              case None => Redirect(routes.Application.githubCourseForm).flashing(
+                "failure" -> "course  already exists"
+              )
             }
-          case None => BadRequest(Json.obj(
-            "status"  -> "KO", 
-            "message" -> ("course " + ir.courseId + " does not exist.")))
+          } catch {
+            case e: Exception => Redirect(routes.Application.githubCourseForm).flashing(
+              "failure" -> "github info invalid"
+            )
+          }
         }
-      }
-    )
+      )
+    } else {
+      Unauthorized("not authorized")
+    }
   }
+
 }

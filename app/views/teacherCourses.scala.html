@@ -1,0 +1,46 @@
+@(courses: List[(Long, String)])
+
+@extra = {
+  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/teachercourses.css")">
+}
+
+@main("Courses", extra) {
+  @navigation(List(("Home", "/home"), ("Courses", "")))
+  <div id="main">
+    <!-- sidebar -->
+    <div class="col-xs-12 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+        <ul class="nav nav-pills">
+          <li class="active">
+            <a href="/forms/githubcourse">
+              <span class="glyphicon glyphicon-cloud"></span>
+              add course from github
+            </a> 
+          </li>
+          <li class="active">
+            <a href="/forms/githubcourse">
+              <span class="glyphicon glyphicon-folder-open"></span>
+              add course from folder
+            </a> 
+          </li>            
+        </ul>
+    </div>
+
+    <!-- main area -->
+    <div class="col-xs-12 col-sm-9" id="content">
+      <table class="table">
+        <tr>
+          <th>Id</th>
+          <th>Title</th>
+          <th>Options</th>
+        </tr>
+        @for(course <- courses) {
+          <tr>
+            <td>@course._1</td>
+            <td>@course._2</td>
+            <td><a href="/operation/courses/delete/@course._1">delete</a></td>
+          </tr>
+        }
+      </table>
+    </div>
+  </div>
+}

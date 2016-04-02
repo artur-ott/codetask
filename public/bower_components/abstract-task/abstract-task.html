@@ -1,7 +1,6 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../jquery-import/jquery-import.html">
 
-
   <style>
     .task-check-container {
       position: relative;
@@ -43,6 +42,25 @@
       -webkit-transform:rotate(360deg);
       border-style: solid;
     }
+
+    .task-description {
+      margin-top: 20px;
+      padding: 10px;
+      border: solid 1px #e4e4e4;
+      font-size: 1.2em;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      font-family: Avant Garde,Avantgarde,Century Gothic,CenturyGothic,AppleGothic,sans-serif;
+    }
+
+    table {
+      width: 100%;
+      margin: 5px;
+    }
+
+    th {
+      border-bottom: solid 1px #e4e4e4;
+    }
   </style>
   <script>
     AbstractTask = {
@@ -70,9 +88,13 @@
       set dirty(value) { this.dirty_ = value; },
 
       addDescription: function() {
-        var p = document.createElement('p');
+        /*var p = document.createElement('p');
         p.innerHTML = this.description;
-        $(this).before(p);
+        $(this).before(p); */
+        var d = $('<div></div>')
+          .html(this.description)
+          .addClass('task-description');
+        $(this).before(d);
       },
       addCheckFlag: function() {
         if (this.data.task_check) return;

@@ -53,7 +53,7 @@ class ApplicationSpec extends Specification {
 
         result.isDefined must beTrue
         status(result.get) must equalTo(SEE_OTHER)
-        redirectLocation(result.get) must beSome.which(_ == "/dashboard")
+        redirectLocation(result.get) must beSome.which(_ == "/menu")
     }
 
     "fail login with false credentials" in new WithApplication {
@@ -85,7 +85,7 @@ class ApplicationSpec extends Specification {
 
       val result = route(request)
       status(result.get) must equalTo(SEE_OTHER)
-      redirectLocation(result.get) must beSome.which(_ == "/dashboard")
+      redirectLocation(result.get) must beSome.which(_ == "/menu/dashboard")
     }
 
     "store state of chapter" in new WithApplication {
@@ -185,7 +185,7 @@ class ApplicationSpec extends Specification {
 
       val result = route(request)
       status(result.get) must equalTo(SEE_OTHER)
-      redirectLocation(result.get) must beSome.which(_ == "/dashboard")
+      redirectLocation(result.get) must beSome.which(_ == "/menu/dashboard")
     }
 
     "delete Course" in new WithApplication {

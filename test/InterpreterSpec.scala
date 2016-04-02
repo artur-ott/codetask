@@ -70,15 +70,8 @@ class InterpreterSpec extends Specification {
       result.success shouldEqual false
       result.error shouldEqual true
     }
-    "fail with invalid import tools._" in {
-      val code = "import scala.tools._\ndef rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}"
-      val test = "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"
-      val result = Interpreter.run("scala", code + "\n" + test)
-      result.success shouldEqual false
-      result.error shouldEqual true
-    }
-    "fail with invalid import play._" in {
-      val code = "import play._\ndef rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}"
+    "fail with invalid import play.api.Logger" in {
+      val code = "import play.api.Logger\ndef rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}\n Logger.info(\"test\") "
       val test = "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"
       val result = Interpreter.run("scala", code + "\n" + test)
       result.success shouldEqual false
@@ -92,7 +85,7 @@ class InterpreterSpec extends Specification {
       result.error shouldEqual true
     }
     "fail with invalid use of library tools" in {
-      val code = "def rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}\nval x = new tools.nsc.interpreter.IMain()"
+      val code = "def rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}\nval x = new scala.tools.nsc.interpreter.IMain()"
       val test = "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"
       val result = Interpreter.run("scala", code + "\n" + test)
       result.success shouldEqual false

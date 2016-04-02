@@ -9,7 +9,8 @@ import models.Services.userService
 
 class Auth extends Controller {
 
-  case class UserData(email: String, password: String)
+  //case class UserData(email: String, password: String)
+
   val registerForm = Form(
       tuple(
         "email" -> email,
@@ -55,7 +56,7 @@ class Auth extends Controller {
           if (!exists(user._1)) {
             val u = new User(User.NEW, user._1, "student", userService.passwordHash(user._2))
             userService.create(u) 
-            Redirect(routes.Application.dashboard).withSession(Security.username -> user._1)
+            Redirect(routes.Application.menu).withSession(Security.username -> user._1)
           } else {
             Redirect(routes.Auth.register).flashing(
               "failure" -> "email already exists."
@@ -68,7 +69,7 @@ class Auth extends Controller {
   def authenticate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.login(formWithErrors)),
-      user => Redirect(routes.Application.dashboard).withSession(Security.username -> user._1)
+      user => Redirect(routes.Application.menu).withSession(Security.username -> user._1)
     )
   }
 
