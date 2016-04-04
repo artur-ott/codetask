@@ -2,38 +2,48 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
+# Web Application
 GET     /                               controllers.Application.index
+GET     /home                           controllers.Application.menu
 GET     /dashboard                      controllers.Application.dashboard
+GET     /courses                        controllers.Application.courses
 GET     /course/:courseId               controllers.Application.course(courseId: Long)
+GET     /solutions/:courseId/:userId    controllers.Application.solution(courseId: Long, userId: Long)
+
+#Operations
+GET     /operation/subscribe/:courseId      controllers.Application.subscribe(courseId: Long)
+GET     /operation/unsubscribe/:courseId    controllers.Application.unsubscribe(courseId: Long)
+GET     /operation/courses/delete/:courseId controllers.Application.deleteCourse(courseId: Long)
+GET     /operation/courses/update/:courseId controllers.Application.updateCourse(courseId: Long)
+
+# Forms
+GET     /forms/githubcourse            controllers.Application.githubCourseForm
+POST    /forms/githubcourse            controllers.Application.postGithubCourseForm
+
+# Authentication
 GET     /login                          controllers.Auth.login
 GET     /logout                         controllers.Auth.logout
 GET     /register                       controllers.Auth.register
 POST    /submit                         controllers.Auth.submit
 POST    /authenticate                   controllers.Auth.authenticate
-GET     /subscribe/:courseId            controllers.Application.subscribe(courseId: Long)
-GET     /unsubscribe/:courseId          controllers.Application.unsubscribe(courseId: Long)
-GET     /course/:courseId/:userId       controllers.Application.showCourse(courseId: Long, userId: Long)
 
 # API
-GET     /api/courses/table              controllers.Application.getCourseTable
-GET     /api/courses/all                controllers.Application.getCourses
-POST    /api/courses                    controllers.Application.createCourse
-GET     /api/courses/:courseId          controllers.Application.getCourse(courseId: Long)
-PUT     /api/courses/:courseId          controllers.Application.updateCourse(courseId: Long)
-DELETE  /api/courses/:courseId          controllers.Application.deleteCourse(courseId: Long)
-
-GET     /api/users/table                controllers.Application.getUserTable
-GET     /api/users/all                  controllers.Application.getUsers
-GET     /api/users/students             controllers.Application.getStudents
-POST    /api/users                      controllers.Application.createUser
-GET     /api/users/:userId              controllers.Application.getUser(userId: Long)
-PUT     /api/users/:userId              controllers.Application.updateUser(userId: Long)
-DELETE  /api/users/:userId              controllers.Application.deleteUser(userId: Long)
-
-POST    /api/solutions/:courseId        controllers.Application.storeSolution(courseId: Long)
-GET     /api/solutions/:courseId        controllers.Application.getSolution(courseId: Long)
-POST    /api/interpreter/scala          controllers.Application.interpretScala
+GET     /api/courses/table              controllers.Api.getCourseTable
+GET     /api/courses/all                controllers.Api.getCourses
+POST    /api/courses                    controllers.Api.createCourse
+GET     /api/courses/:courseId          controllers.Api.getCourse(courseId: Long)
+PUT     /api/courses/:courseId          controllers.Api.updateCourse(courseId: Long)
+DELETE  /api/courses/:courseId          controllers.Api.deleteCourse(courseId: Long)
+GET     /api/users/table                controllers.Api.getUserTable
+GET     /api/users/all                  controllers.Api.getUsers
+GET     /api/users/students             controllers.Api.getStudents
+POST    /api/users                      controllers.Api.createUser
+GET     /api/users/:userId              controllers.Api.getUser(userId: Long)
+PUT     /api/users/:userId              controllers.Api.updateUser(userId: Long)
+DELETE  /api/users/:userId              controllers.Api.deleteUser(userId: Long)
+POST    /api/solutions/:courseId        controllers.Api.storeSolution(courseId: Long)
+GET     /api/solutions/:courseId        controllers.Api.getSolution(courseId: Long)
+POST    /api/interpreter/scala          controllers.Api.interpretScala
 
 
 # Map static resources from the /public folder to the /assets URL path

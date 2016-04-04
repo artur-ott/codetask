@@ -17,12 +17,20 @@ class CourseHibernate extends Serializable {
   var id: Long = _
   var title: String = _
 
+  @OneToOne(cascade = Array(CascadeType.ALL), mappedBy = "courseH", orphanRemoval = true)
+  var info: CourseInfoHibernate = _
+
   @OneToMany(cascade = Array(CascadeType.ALL), mappedBy = "courseH", orphanRemoval = true)
   var chapters: java.util.List[ChapterHibernate] = _
 
   def fill(course: Course): CourseHibernate = {
     //id = course.id 
     title = course.title
+
+    course.info match {
+      case Some(inf) => info = (new CourseInfoHibernate).fill(inf, this)
+      case None => info = null
+    }
 
     val css = course.chapters.map{x => (new ChapterHibernate).fill(x, this)}.asJava
     chapters match {
@@ -34,7 +42,11 @@ class CourseHibernate extends Serializable {
   }
 
   def toCourse: Course = {
-    Course(id, title, chapters.asScala.map{x => x.toChapter}.toList)
+    val inf = info match {
+      case null => None
+      case in => Some(in.toCourseInfo)
+    }
+    Course(id, title, chapters.asScala.map{x => x.toChapter}.toList, inf)
   }
 }
 
@@ -105,5 +117,33 @@ class TaskHibernate extends Serializable {
 
   def toTask: Task = {
     Task(id, tag, (Json.parse(taskData)).validate[TaskData].fold({errors => null}, {taskData => taskData}), solution)
+  }
+}
+
+@Entity
+@Table(name = "CourseInfoHibernate")
+class CourseInfoHibernate extends Serializable {
+  @Id
+  @GenericGenerator(name="generator", strategy="increment")
+  @GeneratedValue(generator="generator")
+  var idH: Int =_
+
+  var githubUser: String = _
+  var githubRepo: String = _
+  var path: String = _
+
+  @OneToOne(cascade = Array(CascadeType.ALL))
+  var courseH: CourseHibernate = _
+
+  def fill(ci: CourseInfo, csh: CourseHibernate): CourseInfoHibernate = {
+    courseH = csh
+    githubUser = ci.githubUser
+    githubRepo = ci.githubRepo
+    path = ci.path
+    this
+  }
+
+  def toCourseInfo: CourseInfo = {
+    CourseInfo(githubUser, githubRepo, path)
   }
 }

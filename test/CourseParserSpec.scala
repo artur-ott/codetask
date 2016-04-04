@@ -8,7 +8,7 @@ import models.CourseInfo
 class CourseParserSpec extends Specification {
   "CourseParser" should {
     "parseFromGithub" in new WithApplication {
-      val courseInfo = CourseInfo(1, "ZaruDan", "CodeTaskCourses", "/")
+      val courseInfo = CourseInfo("ZaruDan", "CodeTaskCourses", "/")
 
       val course = CourseParser.parseFromGithub(courseInfo, "Komplexe Zahlen")
 

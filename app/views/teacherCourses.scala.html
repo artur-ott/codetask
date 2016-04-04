@@ -1,4 +1,4 @@
-@(courses: List[(Long, String)])
+@(courses: List[(Long, String, Boolean)])
 
 @extra = {
   <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/teachercourses.css")">
@@ -37,7 +37,12 @@
           <tr>
             <td>@course._1</td>
             <td>@course._2</td>
-            <td><a href="/operation/courses/delete/@course._1">delete</a></td>
+            <td>
+              <a href="/operation/courses/delete/@course._1">delete</a>
+              @if(course._3) {
+                <a href="/operation/courses/update/@course._1">update</a>
+              }
+            </td>
           </tr>
         }
       </table>

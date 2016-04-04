@@ -57,7 +57,7 @@ object CourseParser {
         chapters = for (cs <- chapterStrings; i <- 1 to chapterStrings.size) 
           yield parseChapter(cs, "todo", i)
 
-        Course(1, title, chapters)
+        Course(1, title, chapters, Some(info))
     }
 
     def parseChapter(chapterString: String, title: String, id: Long): Chapter = {

@@ -42,7 +42,9 @@ class Application extends Controller with Secured {
   
   def courses = withUser { user => implicit request => 
     if (user.authority == "teacher" || user.authority == "admin") {
-      val list = courseService.findAll().map { c => (c.id, c.title) }
+      val list = courseService.findAll().map { c => 
+        (c.id, c.title, c.info != None) 
+      }
       Ok(views.html.teacherCourses(list))
     } else {
       Unauthorized("not authorized")
@@ -104,6 +106,30 @@ class Application extends Controller with Secured {
     }
   }
 
+  def updateCourse(courseId: Long) = withUser { user => implicit request =>
+    if (user.authority != "teacher" && user.authority != "admin") {
+      BadRequest("no authority")
+    } else {
+      courseService.findOneById(courseId) match {
+        case Some(course) =>
+          course.info match {
+            case Some(info) => 
+              try {
+                val i = CourseInfo(info.githubUser, info.githubRepo, info.path)
+                val c = CourseParser.parseFromGithub(i, course.title)
+                c.id = course.id
+                courseService.update(course)
+              } catch {
+                case e: Exception => play.Logger.error(e.toString)
+              }
+            case None =>
+          }
+          Redirect(routes.Application.courses)
+        case None => NotFound("course does not exists")
+      }
+    }
+  }
+
   // Forms
 
   val addCourseGithubForm = Form(
@@ -125,8 +151,9 @@ class Application extends Controller with Secured {
         formWithErrors => BadRequest(views.html.githubCourseForm(formWithErrors)),
         form => {
           try {
-            val info = CourseInfo(-1, form._2, form._3, form._4)
+            val info = CourseInfo(form._2, form._3, form._4)
             val course = CourseParser.parseFromGithub(info, form._1)
+            course.info = Some(info)
             courseService.create(course) match {
               case Some(c) => Redirect(routes.Application.githubCourseForm).flashing(
                 "success" -> "Course added"

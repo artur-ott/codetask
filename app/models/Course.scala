@@ -5,8 +5,9 @@ import play.api.libs.functional.syntax._
 import Services._
 import models.tasks._
 import models.tasks.Tasks._
+import models.CourseInfo._
 
-case class Course(var id: Long, var title: String, var chapters: List[Chapter])
+case class Course(var id: Long, var title: String, var chapters: List[Chapter], var info: Option[CourseInfo] = None)
 case class Chapter(id: Long, title: String, tasks: List[Task])
 case class Task(id: String, tag: String, taskData: TaskData, solution: Option[String] = None)
 
@@ -29,7 +30,8 @@ object Course {
   implicit val courseReads: Reads[Course] = (
     (__ \ "id").read[Long] orElse Reads.pure(NEW) and
     (__ \ "title").read[String] and
-    (__ \ "chapters").read[List[Chapter]]
+    (__ \ "chapters").read[List[Chapter]] and
+    (__ \ "solution").readNullable[CourseInfo]
   )(Course.apply _)
 
   implicit val taskWrites: Writes[Task] = (
@@ -52,6 +54,11 @@ object Course {
   implicit val courseWrites: Writes[Course] = (
     (__ \ "id").write[Long] and
     (__ \ "title").write[String] and
-    (__ \ "chapters").write[List[Chapter]]
+    (__ \ "chapters").write[List[Chapter]] and
+    (new OWrites[Option[CourseInfo]] {
+      def writes(solution: Option[CourseInfo]): JsObject = {
+        Json.obj()
+      }
+    })
   )(unlift(Course.unapply))
 }
