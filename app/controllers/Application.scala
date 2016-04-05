@@ -3,7 +3,6 @@ package controllers
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-import models.CourseInfo
 import models.Services._
 import models.User._
 import models.CourseParser

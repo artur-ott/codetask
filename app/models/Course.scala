@@ -5,7 +5,6 @@ import play.api.libs.functional.syntax._
 import Services._
 import models.tasks._
 import models.tasks.Tasks._
-import models.CourseInfo._
 
 case class Course(var id: Long, var title: String, var chapters: List[Chapter], var githubUrl: Option[String] = None)
 case class Chapter(id: Long, title: String, tasks: List[Task])
