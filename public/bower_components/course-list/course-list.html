@@ -10,6 +10,9 @@
       position: absolute;
       right: 15px;
     }
+    .wide {
+      width: 100%;
+    }
     .searchfield {
       width: 100%;
     }
@@ -23,8 +26,8 @@
       last-response="{{courses}}">
     </iron-ajax>
 
-    <button type="button" class="btn btn-default right" aria-label="Pencil" data-toggle="modal" data-target="#addCourse">
-      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+    <button type="button" class="btn btn-default wide" aria-label="Pencil" data-toggle="modal" data-target="#addCourse">
+      <span class="glyphicon glyphicon-plus" aria-hidden="true"></span><content></content>
     </button>
     <!-- modal -->
       <div class="modal fade" id="addCourse" tabindex="-1" role="dialog" aria-labelledby="addCourseLabel">
