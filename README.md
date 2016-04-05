@@ -11,14 +11,20 @@ gesendet wird. Zur erstellung von Coursen steht ein Hilfsscript *codetask*
 bereit. Das Script wird folgendermaßen benutzt:
 
 ```
-help                                                     | show help
-create course "Course Title" /path/to/scala/tests        | create course
-update course "Course Title" /path/to/scala/tests        | update course
-delete course "Course Title"                             | delete course
-parse "Course Title" /path/to/scala/tests ./to/file.json | create json file of course
-create course /path/to/file.json                         | create course from json file
-update course /path/to/file.json                         | update course from json file
+help                                                            | show help
+create course "Course Title" /path/to/scala/tests               | create course
+update course 100001 "Course Title" /path/to/scala/tests        | update course
+delete course 100001                                            | delete course
+create course /path/to/file.json                                | create course from json file
+update course 100001 /path/to/file.json                         | update course from json file
+parse "Course Title" /path/to/scala/tests ./to/file.json        | create json file of course
+create user                                                     | create user
+update user 200001                                              | update user
+delete user 200001                                              | delete user
+show users                                                      | show users
+show courses                                                    | show courses
 ```
+
 Das Script übersetzt mit *create* und *update* die *.scala* Dateien von
 `CodeTaskSuite` Klassen in eine *.json* Datei und sendet diese an den Server.
 Einzelne `CodeTaskSuite` Klassen bilden die Chapter eines Courses. Beispiel:
@@ -42,6 +48,10 @@ ausgeführt werden. Außerdem verfügt sie über die Methoden `video`, `koan` un
 Eine Suite könnte zum Beispiel so aussehen:
 
 ```scala
+/*
+TITLE:Listen in Scala
+RANK:1
+*/
 // Inhalt von AboutLists.scala
 package tasks
 
@@ -91,6 +101,12 @@ class AboutLists extends CodeTaskSuite {
   }  
 }
 ```
+###Title und Rank
+Der Kommentar ist optional.
+Mit dem Ersten Kommentar kann der Titel des Kapitels unabhängig von dem Dateinamen
+gewählt werden. Wichtig ist, dass der Kommentar ein /**/ Block-Kommentar ist.
+der RANK-Wert gibt die Position in der Reihenfolge der Kapitel an.
+
 ###Videos
 
 Videos werden mit der Methode `video` definiert und haben eine Description und
