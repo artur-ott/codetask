@@ -1,0 +1,37 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<dom-module id="up-jumper">
+  <template>
+    <div id="up-jumper-div" class="up-jumper"><content></content></div>
+  </template>
+  <style>
+    .up-jumper {
+      position: fixed;
+      right: 0;
+      bottom: 0;
+      width: 50px;
+      height:50px;
+      padding-top: 10px;
+      color: white;
+      text-align: center;
+      opacity: 0.6;
+      border-top-left-radius: 5px; 
+      border-top-right-radius: 5px;
+      background-color: #5C0000;
+      cursor: pointer;
+    }
+  </style>
+  <script>
+    Polymer({
+      is: 'up-jumper',
+      attached: function() {
+        console.log('doing it');
+        $('#up-jumper-div').click(function() {
+          $('html, body').animate({ scrollTop: 0 }, 'slow');
+          console.log('up');
+          return false;
+        });
+      }
+    });
+  </script>
+</dom-module>

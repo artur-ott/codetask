@@ -43,7 +43,7 @@ class Application extends Controller with Secured {
   def courses = withUser { user => implicit request => 
     if (user.authority == "teacher" || user.authority == "admin") {
       val list = courseService.findAll().map { c => 
-        (c.id, c.title, c.info != None) 
+        (c.id, c.title, c.githubUrl != None) 
       }
       Ok(views.html.teacherCourses(list))
     } else {
@@ -112,13 +112,12 @@ class Application extends Controller with Secured {
     } else {
       courseService.findOneById(courseId) match {
         case Some(course) =>
-          course.info match {
-            case Some(info) => 
+          course.githubUrl match {
+            case Some(url) => 
               try {
-                val i = CourseInfo(info.githubUser, info.githubRepo, info.path)
-                val c = CourseParser.parseFromGithub(i, course.title)
+                val c = CourseParser.parseFromGithub(url, course.title)
                 c.id = course.id
-                courseService.update(course)
+                courseService.update(c)
               } catch {
                 case e: Exception => play.Logger.error(e.toString)
               }
@@ -151,9 +150,8 @@ class Application extends Controller with Secured {
         formWithErrors => BadRequest(views.html.githubCourseForm(formWithErrors)),
         form => {
           try {
-            val info = CourseInfo(form._2, form._3, form._4)
-            val course = CourseParser.parseFromGithub(info, form._1)
-            course.info = Some(info)
+            val url = CourseParser.mkGithubApiUrl(form._2, form._3, form._4)
+            val course = CourseParser.parseFromGithub(url, form._1)
             courseService.create(course) match {
               case Some(c) => Redirect(routes.Application.githubCourseForm).flashing(
                 "success" -> "Course added"

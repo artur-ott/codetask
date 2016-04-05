@@ -7,7 +7,7 @@ import models.tasks._
 import models.tasks.Tasks._
 import models.CourseInfo._
 
-case class Course(var id: Long, var title: String, var chapters: List[Chapter], var info: Option[CourseInfo] = None)
+case class Course(var id: Long, var title: String, var chapters: List[Chapter], var githubUrl: Option[String] = None)
 case class Chapter(id: Long, title: String, tasks: List[Task])
 case class Task(id: String, tag: String, taskData: TaskData, solution: Option[String] = None)
 
@@ -31,7 +31,7 @@ object Course {
     (__ \ "id").read[Long] orElse Reads.pure(NEW) and
     (__ \ "title").read[String] and
     (__ \ "chapters").read[List[Chapter]] and
-    (__ \ "solution").readNullable[CourseInfo]
+    (__ \ "githubUrl").readNullable[String]
   )(Course.apply _)
 
   implicit val taskWrites: Writes[Task] = (
@@ -55,8 +55,8 @@ object Course {
     (__ \ "id").write[Long] and
     (__ \ "title").write[String] and
     (__ \ "chapters").write[List[Chapter]] and
-    (new OWrites[Option[CourseInfo]] {
-      def writes(solution: Option[CourseInfo]): JsObject = {
+    (new OWrites[Option[String]] {
+      def writes(githubUrl: Option[String]): JsObject = {
         Json.obj()
       }
     })

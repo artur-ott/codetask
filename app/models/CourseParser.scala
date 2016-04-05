@@ -15,12 +15,15 @@ import models.Chapter
 object CourseParser {
     val GHAPI = "https://api.github.com/"
 
+    def mkGithubApiUrl(githubUser: String, githubRepo: String, path: String): 
+      String = {
+        GHAPI + "repos/" + githubUser + "/" + githubRepo + 
+          "/contents" + path
+    }
+
     @throws[Exception]
     @throws[TimeoutException]
-    def parseFromGithub(info: CourseInfo, title: String): Course = {
-
-        val url = GHAPI + "repos/" + info.githubUser + "/" + info.githubRepo + 
-          "/contents" + info.path
+    def parseFromGithub(url: String, title: String): Course = {
 
         // get repository path contents
         lazy val f = WS.url(url).get()
@@ -57,7 +60,7 @@ object CourseParser {
         chapters = for (cs <- chapterStrings; i <- 1 to chapterStrings.size) 
           yield parseChapter(cs, "todo", i)
 
-        Course(1, title, chapters, Some(info))
+        Course(-1, title, chapters, Some(url))
     }
 
     def parseChapter(chapterString: String, title: String, id: Long): Chapter = {

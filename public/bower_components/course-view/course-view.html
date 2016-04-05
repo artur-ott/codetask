@@ -18,13 +18,13 @@
     <iron-ajax
       auto
       url="/api/solutions/{{courseId}}"
-      handle-as="json" 
+      handle-as="json"
       on-response="solutionsLoaded">
     </iron-ajax>
 
     <div>
-      <div id="navigation" class="col-md-3 center">
-        <div id="btn-container" class="col-md-3 center">
+      <div id="navigation" class="col-md-3">
+        <div id="btn-container" class="col-md-3">
           <button id="save-btn" class="btn btn-success">Speichern</button>
         </div>
         <div id="nav-content" class="col-md-3 center">
@@ -40,20 +40,29 @@
       padding-top: 10px;
     }
     #navigation {
+      /*
       padding-top: 30px;
       margin-left: 10px;
       margin-right: 20px;
+      */
     }
     #nav-content {
+      width: 100%;
+      /*
       position: fixed;
       bottom: 0;
       overflow: auto;
       top: 150px;
+      */
     }
     #btn-container {
+      width: 100%;
+      margin-bottom: 10px;
+      margin-top: 40px;
+      /*
       position: fixed;
       position: fixed;
-      top: 100px;
+      */
     }
     #save-btn {
       width: 100%;
