@@ -35,8 +35,8 @@ object CourseParser {
             + result.status)
         }
 
-        var chapters = List[Chapter]()
-        var chapterStrings = List[String]()
+        var chapters = List[(Chapter, Int)]()
+        var chapterStrings = List[(String, String)]()
         val json = result.json
         
         val contentDownloadUrls = json.as[List[JsValue]].map { js =>
@@ -49,24 +49,39 @@ object CourseParser {
           lazy val f2 = WS.url(downloadUrl).get()
           val result2 = Await.result(f2, 10.seconds)
 
+          val reg = """\/(\w*)\.scala$""".r
+          val matched = reg findFirstMatchIn downloadUrl
+          var fileTitle = matched match {
+            case Some(m) => m.group(1)
+            case None => "No Title"
+          }
+
           if (result.status == 200) {
-            chapterStrings = chapterStrings ::: List(result2.body)
+            chapterStrings = chapterStrings ::: List((result2.body, fileTitle))
           } else {
             play.Logger.info("github path not found code: " + result.status)
           }
         }
 
         // parse all contents of .scala files to chapters
-        chapters = for (cs <- chapterStrings; i <- 1 to chapterStrings.size) 
-          yield parseChapter(cs, "todo", i)
+        var i = 0
+        chapters = for (cs <- chapterStrings) yield {
+          val c = parseChapter(cs._1, cs._2, i)
+          i = i + 1
+          (c._1, c._2)
+        }
 
-        Course(-1, title, chapters, Some(url))
+        chapters = chapters.sortWith(_._2 < _._2)
+        val tmpChapters = chapters.map(_._1)
+
+        Course(-1, title, tmpChapters, Some(url))
     }
 
-    def parseChapter(chapterString: String, title: String, id: Long): Chapter = {
-      val json = Json.parse((new Parser(chapterString)).parseChapter(title, id))
+    def parseChapter(chapterString: String, title: String, id: Long): (Chapter, Int) = {
+      val result = (new Parser(chapterString)).parseChapter(title, id)
+      val json = Json.parse(result._1)
       val chapter = json.validate[Chapter].get
-      chapter
+      (chapter, result._2)
     }
 }
 
@@ -88,6 +103,8 @@ class Parser(s: String) {
   var koanCount = 0
   var codetaskCount = 0
   var taskMap = TreeMap[Int, List[Node]]()
+  var title:Option[String] = None
+  var rank:Option[Int] = None
 
   def escapeHTML = (s: String) => s
     .replace("\\", "\\\\")
@@ -100,6 +117,8 @@ class Parser(s: String) {
   val koan = """koan\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.+)\")(\s*\)\s*\{)""".r
   val codetask = """codetask\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.*)\")(\s*\)\s*\{)""".r
 
+  val info = """\/\*\s*TITLE\s*:(.*)\s*RANK\s*:([1-9]*)\s*\*\/""".r
+
   // regex, solution group nummer, replacement function
   val assertList = List[(Regex, Int, Match => String)](
     ("(should\\s+((equal)|(==)|(===)|(be)|(eq))\\s*)(\\((.*)\\))".r, 9, {m => m.group(1).toString + "(__)"}),
@@ -110,6 +129,15 @@ class Parser(s: String) {
     ("(assert\\s*\\(.*((==)|(===)|(eq))\\s+)(.*)\\)".r,              6, {m => m.group(1).toString + "__)"})
   )
   val clean = """^\s*(\S[\s\S]*\S)\s*""".r
+
+  def parseInfo {
+    val matched = info findFirstMatchIn s
+    matched match {
+      case Some(m) => title = Some(m.group(1))
+                      rank  = Some(m.group(2).toInt)
+      case None =>
+    }
+  }
 
   def parseVideos {
     val matches = video findAllMatchIn s
@@ -368,13 +396,28 @@ class Parser(s: String) {
     (index, end)
   }
 
-  def parseChapter(title: String, id: Long = 1):String = {
+  def parseChapter(chapterTitle: String, id: Long = 1): (String, Int) = {
     parseVideos
     parseKoans
     parseCodeTasks
+    parseInfo
+
     var tasks = taskMap.map{ x => "{%s}".format(x._2.map(_.toString()).mkString(","))}
     var taskArray = "[%s]".format(tasks.mkString(","))
-    var chapter = "{\"id\": %d, \"title\": \"%s\", \"tasks\": %s}".format(id, title, taskArray);
-    chapter
+    
+    val tmpTitle = title match {
+      case Some(t) => t
+      case None => chapterTitle
+    }
+
+    val tmpRank = rank match {
+      case Some(r) => r
+      case None => 0
+    }
+
+    play.Logger.info(tmpTitle + ", " + tmpRank)
+
+    var chapter = "{\"id\": %d, \"title\": \"%s\", \"tasks\": %s}".format(id, tmpTitle, taskArray);
+    (chapter, tmpRank)
   }
 }
