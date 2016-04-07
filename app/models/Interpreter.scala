@@ -92,7 +92,7 @@ object Interpreter {
   def runScala(code: String): InterpreterResult = {
 
     val settings = new Settings
-    settings.usejavacp.value = false
+    settings.usejavacp.value = true
 
     // borrowed: http://stackoverflow.com/questions/16511233/scala-tools-nsc-imain-within-play-2-1
     settings.classpath.value += scala.tools.util.PathResolver.Environment.javaBootClassPath + File.pathSeparator + "lib/scala-library.jar"
