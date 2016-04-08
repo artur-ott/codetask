@@ -38,12 +38,35 @@
             <td>@course._1</td>
             <td>@course._2</td>
             <td>
-              <a href="/operation/courses/delete/@course._1">delete</a>
+              <button type="button" class="btn btn-default" aria-label="Pencil" data-toggle="modal" data-target="#modal@course._2">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+              </button>
               @if(course._3) {
-                <a href="/operation/courses/update/@course._1">update</a>
+                <a href="/operation/courses/update/@course._1" type="button" class="btn btn-default">
+                  <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                </a>
               }
             </td>
           </tr>
+
+          <!-- modal -->
+          <div class="modal fade" id="modal@course._2" tabindex="-1" role="dialog" aria-labelledby="removeModal@course._2">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="removeModal@course._2">Confirm</h4>
+                </div>
+                <div class="modal-body">
+                  Sind Sie sicher dass Sie den Kurs löschen wollen?
+                </div>
+                <div class="modal-footer">
+                  <a href="/operation/courses/delete/@course._1" type="button" class="btn btn-default">Yes</a>
+                  <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+                </div>
+              </div>
+            </div>
+          </div>
         }
       </table>
     </div>
