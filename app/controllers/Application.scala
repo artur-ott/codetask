@@ -139,6 +139,7 @@ class Application extends Controller with Secured {
       )
   )
 
+
   def githubCourseForm() = Action { implicit request =>
     Ok(views.html.githubCourseForm(addCourseGithubForm))
   }
@@ -171,4 +172,44 @@ class Application extends Controller with Secured {
     }
   }
 
+  val addFileCourseForm = Form(
+    single(
+      "Course Title" -> nonEmptyText
+    )
+  )
+
+  def fileCourseForm() = Action { implicit request =>
+    Ok(views.html.fileCourseForm(addFileCourseForm))
+  }
+
+  def postFileCourseForm = withUser(parse.multipartFormData) { user => implicit request =>
+    addFileCourseForm.bindFromRequest.fold(
+      formWithErrors => {
+        Redirect(routes.Application.fileCourseForm).flashing(
+          "failure" -> "You need to enter a title.")
+      },
+      title => {
+        val files = request.body.files.toArray.filter(_.contentType != "text/x-scala").map(_.ref.file)
+
+        if (files.size > 0) {
+          try {
+            val course = CourseParser.parseFromFiles(files, title)
+
+            courseService.create(course) match {
+              case Some(c) => Redirect(routes.Application.fileCourseForm).flashing(
+                "success" -> "Course added")
+              case None => Redirect(routes.Application.fileCourseForm).flashing(
+                "error" -> "Course title already exists")
+            }
+          } catch {
+            case e: Exception => Redirect(routes.Application.fileCourseForm).flashing(
+              "failure" -> "Error while parsing uploaded files.")
+          }
+        } else {
+          Redirect(routes.Application.fileCourseForm).flashing(
+            "failure" -> "You need to upload .scala files.")
+        }
+      }
+    )
+  }
 }

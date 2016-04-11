@@ -1,0 +1,27 @@
+@(fileCourseForm: Form[String])(implicit flash: Flash)
+
+@extra = {
+  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/form.css")">
+}
+
+@main("File Formular", extra) {
+  @navigation(List(("Home", "/home"), ("Courses", "/courses"), ("Add course from files", "")))
+
+  <div class="col-xs-0 col-md-3"></div>
+  <div class="col-xs-12 col-md-6 center">
+    @helper.form(action = routes.Application.postFileCourseForm, 'enctype -> "multipart/form-data") {
+      @flash.get("success").map { message =>
+        <div class="alert alert-info">@message</div>
+      }
+
+      @flash.get("failure").map { message =>
+        <div class="alert alert-danger">@message</div>
+      }
+
+      <p><input type="text" name="Course Title" placeholder="Course Title" value="@fileCourseForm.data.get("Course Title")"></p>
+      <p><input type="file" name="file" accept="text/x-scala" multiple="multiple"></p>
+      <p><button class="btn standard" type="submit">Add Course</button></p>
+    }
+  </div>
+  <div class="col-xs-0 col-md-3"></div>
+}

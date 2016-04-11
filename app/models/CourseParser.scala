@@ -77,6 +77,17 @@ object CourseParser {
         Course(-1, title, tmpChapters, Some(url))
     }
 
+    def parseFromFiles(files: Array[java.io.File], title: String): Course = {
+      val chapters = files.map { file =>
+        val s = scala.io.Source.fromFile(file).getLines mkString "\n"
+        parseChapter(s, "none", -1)
+      }
+
+      val sortedChapters = chapters.sortWith(_._2 < _._2)
+      val onlyChapters = chapters.map(_._1).toList
+      Course(-1, title, onlyChapters, None)
+    }
+
     def parseChapter(chapterString: String, title: String, id: Long): (Chapter, Int) = {
       val result = (new Parser(chapterString)).parseChapter(title, id)
       val json = Json.parse(result._1)

@@ -19,6 +19,8 @@ GET     /operation/courses/update/:courseId controllers.Application.updateCourse
 # Forms
 GET     /forms/githubcourse            controllers.Application.githubCourseForm
 POST    /forms/githubcourse            controllers.Application.postGithubCourseForm
+GET     /forms/filecourse              controllers.Application.fileCourseForm
+POST    /forms/filecourse              controllers.Application.postFileCourseForm
 
 # Authentication
 GET     /login                          controllers.Auth.login
