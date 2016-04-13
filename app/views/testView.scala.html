@@ -1,0 +1,12 @@
+@()(implicit messages: MessagesApi, lang: Lang)
+
+@import play.api.i18n.Messages
+
+@main("Register") {
+    <div class="container vcenter">
+        @lang.code
+        @messages("test.test")
+
+        <br>
+    </div>
+}

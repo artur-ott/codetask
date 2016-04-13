@@ -1,6 +1,7 @@
-@(registerForm: Form[(String, String, String)])(implicit flash: Flash)
+@(registerForm: Form[(String, String, String)])(implicit flash: Flash, messages: MessagesApi, lang: Lang)
 
-@main("Register") {
+
+@main(messages("register.title")) {
     <div class="container vcenter">
         @helper.form(action = routes.Auth.submit()) {
 
@@ -9,13 +10,13 @@
                 }
 
                 @registerForm.globalError.map { error =>
-                	<p class="error">@error.message</p>
+                	<div class="alert alert-warning">@messages(error.message)</div>
                 }
 
-                <p><input type="email" name="email" placeholder="Email" value="@registerForm("email").value"></p>
-                <p><input type="password" name="password" placeholder="Password"></p>
-                <p><input type="password" name="password2" id="password2" placeholder="Password"></p>
-                <p><button class="btn standard" type="submit">Register</button></p>
+                <p><input type="email" name="email" placeholder="@messages("login.email")" value="@registerForm("email").value"></p>
+                <p><input type="password" name="password" placeholder="@messages("login.password")"></p>
+                <p><input type="password" name="password2" id="password2" placeholder="@messages("login.password")"></p>
+                <p><button class="btn standard" type="submit">@messages("register.register")</button></p>
         }
     </div>
 }

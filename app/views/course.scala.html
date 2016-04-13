@@ -1,4 +1,4 @@
-@(courseId: Long, courseTitle: String)
+@(courseId: Long, courseTitle: String)(implicit messages: MessagesApi, lang: Lang)
 
 @extra = {
   <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/course.css")">
@@ -8,7 +8,10 @@
 }
 
 @main(courseTitle, extra) {
-  @navigation(List(("Dashboard", "/dashboard"), (courseTitle, "")))
+  @navigation(
+    List((messages("dashboard.title"), "/dashboard"), (courseTitle, "")), 
+    messages("nav.logout")
+  )
 
   <course-view course-id="@courseId"></course-view>
   <up-jumper>&#8679;</up-jumper>

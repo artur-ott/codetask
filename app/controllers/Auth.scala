@@ -4,19 +4,21 @@ import play.api._
 import play.api.mvc._
 import play.api.data._
 import play.api.data.Forms._
+import play.api.i18n.{I18nSupport, Lang, MessagesApi}
+import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
 import models._
 import models.Services.userService
 
 class Auth extends Controller {
-
-  //case class UserData(email: String, password: String)
 
   val registerForm = Form(
       tuple(
         "email" -> email,
         "password" -> nonEmptyText,
         "password2" -> nonEmptyText
-      )  verifying ("Passwords don't match", result => result match {
+      )  verifying ("register.nomatch", result => result match {
          case (email, password, password2) => password == password2
       })
   )
@@ -25,7 +27,7 @@ class Auth extends Controller {
     tuple(
       "email" -> nonEmptyText,
       "password" -> nonEmptyText
-    ) verifying ("Invalid email or password", result => result match {
+    ) verifying ("login.invalid", result => result match {
       case (email, password) => check(email, password)
     })
   )
@@ -59,7 +61,7 @@ class Auth extends Controller {
             Redirect(routes.Application.menu).withSession(Security.username -> user._1)
           } else {
             Redirect(routes.Auth.register).flashing(
-              "failure" -> "email already exists."
+              "failure" -> Messages("register.exists")
             )
           }
         }
@@ -75,7 +77,7 @@ class Auth extends Controller {
 
   def logout = Action {
     Redirect(routes.Auth.login).withNewSession.flashing(
-      "success" -> "You are now logged out."
+      "success" -> Messages("login.logout")
     )
   }
 }

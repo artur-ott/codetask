@@ -2,6 +2,10 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+#Test
+GET    /test                            controllers.Test.index
+GET    /test2                            controllers.Test.view
+
 # Web Application
 GET     /                               controllers.Application.index
 GET     /home                           controllers.Application.menu

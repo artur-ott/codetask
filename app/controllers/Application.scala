@@ -3,6 +3,9 @@ package controllers
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
+import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
 import models.Services._
 import models.User._
 import models.CourseParser
@@ -11,7 +14,7 @@ class Application extends Controller with Secured {
 
   // Links
 
-  def index() = Action {
+  def index() = Action { request =>
     Redirect(routes.Auth.login)
   }
 
@@ -154,15 +157,15 @@ class Application extends Controller with Secured {
             val course = CourseParser.parseFromGithub(url, form._1)
             courseService.create(course) match {
               case Some(c) => Redirect(routes.Application.githubCourseForm).flashing(
-                "success" -> "Course added"
+                "success" -> Messages("form.github.courseadded")
               )
               case None => Redirect(routes.Application.githubCourseForm).flashing(
-                "failure" -> "course  already exists"
+                "failure" -> Messages("form.github.alreadyexists")
               )
             }
           } catch {
             case e: Exception => Redirect(routes.Application.githubCourseForm).flashing(
-              "failure" -> "github info invalid"
+              "failure" -> Messages("form.github.invalidinfo")
             )
           }
         }
@@ -183,33 +186,37 @@ class Application extends Controller with Secured {
   }
 
   def postFileCourseForm = withUser(parse.multipartFormData) { user => implicit request =>
-    addFileCourseForm.bindFromRequest.fold(
-      formWithErrors => {
-        Redirect(routes.Application.fileCourseForm).flashing(
-          "failure" -> "You need to enter a title.")
-      },
-      title => {
-        val files = request.body.files.toArray.filter(_.contentType != "text/x-scala").map(_.ref.file)
-
-        if (files.size > 0) {
-          try {
-            val course = CourseParser.parseFromFiles(files, title)
-
-            courseService.create(course) match {
-              case Some(c) => Redirect(routes.Application.fileCourseForm).flashing(
-                "success" -> "Course added")
-              case None => Redirect(routes.Application.fileCourseForm).flashing(
-                "error" -> "Course title already exists")
-            }
-          } catch {
-            case e: Exception => Redirect(routes.Application.fileCourseForm).flashing(
-              "failure" -> "Error while parsing uploaded files.")
-          }
-        } else {
+    if (user.authority == "teacher" || user.authority == "admin") {
+      addFileCourseForm.bindFromRequest.fold(
+        formWithErrors => {
           Redirect(routes.Application.fileCourseForm).flashing(
-            "failure" -> "You need to upload .scala files.")
+            "failure" -> Messages("form.folder.notitle"))
+        },
+        title => {
+          val files = request.body.files.toArray.filter(_.contentType != "text/x-scala").map(_.ref.file)
+
+          if (files.size > 0) {
+            try {
+              val course = CourseParser.parseFromFiles(files, title)
+
+              courseService.create(course) match {
+                case Some(c) => Redirect(routes.Application.fileCourseForm).flashing(
+                  "success" -> "Course added")
+                case None => Redirect(routes.Application.fileCourseForm).flashing(
+                  "failure" -> Messages("form.folder.alreadyexists"))
+              }
+            } catch {
+              case e: Exception => Redirect(routes.Application.fileCourseForm).flashing(
+                "failure" -> Messages("form.folder.error"))
+            }
+          } else {
+            Redirect(routes.Application.fileCourseForm).flashing(
+              "failure" -> Messages("form.folder.uploadfiles"))
+          }
         }
-      }
-    )
+      )
+    } else {
+      Unauthorized("not authorized")
+    }
   }
 }

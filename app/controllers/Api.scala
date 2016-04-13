@@ -38,29 +38,6 @@ class Api extends Controller with Secured {
     )
   }
 
-//  def createCourseWithInfo(courseId: Long) = withBasicAuth(parse.json)(ta) {
-//      implicit request =>
-//
-//      request.body.validate[CourseInfo].fold(
-//          errors => {
-//              BadRequest(Json.obj(
-//                "status" -> "KO",
-//                "message" -> JsError.toJson(errors)
-//              ))
-//          },
-//          courseInfo => {
-//            // todo: store course Info create and store course
-//            //val course = CourseParser.parseFromGithub(courseInfo)
-//            //courseService.createCourseWithInfo(course, courseInfo)
-//
-//            Created(Json.obj(
-//                "status" -> "OK",
-//                "message" -> ("Course '" + courseId + "' created")
-//            )).withHeaders(LOCATION -> ("/api/courses/" + courseId))
-//          }
-//      )
-//  }
-
   def getCourse(courseId: Long) = Action {
     courseService.findOneById(courseId) match {
       case Some(course) => Ok(Json.toJson(course))

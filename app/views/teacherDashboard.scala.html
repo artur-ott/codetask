@@ -1,12 +1,17 @@
+@()(implicit messages: MessagesApi, lang: Lang)
+
 @extra = {
-    <script src="@routes.Assets.versioned("bower_components/webcomponentsjs/webcomponents-lite.min.js")" type="text/javascript"></script>
-    <link rel="import" href="@routes.Assets.versioned("bower_components/teacher-dashboard/teacher-dashboard.html")">
+  <script src="@routes.Assets.versioned("bower_components/webcomponentsjs/webcomponents-lite.min.js")" type="text/javascript"></script>
+  <link rel="import" href="@routes.Assets.versioned("bower_components/teacher-dashboard/teacher-dashboard.html")">
 }
 
-@main("Dashboard", extra) {
-    @navigation(List(("Home", "/home"), ("Dashboard", "")))
-    
-    <div class="container">
-        <teacher-dashboard></teacher-dashboard>
-    </div>
+@main(messages("dashboard.title"), extra) {
+  @navigation(
+    List((messages("tmenu.title"), "/home"), (messages("dashboard.title"), "")),
+    messages("nav.logout")
+  )
+  
+  <div class="container">
+    <teacher-dashboard></teacher-dashboard>
+  </div>
 }

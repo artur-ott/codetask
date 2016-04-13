@@ -1,11 +1,18 @@
-@(githubCourseForm: Form[(String, String, String, String)])(implicit flash: Flash)
+@(githubCourseForm: Form[(String, String, String, String)])(implicit flash: Flash, messages: MessagesApi, lang: Lang)
 
 @extra = {
   <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/form.css")">
 }
 
 @main("Github Formular", extra) {
-  @navigation(List(("Home", "/home"), ("Courses", "/courses"), ("Add github course", "")))
+  @navigation(
+    List(
+      (messages("tmenu.title"), "/home"),
+      (messages("tmenu.courses"), "/courses"),
+      (messages("tcourses.addgithub"), "")
+    ),
+    messages("nav.logout")
+  )
 
   <div class="col-xs-0 col-md-3"></div>
   <div class="col-xs-12 col-md-6 center">
@@ -23,11 +30,11 @@
         <p class="error">@error.message</p>
       }
 
-      <p><input type="text" name="Course Title" placeholder="Course Title"></p>
-      <p><input type="text" name="Github User" placeholder="Github Username"></p>
-      <p><input type="text" name="Github Repo" placeholder="Github Repository"></p>
-      <p><input type="text" name="Repo Path" placeholder="Path in Repository"></p>
-      <p><button class="btn standard" type="submit">Add Course</button></p>
+      <p><input type="text" name="Course Title" placeholder="@messages("form.github.coursetitle")"></p>
+      <p><input type="text" name="Github User" placeholder="@messages("form.github.username")"></p>
+      <p><input type="text" name="Github Repo" placeholder="@messages("form.github.repository")"></p>
+      <p><input type="text" name="Repo Path" placeholder="@messages("form.github.path")"></p>
+      <p><button class="btn standard" type="submit">@messages("form.github.addcourse")</button></p>
     }
   </div>
   <div class="col-xs-0 col-md-3"></div>
