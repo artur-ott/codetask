@@ -92,7 +92,7 @@ class InterpreterSpec extends Specification {
       result.error shouldEqual true
     }
     "fail with ascii encoded use of library tools" in {
-      val code = "def rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}\nval x = new \164ools.nsc.interpreter.IMain()"
+      val code = "def rvrs(l: List[Any]): List[Any] = {\n l.reverse\n}\nval x = new \u0074ools.nsc.interpreter.IMain()"
       val test = "rvrs(List(1, 2, 3)) should be(List(3, 2, 1))"
       val result = Interpreter.run("scala", code + "\n" + test)
       result.success shouldEqual false

@@ -1,6 +1,6 @@
 package models
 
-import models.db4o._
+//import models.db4o._
 import models.dummydb._
 import models.hibernate._
 

@@ -79,7 +79,7 @@ class RestSpec extends Specification {
 
   "Application User API" should {
     "create User" in new WithApplication {
-    val json: JsValue = Json.parse("""{"username": "test@test.de", "authority": "student", "password": "test", "chapterSolutions": [], "subscriptions": []}""")
+    val json: JsValue = Json.parse("""{"username": "spec@test.de", "authority": "student", "password": "test", "chapterSolutions": [], "subscriptions": []}""")
     val request = FakeRequest(POST, "/api/users")
         .withJsonBody(json)
         .withHeaders(("Authorization", auth))
@@ -98,7 +98,7 @@ class RestSpec extends Specification {
     status(result.get) must equalTo(OK)
     }
     "update User" in new WithApplication {
-    val json: JsValue = Json.parse("""{"username": "test@test.de", "authority": "student", "password": "test", "chapterSolutions": [], "subscriptions": []}""")
+    val json: JsValue = Json.parse("""{"username": "spec@test.de", "authority": "student", "password": "test", "chapterSolutions": [], "subscriptions": []}""")
       val request = FakeRequest(PUT, "/api/users/" + userId)
         .withJsonBody(json)
         .withHeaders(("Authorization", auth))

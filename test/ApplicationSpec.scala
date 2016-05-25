@@ -20,10 +20,10 @@ class ApplicationSpec extends Specification {
   val auth = "Basic " + encodeBase64("admin@a.pp:$1amn_$2pwrt")
   val auth2 = "Basic " + encodeBase64("admin@test.de:test")
 
-  val user1 = new User(User.NEW, "admin@test.de", "teacher", userService.passwordHash("test"), List())
+  val user1 = new User(User.NEW, "specadmin@test.de", "teacher", userService.passwordHash("test"), List())
   val id1 = userService.create(user1).get.id
 
-  val user2 = new User(User.NEW, "test@test.de", "student", userService.passwordHash("test"), List())
+  val user2 = new User(User.NEW, "appspec@test.de", "student", userService.passwordHash("test"), List())
   val id2 = userService.create(user2).get.id
 
   var courseId = ""
@@ -46,7 +46,7 @@ class ApplicationSpec extends Specification {
 
     "login with credentials" in new WithApplication {
         val request = FakeRequest(POST, "/authenticate").withFormUrlEncodedBody(
-          "email" -> "test@test.de", 
+          "email" -> "appspec@test.de", 
           "password" -> "test"
         )
         val result = route(request)
@@ -81,7 +81,7 @@ class ApplicationSpec extends Specification {
 
     "subscribe user to course" in new WithApplication {
       val request = FakeRequest(GET, "/subscribe/" + courseId)
-        .withSession("username" -> "test@test.de", "password" -> "test")
+        .withSession("username" -> "appspec@test.de", "password" -> "test")
 
       val result = route(request)
       status(result.get) must equalTo(SEE_OTHER)
@@ -95,7 +95,7 @@ class ApplicationSpec extends Specification {
 
         val request = FakeRequest(POST, "/api/solutions/" + courseId)
           .withJsonBody(json)
-          .withSession("username" -> "test@test.de", "password" -> "test")
+          .withSession("username" -> "appspec@test.de", "password" -> "test")
         val result = route(request)
 
 
@@ -119,7 +119,7 @@ class ApplicationSpec extends Specification {
 
     "get all Students" in new WithApplication {
       val request = FakeRequest(GET, "/api/users/students")
-         .withSession("username" -> "admin@test.de", "password" -> "test")
+         .withSession("username" -> "specadmin.de", "password" -> "test")
       val result = route(request)
 
       var failed = 0
@@ -134,7 +134,7 @@ class ApplicationSpec extends Specification {
 
     "retreive courses" in new WithApplication {
         val request = FakeRequest(GET, "/api/courses/all")
-          .withSession("username" -> "test@test.de", "password" -> "test")
+          .withSession("username" -> "appspec@test.de", "password" -> "test")
         val result = route(request)
 
         var failed = 0
@@ -163,7 +163,7 @@ class ApplicationSpec extends Specification {
 
         val request = FakeRequest(POST, "/api/solutions/" + courseId)
           .withJsonBody(json)
-          .withSession("username" -> "test@test.de", "password" -> "test")
+          .withSession("username" -> "appspec@test.de", "password" -> "test")
         val result = route(request)
 
         contentAsString(result.get) must contain("\"status\":\"KO\"")
@@ -172,7 +172,7 @@ class ApplicationSpec extends Specification {
 
     "retreive chapter states" in new WithApplication {
         val request = FakeRequest(GET, "/api/solutions/" + courseId)
-          .withSession("username" -> "test@test.de", "password" -> "test")
+          .withSession("username" -> "appspec@test.de", "password" -> "test")
         val result = route(request)
 
         status(result.get) must equalTo(OK)
@@ -181,7 +181,7 @@ class ApplicationSpec extends Specification {
 
     "unsubscribe user from course" in new WithApplication {
       val request = FakeRequest(GET, "/unsubscribe/" + courseId)
-        .withSession("username" -> "test@test.de", "password" -> "test")
+        .withSession("username" -> "appspec@test.de", "password" -> "test")
 
       val result = route(request)
       status(result.get) must equalTo(SEE_OTHER)

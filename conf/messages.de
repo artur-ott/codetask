@@ -1,0 +1,78 @@
+login.title=Anmelden
+login.email=Email
+login.password=Passwort
+login.login=Anmelden
+login.register=Registrierung
+login.here=hier
+login.invalid=Falsche Email oder Passwort
+login.logout=Sie sind abgemeldet
+
+register.title=Registrieren
+register.register=Registrieren
+register.nomatch=Passwörter passen nicht zusammen
+register.exists=Email existiert bereits
+
+dashboard.title=Übersicht
+dashboard.addcourse=Kurs hinzufügen
+dashboard.coursetitle=Kurstitel
+dashboard.progress=Fortschritt
+dashboard.options=Optionen
+dashboard.areyousure=Sind Sie sicher dass sie sich aus dem Kurs abmelden wollen? Ihre Fortschritte gehen verloren
+
+tmenu.title=Startseite
+tmenu.dashboard=Übersicht
+tmenu.courses=Kurse
+tmenu.users=Benutzer
+
+tcourses.addgithub=Github Kurs hinzufügen
+tcourses.addfolder=Kurs Dateien hochladen
+tcourses.id=Id
+tcourses.title=Kurstitel
+tcourses.options=Optionen
+tcourses.areyousure=Sind Sie sicher dass Sie den Kurs löschen wollen?
+
+tusers.createuser=Benutzer hinzufügen
+tusers.updateuser=Benutzer aktualisieren
+tusers.id=Id
+tusers.name=Benutzername
+tusers.authority=Authorität
+tusers.options=Optionen
+tusers.areyousure=Sind Sie sicher dass Sie den Benutzer löschen wollen?
+
+form.github.coursetitle=Kurstitel
+form.github.username=Github Username
+form.github.repository=Github Repository
+form.github.path=Pfad im Repository
+form.github.addcourse=Kurs hinzufügen
+form.github.courseadded=Kurs hinzugefügt
+form.github.alreadyexists=Kurstitel existiert bereits
+form.github.invalidinfo=Github infos fehlerhaft
+
+form.folder.coursetitle=Kurstitel
+form.folder.addcourse=Kurs hinzufügen
+form.folder.notitle=Kurstitel fehlt
+form.folder.alreadyexists=Kurstitel existiert bereits
+form.folder.error=Fehler beim parsen der Dateien
+form.folder.uploadfiles=Sie müssen .scala Dateien hochladen
+
+form.users.create=Benutzer erstellen
+form.users.update=Benutzer aktuallisieren
+form.users.username=Email
+form.users.password=Passwort
+form.users.teacher=Lehrer
+form.users.student=Schüler
+form.users.admin=Administrator
+form.users.created=Benutzer erstellt
+form.users.exists=Benutzer mit E-mail existiert bereits
+form.users.existsnot=Benutzer existiert nicht
+form.users.updated=Benutzer aktuallisiert
+
+form.courseupdate.existsnot=Der Kurs existiert nicht
+
+modal.confirm=Bestätigen
+modal.yes=Ja
+modal.no=Nein
+
+nav.logout=abmelden
+
+test.test=Hallo

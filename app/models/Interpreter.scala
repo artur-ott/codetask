@@ -8,6 +8,7 @@ import tools.nsc._
 import tools.nsc.Settings
 import scala.concurrent._
 import scala.concurrent.duration._
+import scala.language.postfixOps
 import ExecutionContext.Implicits.global
 import java.util.concurrent.TimeoutException
 import java.io.File

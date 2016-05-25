@@ -1,3 +1,5 @@
+/* UNMAINTAINED
+
 package models.db4o
 
 import com.db4o.Db4o
@@ -74,3 +76,4 @@ class UserRepositoryDb4o extends UserRepository {
 
 }
 
+*/

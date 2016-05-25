@@ -1,0 +1,79 @@
+login.title=Login
+login.email=Email
+login.password=Password
+login.login=Login
+login.register=You can register
+login.here=here
+login.invalid=Invalid email or password
+login.logout=You are now logged out
+
+register.title=Register
+register.register=Register
+register.nomatch=Passwords don't match
+register.exists=Email already exists
+
+dashboard.title=Dashboard
+dashboard.addcourse=Add Course
+dashboard.coursetitle=Course Title
+dashboard.progress=Progress
+dashboard.options=Options
+dashboard.areyousure=Are you sure you want to unsubscribe this course? All your progress will be lost.
+
+tmenu.title=Home
+tmenu.dashboard=Dashboard
+tmenu.courses=Courses
+tmenu.users=Users
+
+tcourses.addgithub=add github course
+tcourses.addfolder=add course from files
+tcourses.id=Id
+tcourses.title=Course Title
+tcourses.options=Options
+tcourses.areyousure=Are you sure you want to delete this course?
+
+tusers.createuser=create user
+tusers.updateuser=update user
+tusers.id=Id
+tusers.name=Username
+tusers.authority=Authority
+tusers.options=Options
+tusers.areyousure=Are you sure you want to delete this User?
+
+form.github.coursetitle=Course Title
+form.github.username=Github Username
+form.github.repository=Github Repository
+form.github.path=Repository Path
+form.github.addcourse=Add course
+form.github.courseadded=Course added
+form.github.alreadyexists=Course title already exists
+form.github.invalidinfo=Invalid github info
+
+form.folder.coursetitle=Course Title
+form.folder.addcourse=add course
+
+form.folder.notitle=You need to enter a title
+form.folder.alreadyexists=Course title already exists
+form.folder.error=Error while parsing uploaded files
+form.folder.uploadfiles=You need to upload .scala files
+
+form.users.create=create user
+form.users.update=update user
+form.users.username=username
+form.users.password=password
+form.users.teacher=Teacher
+form.users.student=Student
+form.users.admin=Administrator
+form.users.created=user created
+form.users.exists=username already exists
+form.users.existsnot=user does not exist
+form.users.updated=user updated
+
+form.courseupdate.existsnot=course does not exist
+
+modal.confirm=Confirm
+modal.yes=Yes
+modal.no=No
+
+nav.logout=logout
+
+test.test=Hello

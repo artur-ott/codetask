@@ -4,7 +4,7 @@ import models._
 import javax.persistence.Persistence
 import javax.persistence.EntityManagerFactory
 import org.hibernate._
-import org.hibernate.ejb.HibernateEntityManagerFactory
+import org.hibernate.jpa.HibernateEntityManagerFactory
 import scala.collection.JavaConversions._
 import play.db.jpa.JPA 
 

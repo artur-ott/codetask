@@ -3,7 +3,7 @@ version := "1.0-SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 libraryDependencies ++= Seq(
   jdbc,
@@ -13,7 +13,7 @@ libraryDependencies ++= Seq(
   specs2 % Test,
   "mysql" % "mysql-connector-java" % "5.1.27",
   "org.hibernate" % "hibernate-entitymanager" % "4.3.9.Final",
-  "org.scala-lang" % "scala-compiler" % "2.11.6",
+  "org.scala-lang" % "scala-compiler" % "2.11.7",
   "org.scalatest" % "scalatest_2.10" % "2.0" % "test",
   "com.db4o" % "com.db4o" % "7.7.67",
   "org.mindrot" % "jbcrypt" % "0.3m",

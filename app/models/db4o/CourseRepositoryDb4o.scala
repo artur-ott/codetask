@@ -1,3 +1,5 @@
+/* UNMAINTAINED
+
 package models.db4o
 
 import com.db4o.Db4o
@@ -69,3 +71,4 @@ class CourseRepositoryDb4o() extends CourseRepository {
     }
   }
 }
+*/

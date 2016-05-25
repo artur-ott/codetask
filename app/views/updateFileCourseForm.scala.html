@@ -1,0 +1,33 @@
+@(courseId: Long)(implicit flash: Flash, messages: MessagesApi, lang: Lang)
+
+@extra = {
+  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/form.css")">
+}
+
+@main("File Formular", extra) {
+  @navigation(
+    List(
+      (messages("tmenu.title"), "/home"),
+      (messages("tmenu.courses"), "/courses"),
+      (messages("tcourses.addfolder"), "")
+    ),
+    messages("nav.logout")
+  )
+
+  <div class="col-xs-0 col-md-3"></div>
+  <div class="col-xs-12 col-md-6 center">
+    @helper.form(action = routes.Application.postUpdateFileCourseForm(courseId), 'enctype -> "multipart/form-data") {
+      @flash.get("success").map { message =>
+        <div class="alert alert-info">@message</div>
+      }
+
+      @flash.get("failure").map { message =>
+        <div class="alert alert-danger">@message</div>
+      }
+
+      <p><input type="file" name="file" accept="text/x-scala" multiple="multiple"></p>
+      <p><button class="btn standard" type="submit">@messages("form.folder.addcourse")</button></p>
+    }
+  </div>
+  <div class="col-xs-0 col-md-3"></div>
+}

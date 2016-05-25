@@ -2,16 +2,13 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-#Test
-GET    /test                            controllers.Test.index
-GET    /test2                            controllers.Test.view
-
 # Web Application
 GET     /                               controllers.Application.index
 GET     /home                           controllers.Application.menu
 GET     /dashboard                      controllers.Application.dashboard
 GET     /courses                        controllers.Application.courses
 GET     /course/:courseId               controllers.Application.course(courseId: Long)
+GET     /users                          controllers.Application.users
 GET     /solutions/:courseId/:userId    controllers.Application.solution(courseId: Long, userId: Long)
 
 #Operations
@@ -19,12 +16,19 @@ GET     /operation/subscribe/:courseId      controllers.Application.subscribe(co
 GET     /operation/unsubscribe/:courseId    controllers.Application.unsubscribe(courseId: Long)
 GET     /operation/courses/delete/:courseId controllers.Application.deleteCourse(courseId: Long)
 GET     /operation/courses/update/:courseId controllers.Application.updateCourse(courseId: Long)
+GET     /operation/users/delete/:userId     controllers.Application.deleteUser(userId: Long)
 
 # Forms
-GET     /forms/githubcourse            controllers.Application.githubCourseForm
-POST    /forms/githubcourse            controllers.Application.postGithubCourseForm
-GET     /forms/filecourse              controllers.Application.fileCourseForm
-POST    /forms/filecourse              controllers.Application.postFileCourseForm
+GET     /forms/githubcourse                controllers.Application.githubCourseForm
+POST    /forms/githubcourse                controllers.Application.postGithubCourseForm
+GET     /forms/filecourse                  controllers.Application.fileCourseForm
+POST    /forms/filecourse                  controllers.Application.postFileCourseForm
+GET     /forms/createuser                  controllers.Application.createUserForm
+POST    /forms/createuser                  controllers.Application.postCreateUserForm
+GET     /forms/updateuser/:userId          controllers.Application.updateUserForm(userId: Long)
+POST    /forms/updateuser/:userId          controllers.Application.postUpdateUserForm(userId: Long)
+GET     /forms/updatecourse/:courseId      controllers.Application.updateUploadCourse(courseId: Long)
+POST    /forms/updatefilecourse/:courseId  controllers.Application.postUpdateFileCourseForm(courseId: Long)
 
 # Authentication
 GET     /login                          controllers.Auth.login

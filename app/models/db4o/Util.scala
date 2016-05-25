@@ -1,5 +1,6 @@
-package models.db4o
+/* UNMAINTAINED
 
+package models.db4o
 
 import com.db4o.Db4o
 import com.db4o.reflect.jdk.JdkReflector
@@ -33,3 +34,5 @@ class QueryHelper (connection: ObjectContainer) {
   }
 }
 // /borrowed
+
+*/

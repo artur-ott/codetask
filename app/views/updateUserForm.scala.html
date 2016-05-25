@@ -1,0 +1,47 @@
+@(updateUserFrom: Form[(String, String, String, String)], userId: Long)(implicit flash: Flash, messages: MessagesApi, lang: Lang)
+
+@extra = {
+  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/form.css")">
+}
+
+@main("User Formular", extra) {
+  @navigation(
+    List(
+      (messages("tmenu.title"), "/home"),
+      (messages("tmenu.users"), "/users"),
+      (messages("tusers.updateuser"), "")
+    ),
+    messages("nav.logout")
+  )
+
+  <div class="col-xs-0 col-md-3"></div>
+  <div class="col-xs-12 col-md-6 center">
+    @helper.form(action = routes.Application.postUpdateUserForm(userId)) {
+
+      @flash.get("success").map { message =>
+        <div class="alert alert-info">@message</div>
+      }
+
+      @flash.get("failure").map { message =>
+        <div class="alert alert-danger">@message</div>
+      }
+
+      @updateUserFrom.globalError.map { error =>
+        <p class="error">@error.message</p>
+      }
+
+      <p><input type="email" name="Username" placeholder="@messages("form.users.username")"></p>
+      <p> 
+        <select name="Authority">
+          <option value="teacher">@messages("form.users.teacher")</option>
+          <option value="student">@messages("form.users.student")</option>
+          <option value="admin">@messages("form.users.admin")</option>
+        </select>
+      </p>
+      <p><input type="password" name="Password" placeholder="@messages("form.users.password")"></p>
+      <p><input type="password" name="Password" placeholder="@messages("form.users.password")"></p>
+      <p><button class="btn standard" type="submit">@messages("form.users.update")</button></p>
+    }
+  </div>
+  <div class="col-xs-0 col-md-3"></div>
+}

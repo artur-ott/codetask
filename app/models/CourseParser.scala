@@ -428,7 +428,7 @@ class Parser(s: String) {
 
     play.Logger.info(tmpTitle + ", " + tmpRank)
 
-    var chapter = "{\"id\": %d, \"title\": \"%s\", \"tasks\": %s}".format(id, tmpTitle, taskArray);
+    var chapter = "{\"id\": %d, \"title\": \"%s\", \"tasks\": %s}".format(tmpRank, tmpTitle, taskArray);
     (chapter, tmpRank)
   }
 }

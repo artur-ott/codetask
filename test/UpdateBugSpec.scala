@@ -12,8 +12,8 @@ class UpdateBugSpec extends Specification {
       val course = Course(-1, "Test5", List(), None)
       var result = courseService.create(course)
       result.isEmpty shouldEqual false
-      val courseInfo = CourseInfo("ZaruDan", "CodeTaskCourses", "/") 
-      val githubCourse = CourseParser.parseFromGithub(courseInfo, course.title)
+      val url = CourseParser.mkGithubApiUrl("ZaruDan", "CodeTaskCourses", "/") 
+      val githubCourse = CourseParser.parseFromGithub(url, course.title)
       githubCourse.id = result.get.id
       result = courseService.update(githubCourse)
       result.isEmpty shouldEqual false

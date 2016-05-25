@@ -7,6 +7,7 @@ import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import models.Services._
+import models.User
 import models.User._
 import models.CourseParser
 
@@ -59,6 +60,17 @@ class Application extends Controller with Secured {
       Ok(views.html.course(course.get.id, course.get.title))
     else
       Redirect(routes.Application.dashboard)
+  }
+
+  def users() = withUser { user => implicit request => 
+    if (user.authority == "teacher" || user.authority == "admin") {
+      val list = userService.findAll().map { u =>
+        (u.id, u.username, u.authority)
+      }
+      Ok(views.html.teacherUsers(list))
+    } else {
+      Unauthorized("not authorized")
+    }
   }
 
   def solution(courseId: Long, userId: Long) = withUser {
@@ -131,6 +143,19 @@ class Application extends Controller with Secured {
     }
   }
 
+  def deleteUser(userId: Long) = withUser { user => implicit request =>
+    if (user.authority != "admin") {
+      BadRequest("no authority")
+    } else {
+      userService.findOneById(userId) match {
+        case Some(user) =>
+          userService.delete(user)
+          Redirect(routes.Application.users)
+        case None => NotFound("user does not exists")
+      }
+    }
+  }
+
   // Forms
 
   val addCourseGithubForm = Form(
@@ -175,6 +200,7 @@ class Application extends Controller with Secured {
     }
   }
 
+
   val addFileCourseForm = Form(
     single(
       "Course Title" -> nonEmptyText
@@ -201,7 +227,7 @@ class Application extends Controller with Secured {
 
               courseService.create(course) match {
                 case Some(c) => Redirect(routes.Application.fileCourseForm).flashing(
-                  "success" -> "Course added")
+                  "success" -> Messages("form.github.courseadded"))
                 case None => Redirect(routes.Application.fileCourseForm).flashing(
                   "failure" -> Messages("form.folder.alreadyexists"))
               }
@@ -215,6 +241,144 @@ class Application extends Controller with Secured {
           }
         }
       )
+    } else {
+      Unauthorized("not authorized")
+    }
+  }
+
+
+  val userForm = Form(
+      tuple(
+        "Username" -> nonEmptyText,
+        "Authority" -> nonEmptyText,
+        "Password" -> nonEmptyText,
+        "Password" -> nonEmptyText
+      )
+  )
+
+  def createUserForm() = Action { implicit request =>
+    Ok(views.html.createUserForm(userForm))
+  }
+
+  def postCreateUserForm = withUser { user => implicit request =>
+    if (user.authority == "admin") {
+      userForm.bindFromRequest.fold(
+        formWithErrors => {
+          BadRequest(views.html.createUserForm(formWithErrors))
+        },
+        form => {
+          val user = User(-1, form._1, form._2, form._3)
+          userService.create(user) match {
+            case Some(u) => Redirect(routes.Application.createUserForm).flashing(
+              "success" -> Messages("form.users.created"))
+            case None => Redirect(routes.Application.createUserForm).flashing(
+              "failure" -> Messages("form.users.exists"))
+          }
+        }
+      )
+    } else {
+      Unauthorized("not authorized")
+    }
+  }
+
+  val addUpdateUserForm = Form(
+    tuple(
+      "Username" -> text,
+      "Authority" -> text,
+      "Password" -> text,
+      "Password" -> text
+    ) verifying ("register.nomatch", result => result match {
+      case (email, auth, password, password2) => password == password2
+    })
+  )
+
+  def updateUserForm(userId: Long) = Action { implicit request =>
+    Ok(views.html.updateUserForm(addUpdateUserForm, userId))
+  }
+
+  def postUpdateUserForm(userId: Long) = withUser { user => implicit request =>
+    if (user.authority == "admin") {
+      addUpdateUserForm.bindFromRequest.fold(
+        formWithErrors => {
+          BadRequest(views.html.updateUserForm(formWithErrors, userId))
+        },
+        form => {
+          userService.findOneById(userId) match {
+            case Some(user) =>
+              if (form._1 != "") {
+               // user.username = form._1
+              }
+              if (form._2 != "") {
+                user.authority = form._2
+              }
+              if (form._3 != "" && form._4 == form._3) {
+                user.password = userService.passwordHash(form._3)
+              }
+              userService.update(user) match {
+                case Some(u) => Redirect(routes.Application.updateUserForm(userId)).flashing(
+                  "success" -> Messages("form.users.updated"))
+                case None => Redirect(routes.Application.updateUserForm(userId)).flashing(
+                  "failure" -> Messages("form.users.existsnot"))
+              }
+            case None => Redirect(routes.Application.updateUserForm(userId)).flashing(
+              "failure" -> Messages("form.users.existsnot"))
+          }
+        }
+      )
+    } else {
+      Unauthorized("not authorized")
+    }
+  }
+
+
+ /* val userForm = Form(
+      tuple(
+        "Username" -> nonEmptyText,
+        "Authority" -> nonEmptyText,
+        "Password" -> nonEmptyText,
+        "Password" -> nonEmptyText
+      )
+  )
+*/
+
+  def updateUploadCourse(courseId: Long) = withUser { user => implicit request =>
+    if (user.authority != "teacher" && user.authority != "admin") {
+      BadRequest("no authority")
+    } else {
+      Ok(views.html.updateFileCourseForm(courseId))
+    }
+  }
+
+  def postUpdateFileCourseForm(courseId: Long) = withUser(parse.multipartFormData) { user => implicit request =>
+    if (user.authority == "teacher" || user.authority == "admin") {
+      val files = request.body.files.toArray.filter(_.contentType != "text/x-scala").map(_.ref.file)
+
+      if (files.size > 0) {
+        try {
+          courseService.findOneById(courseId) match {
+            case Some(c) => 
+              val course = CourseParser.parseFromFiles(files, c.title)
+              course.id = courseId
+
+              courseService.update(course) match {
+                case Some(c) => Redirect(routes.Application.updateUploadCourse(courseId)).flashing(
+                  "success" -> Messages("form.github.courseadded"))
+                case None => Redirect(routes.Application.updateUploadCourse(courseId)).flashing(
+                  "failure" -> Messages("form.folder.alreadyexists"))
+              }
+            case None =>
+              Redirect(routes.Application.updateUploadCourse(courseId)).flashing(
+                "failure" -> Messages("form.courseupdate.existsnot")
+              )
+          }
+        } catch {
+          case e: Exception => Redirect(routes.Application.updateUploadCourse(courseId)).flashing(
+            "failure" -> Messages("form.folder.error"))
+        }
+      } else {
+        Redirect(routes.Application.updateUploadCourse(courseId)).flashing(
+          "failure" -> Messages("form.folder.uploadfiles"))
+      }
     } else {
       Unauthorized("not authorized")
     }
