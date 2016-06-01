@@ -47,6 +47,7 @@ class Auth extends Controller {
     Ok(views.html.login(loginForm))
   }
 
+  // for students
   def register() = Action { implicit request =>
     Ok(views.html.register(registerForm))
   }

@@ -187,6 +187,7 @@ class Api extends Controller with Secured {
     var list = userService.findAll().map {
       user => Json.toJson(user)
     }
+
     Ok(Json.toJson(list.toSeq))
   }
 
