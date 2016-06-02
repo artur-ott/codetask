@@ -125,7 +125,7 @@ class Parser(s: String) {
   val koan = """koan\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.+)\")(\s*\)\s*\{)""".r
   val codetask = """codetask\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.*)\")(\s*\)\s*\{)""".r
 
-  val info = """\/\*\s*TITLE\s*:(.*)\s*RANK\s*:([1-9]*)\s*\*\/""".r
+  val info = """CodeTaskSuite\s*\(\s*\"(.*)\"\s*,\s*([1-9]*)\)""".r
 
   def parseInfo {
     val matched = info findFirstMatchIn s
