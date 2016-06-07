@@ -29,7 +29,8 @@ class Application extends Controller with Secured {
 
   def dashboard() = withUser { user => implicit request =>
     if (user.authority == "teacher" || user.authority == "admin") {
-      Ok(views.html.teacherDashboard())
+      val courses = courseService.findAll()
+      Ok(views.html.teacherDashboard2(courses))
     } else {
       var info: List[(Long, String, Int)] = List()
       user.subscriptions.foreach { courseId =>
@@ -84,6 +85,22 @@ class Application extends Controller with Secured {
           Ok(views.html.teacherCourse(courseId, userId, course.title))
         case None => NotFound("course does not exist")
       }
+    }
+  }
+
+  def courseStats(courseId: Long) = withUser { user => implicit request =>
+    if (user.authority == "teacher" || user.authority == "admin") {
+      courseService.findOneById(courseId) match {
+        case Some(course) =>
+          val users = userService.findAll()
+          val courseUsers = users.filter { user =>
+            user.subscriptions.contains(courseId)
+          }
+          Ok(views.html.teacherCourseStats(courseUsers, course))
+        case None => NotFound("course does not exists")
+      }
+    } else {
+      Unauthorized("not authorized")
     }
   }
 
@@ -151,6 +168,22 @@ class Application extends Controller with Secured {
         case Some(user) =>
           userService.delete(user)
           Redirect(routes.Application.users)
+        case None => NotFound("user does not exists")
+      }
+    }
+  }
+
+  def unsubscribeUserFromCourse(userId: Long, courseId: Long) = withUser { user => implicit request =>
+    if (user.authority != "admin" && user.authority != "teacher") {
+      BadRequest("no authority")
+    } else {
+      userService.findOneById(userId) match {
+        case Some(user) =>
+          user.subscriptions = user.subscriptions.filter(_ != courseId)
+          userService.update(user) match {
+            case Some(u) => Redirect(routes.Application.courseStats(courseId))
+            case None => BadRequest("could not update user")
+          }
         case None => NotFound("user does not exists")
       }
     }

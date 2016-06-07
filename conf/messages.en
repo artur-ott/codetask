@@ -19,6 +19,13 @@ dashboard.progress=Progress
 dashboard.options=Options
 dashboard.areyousure=Are you sure you want to unsubscribe this course? All your progress will be lost.
 
+coursestat.title=Course infos
+coursestat.username=Username
+coursestat.id=Id
+coursestat.progress=Progress
+coursestat.solution=solution
+coursestat.areyousure=Are you shure you want to unsubscribe the user from this course?
+
 tmenu.title=Home
 tmenu.dashboard=Dashboard
 tmenu.courses=Courses

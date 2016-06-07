@@ -1,0 +1,83 @@
+@(users: List[models.User], course: models.Course)(implicit messages: MessagesApi, lang: Lang)
+
+@extra = {
+  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/coursestats.css")">
+}
+
+@main(messages("coursestat.title"), extra) {
+  @navigation(
+    List((messages("tmenu.title"), "/home"), (messages("dashboard.title"), "/dashboard"), (course.title, "")),
+    messages("nav.logout")
+  )
+  
+  <div class="col-md-12">
+    <div class="col-md-1"></div>
+    <div class="col-md-2">@messages("coursestat.username")</div>
+    <div class="col-md-1">@messages("coursestat.id")</div>
+    <div class="col-md-1"></div>
+    <div class="col-md-7">@messages("coursestat.progress")</div>
+    <hr>
+  </div>
+
+
+  @for(user <- users) {
+    <div class="col-md-12">
+      <div class="col-md-1"><a href="/solutions/@course.id/@user.id">@messages("coursestat.solution")</a></div>
+      <div class="col-md-2"><p>@user.username</p></div>
+      <div class="col-md-1"><p>@user.id</p></div>
+      <div class="col-md-1">
+        <button type="button" class="btn btn-default" aria-label="Pencil" data-toggle="modal" data-target="#modal@course.id">
+          <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="col-md-7">
+
+        @for(chapter <- course.chapters.sortWith(_.id < _.id)) {
+          &nbsp;
+          @for(task <- chapter.tasks) {
+            @user.chapterSolutions.find(x => x.courseId == course.id && x.chapterId == chapter.id) match {
+              case Some(cs) => {
+                @cs.taskSolutions.find(x => x.taskId == task.id) match {
+                  case Some(ts) => {
+                    <a href="/solutions/@course.id/@user.id?chapter=@chapter.id#@task.id" class="box checked">
+                      <div class="mouseover"><div class="chapterTitle">@chapter.title/@chapter.id/@task.id</div></div>
+                    </a>
+                  }
+                  case None => {
+                    <a href="/solutions/@course.id/@user.id?chapter=@chapter.id#@task.id" class="box">
+                      <div class="mouseover"><div class="chapterTitle">@chapter.title/@chapter.id/@task.id</div></div>
+                    </a>
+                  }
+                }
+              }
+              case None => {
+                <a href="/solutions/@course.id/@user.id?chapter=@chapter.id#@task.id" class="box">
+                  <div class="mouseover"><div class="chapterTitle">@chapter.title/@chapter.id/@task.id</div></div>
+                </a>
+              }
+            }
+          }
+        }
+      </div>
+    </div>
+
+    <!-- modal -->
+    <div class="modal fade" id="modal@course.id" tabindex="-1" role="dialog" aria-labelledby="removeModal@course.id">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="removeModal@course.title">@messages("modal.confirm")</h4>
+          </div>
+          <div class="modal-body">
+            @messages("coursestat.areyousure")
+          </div>
+          <div class="modal-footer">
+            <a href="/operation/users/unsubscribe/@user.id/@course.id" type="button" class="btn btn-default">@messages("modal.yes")</a>
+            <button type="button" class="btn btn-primary" data-dismiss="modal">@messages("modal.no")</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+}

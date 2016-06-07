@@ -19,6 +19,13 @@ dashboard.progress=Fortschritt
 dashboard.options=Optionen
 dashboard.areyousure=Sind Sie sicher dass sie sich aus dem Kurs abmelden wollen? Ihre Fortschritte gehen verloren
 
+coursestat.title=Kursinformationen
+coursestat.username=Username
+coursestat.id=Id
+coursestat.progress=Fortschritt
+coursestat.solution=Lösung
+coursestat.areyousure=Sind Sie sicher dass sie den Benutzer aus dem Kurs entfernen möchten?
+
 tmenu.title=Startseite
 tmenu.dashboard=Übersicht
 tmenu.courses=Kurse

@@ -10,13 +10,15 @@ GET     /courses                        controllers.Application.courses
 GET     /course/:courseId               controllers.Application.course(courseId: Long)
 GET     /users                          controllers.Application.users
 GET     /solutions/:courseId/:userId    controllers.Application.solution(courseId: Long, userId: Long)
+GET     /dashboard/course/:courseId     controllers.Application.courseStats(courseId: Long)
 
 #Operations
-GET     /operation/subscribe/:courseId      controllers.Application.subscribe(courseId: Long)
-GET     /operation/unsubscribe/:courseId    controllers.Application.unsubscribe(courseId: Long)
-GET     /operation/courses/delete/:courseId controllers.Application.deleteCourse(courseId: Long)
-GET     /operation/courses/update/:courseId controllers.Application.updateCourse(courseId: Long)
-GET     /operation/users/delete/:userId     controllers.Application.deleteUser(userId: Long)
+GET     /operation/subscribe/:courseId                  controllers.Application.subscribe(courseId: Long)
+GET     /operation/unsubscribe/:courseId                controllers.Application.unsubscribe(courseId: Long)
+GET     /operation/courses/delete/:courseId             controllers.Application.deleteCourse(courseId: Long)
+GET     /operation/courses/update/:courseId             controllers.Application.updateCourse(courseId: Long)
+GET     /operation/users/delete/:userId                 controllers.Application.deleteUser(userId: Long)
+GET     /operation/users/unsubscribe/:userId/:courseId  controllers.Application.unsubscribeUserFromCourse(userId: Long, courseId: Long)
 
 # Forms
 GET     /forms/githubcourse                controllers.Application.githubCourseForm

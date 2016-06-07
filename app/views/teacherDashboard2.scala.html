@@ -1,0 +1,33 @@
+@(courses: List[Course])(implicit messages: MessagesApi, lang: Lang)
+
+@extra = {
+  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/teacherdashboard.css")">
+}
+
+@main(messages("dashboard.title"), extra) {
+  @navigation(
+    List((messages("tmenu.title"), "/home"), (messages("dashboard.title"), "")),
+    messages("nav.logout")
+  )
+  
+  <div class="col-xs-12 col-sm-12" id="content">
+      <table class="table">
+        <tr>
+          <th>@messages("tcourses.id")</th>
+          <th>@messages("tcourses.title")</th>
+          <th>@messages("tcourses.options")</th>
+        </tr>
+        @for(course <- courses) {
+          <tr>
+            <td>@course.id</td>
+            <td>@course.title</td>
+            <td>
+              <a href="dashboard/course/@course.id" type="button" class="btn btn-default">
+                <span class="glyphicon glyphicon-signal" aria-hidden="true"></span>
+              </a>
+            </td>
+          </tr>
+        }
+      </table>
+    </div>
+}
