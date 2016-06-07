@@ -1,0 +1,45 @@
+hr {
+  border: 0;
+  height: 1px;
+  background: black;
+}
+
+.box {
+  margin-left: -3px;
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border: solid 1px black;
+  border-radius: 10px;
+}
+
+.checked {
+  background-color: blue;
+}
+
+.stats {
+  overflow-x: scroll;
+}
+
+.mouseover {
+  position:relative;
+  cursor: pointer;
+}
+
+.chapterTitle {
+  width: 200px;
+  position:absolute;
+  color:white;
+  border-radius:4px;
+  opacity:0;
+  background-color:blue;
+  -webkit-transition: opacity 0.5s;
+  -moz-transition: opacity 0.5s;
+  -ms-transition: opacity 0.5s;
+  -o-transition: opacity 0.5s;
+  transition: opacity 0.5s;
+}
+
+.mouseover:hover .chapterTitle { 
+  opacity:1;
+}
