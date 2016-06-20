@@ -19,6 +19,8 @@ dashboard.progress=Fortschritt
 dashboard.options=Optionen
 dashboard.areyousure=Sind Sie sicher dass sie sich aus dem Kurs abmelden wollen? Ihre Fortschritte gehen verloren
 
+overview.title=Übersicht
+
 coursestat.title=Kursinformationen
 coursestat.username=Username
 coursestat.id=Id
@@ -27,12 +29,13 @@ coursestat.solution=Lösung
 coursestat.areyousure=Sind Sie sicher dass sie den Benutzer aus dem Kurs entfernen möchten?
 
 tmenu.title=Startseite
-tmenu.dashboard=Übersicht
+tmenu.overview=Übersicht
 tmenu.courses=Kurse
 tmenu.users=Benutzer
 
 tcourses.addgithub=Github Kurs hinzufügen
 tcourses.addfolder=Kurs Dateien hochladen
+tcourses.trycourses=Kurse ausprobieren
 tcourses.id=Id
 tcourses.title=Kurstitel
 tcourses.options=Optionen

@@ -19,6 +19,8 @@ dashboard.progress=Progress
 dashboard.options=Options
 dashboard.areyousure=Are you sure you want to unsubscribe this course? All your progress will be lost.
 
+overview.title=Overview
+
 coursestat.title=Course infos
 coursestat.username=Username
 coursestat.id=Id
@@ -27,12 +29,13 @@ coursestat.solution=solution
 coursestat.areyousure=Are you shure you want to unsubscribe the user from this course?
 
 tmenu.title=Home
-tmenu.dashboard=Dashboard
+tmenu.overview=Overview
 tmenu.courses=Courses
 tmenu.users=Users
 
 tcourses.addgithub=add github course
 tcourses.addfolder=add course from files
+tcourses.trycourses=try courses
 tcourses.id=Id
 tcourses.title=Course Title
 tcourses.options=Options

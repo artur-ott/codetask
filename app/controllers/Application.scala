@@ -28,19 +28,28 @@ class Application extends Controller with Secured {
   }
 
   def dashboard() = withUser { user => implicit request =>
+    var info: List[(Long, String, Int)] = List()
+    user.subscriptions.foreach { courseId =>
+      val solutions = user.chapterSolutions.filter(_.courseId == courseId)
+      courseService.findOneById(courseId) match {
+        case Some(c) => info = (c.id, c.title, progressOf(c, solutions)) :: info
+        case None =>
+      }
+    }
+    if (user.authority == "teacher" || user.authority == "admin") {
+      val courses = courseService.findAll()
+      Ok(views.html.teacherTryCourses(info))
+    } else {
+      Ok(views.html.dashboard(info))
+    }
+  }
+
+  def overview() = withUser { user => implicit request =>
     if (user.authority == "teacher" || user.authority == "admin") {
       val courses = courseService.findAll()
       Ok(views.html.teacherDashboard2(courses))
     } else {
-      var info: List[(Long, String, Int)] = List()
-      user.subscriptions.foreach { courseId =>
-        val solutions = user.chapterSolutions.filter(_.courseId == courseId)
-        courseService.findOneById(courseId) match {
-          case Some(c) => info = (c.id, c.title, progressOf(c, solutions)) :: info
-          case None =>
-        }
-      }
-      Ok(views.html.dashboard(info))
+      Unauthorized("not authorized")
     }
   }
   
@@ -58,7 +67,11 @@ class Application extends Controller with Secured {
   def course(courseId: Long) = withUser { user => implicit request =>
     val course = courseService.findOneById(courseId)
     if (user.subscriptions.contains(courseId) && !course.isEmpty)
-      Ok(views.html.course(course.get.id, course.get.title))
+      if (user.authority == "teacher" || user.authority == "admin") {
+        Ok(views.html.teacherTryCourse(course.get.id, course.get.title))
+      } else {
+        Ok(views.html.course(course.get.id, course.get.title))
+      }
     else
       Redirect(routes.Application.dashboard)
   }

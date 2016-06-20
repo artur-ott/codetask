@@ -6,6 +6,7 @@
 GET     /                               controllers.Application.index
 GET     /home                           controllers.Application.menu
 GET     /dashboard                      controllers.Application.dashboard
+GET     /overview                       controllers.Application.overview
 GET     /courses                        controllers.Application.courses
 GET     /course/:courseId               controllers.Application.course(courseId: Long)
 GET     /users                          controllers.Application.users

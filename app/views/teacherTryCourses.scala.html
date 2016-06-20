@@ -1,0 +1,63 @@
+@(courses: List[(Long, String, Int)])(implicit messages: MessagesApi, lang: Lang)
+
+@extra = {
+  <script src="@routes.Assets.versioned("bower_components/webcomponentsjs/webcomponents-lite.min.js")" type="text/javascript"></script>
+  <link rel="import" href="@routes.Assets.versioned("bower_components/course-list/course-list.html")">
+  <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/dashboard.css")">
+}
+
+@main(messages("dashboard.title"), extra) {
+  @navigation(List((messages("tmenu.title"), "/home"), (messages("tmenu.courses"), "/courses"), (messages("dashboard.title"), "")), messages("nav.logout"))
+  
+  <div class="col-xs-12 col-sm-3 sidebar-offcanvas" id="sidebar" role="navigation">
+    <course-list> @messages("dashboard.addcourse")</course-list>
+  </div>
+  <div class="col-xs-12 col-sm-9" id="content">
+    <table class="table">
+        <tr>
+          <th>@messages("dashboard.coursetitle")</th>
+          <th>@messages("dashboard.progress")</th>
+          <th>@messages("dashboard.options")</th>
+        </tr>
+        @for(course <- courses zip (0 until courses.size)) {
+          <tr>
+            <td>@course._1._2</td>
+            <td>
+              <div class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="@course._1._3" aria-valuemin="0" aria-valuemax="100" style="width: @course._1._3%;">
+                  @course._1._3%
+                </div>
+              </div>
+            </td>
+            <td>
+              <a href="/course/@course._1._1" type="button" class="btn btn-default" aria-label="Pencil">
+                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+              </a>
+              <button type="button" class="btn btn-default" aria-label="Pencil" data-toggle="modal" data-target="#modal@course._2">
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+              </button>
+            </td>
+          </tr>
+
+          <!-- modal -->
+          <div class="modal fade" id="modal@course._2" tabindex="-1" role="dialog" aria-labelledby="removeModal@course._2">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="removeModal@course._2">@messages("modal.confirm")</h4>
+                </div>
+                <div class="modal-body">
+                  @messages("dashboard.areyousure")
+                </div>
+                <div class="modal-footer">
+                  <a href="/operation/unsubscribe/@course._1._1" type="button" class="btn btn-default">@messages("modal.yes")</a>
+                  <button type="button" class="btn btn-primary" data-dismiss="modal">@messages("modal.no")</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </table>
+  </div>
+}

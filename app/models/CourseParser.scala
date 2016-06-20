@@ -66,8 +66,8 @@ object CourseParser {
         // parse all contents of .scala files to chapters
         var i = 0
         chapters = for (cs <- chapterStrings) yield {
+          i += 1
           val c = parseChapter(cs._1, cs._2, i)
-          i = i + 1
           (c._1, c._2)
         }
 
@@ -425,7 +425,7 @@ class Parser(s: String) {
 
     val tmpRank = rank match {
       case Some(r) => r
-      case None => 0
+      case None => id.toInt
     }
 
     play.Logger.info(tmpTitle + ", " + tmpRank)
