@@ -130,6 +130,14 @@ class Application extends Controller with Secured {
     } else {
       courseService.findOneById(courseId) match {
         case Some(course) =>
+          // delete solutions of course from users
+          userService.findAll().foreach { u =>
+            if (u.subscriptions.contains(courseId)) {
+              u.subscriptions = u.subscriptions.filter(_ != courseId)
+              u.chapterSolutions = u.chapterSolutions.filter(_.courseId != courseId)
+              userService.update(u)
+            }
+          }
           courseService.delete(course)
           Redirect(routes.Application.courses)
         case None => NotFound("course does not exists")

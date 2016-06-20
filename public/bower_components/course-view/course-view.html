@@ -71,7 +71,7 @@
 
   <script>
     Polymer({
-      is: "course-view",
+      is: 'course-view',
       properties: {
         courseId: Number
       },
@@ -129,8 +129,8 @@
 
       initialize: function(course, solutions) {
         var this_ = this;
-        var confirmationMessage = 'Ihre Eingaben haben sich geändert.'
-                + 'Wollen Sie die Seite ohne Speichern verlassen?';
+        var confirmationMessage = 'Your Entrys have changed.'
+                + ' Do you want to leave without saving?';
 
         // get url parameters
         var chapterParam = this.getUrlParameter('chapter');
@@ -152,6 +152,11 @@
         // build link for each chapter
         course.chapters.forEach(function(chapter, index) {
 
+          // solution to chapter
+          var solution = this_.loaded_.solutions.find(function(solution) {
+            return solution.chapterId == chapter.id;
+          });
+
           // link
           var li = $('<li></li>')
             .addClass('list-group-item')
@@ -160,9 +165,9 @@
             .html(chapter.title)
             .click(function() {
               // solution to chapter
-              var solution = this_.loaded_.solutions.find(function(solution) {
-                return solution.chapterId == chapter.id;
-              });
+              //var solution = this_.loaded_.solutions.find(function(solution) {
+              //  return solution.chapterId == chapter.id;
+              //});
 
               var dirty = this_.isDirty();
               if (dirty && !window.confirm(confirmationMessage || dirty)) {
@@ -177,7 +182,7 @@
 
               // load new chapter
               this_.loadChapter(course.id, chapter, solution);
-              $("html, body").animate({ scrollTop: 0 }, "slow");
+              $('html, body').animate({ scrollTop: 0 }, 'slow');
             });
 
           // solved tasks
@@ -283,7 +288,7 @@
           },
           error: function(xhr, status, y) {
             console.log('could not save state');
-            alert('Daten konnten nicht gespeichert werden');
+            alert('Could not save.');
           }
         });
       },

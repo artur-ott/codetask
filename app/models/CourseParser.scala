@@ -78,13 +78,15 @@ object CourseParser {
     }
 
     def parseFromFiles(files: Array[java.io.File], title: String): Course = {
+      var i = 0
       val chapters = files.map { file =>
         val s = scala.io.Source.fromFile(file).getLines mkString "\n"
-        parseChapter(s, "none", -1)
+        i += 1
+        parseChapter(s, "Chapter " + i, i)
       }
 
       val sortedChapters = chapters.sortWith(_._2 < _._2)
-      val onlyChapters = chapters.map(_._1).toList
+      val onlyChapters = sortedChapters.map(_._1).toList
       Course(-1, title, onlyChapters, None)
     }
 
