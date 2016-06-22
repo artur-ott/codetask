@@ -130,7 +130,7 @@ class Parser(s: String) {
   val koan = """koan\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.+)\")(\s*\)\s*\{)""".r
   val codetask = """codetask\s*\(\s*(\"\"\"([\s\S]*?)\"\"\"|\"(.*)\")(\s*\)\s*\{)""".r
 
-  val info = """CodeTaskSuite\s*\(\s*\"(.*)\"\s*,\s*([1-9]*)\)""".r
+  val info = """CodeTaskSuite\s*\(\s*\"(.*)\"\s*,\s*([0-9]*)\)""".r
 
   // regex, solution group nummer, replacement function
   val assertList = List[(Regex, Int, Match => String)](
