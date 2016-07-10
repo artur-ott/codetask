@@ -16,11 +16,21 @@
             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/codetaskdb" />
             <property name="javax.persistence.jdbc.user" value="root" />
-            <property name="javax.persistence.jdbc.password" value="$1amn_$2pwrt" />
+            <property name="javax.persistence.jdbc.password" value="" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
-            <!--<property name="hibernate.show_sql" value="true" />  
+            <!--<property name="hibernate.show_sql" value="true" />
             <property name="hibernate.format_sql" value="true" />-->
             <property name="hibernate.hbm2ddl.auto" value="update"/>
+
+            <property name="hibernate.connection.provider_class" value="org.hibernate.connection.C3P0ConnectionProvider" />
+            <property name="hibernate.c3p0.acquire_increment" value="2" />
+            <property name="hibernate.c3p0.idle_test_period" value="300" />
+            <property name="hibernate.c3p0.timeout" value="1800" />
+            <property name="hibernate.c3p0.max_size" value="25" />
+            <property name="hibernate.c3p0.min_size" value="3" />
+            <property name="hibernate.c3p0.max_statement" value="0" />
+            <property name="hibernate.c3p0.preferredTestQuery" value="select 1;" />
+            <property name="hibernate.c3p0.validate" value="true" />
         </properties>
     </persistence-unit>
 
